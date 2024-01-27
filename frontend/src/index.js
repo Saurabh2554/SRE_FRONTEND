@@ -1,13 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { ApolloProvider } from "@apollo/client";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const client = new ApolloClient({
+  uri: "http://127.0.0.1:8000/graphql/", // Replace with your GraphQL endpoint
+  cache: new InMemoryCache(),
+});
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <ApolloProvider client={client}>
+      <App />
+    </ApolloProvider>
   </React.StrictMode>
 );
 
