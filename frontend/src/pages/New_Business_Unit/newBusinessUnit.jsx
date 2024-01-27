@@ -6,9 +6,8 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { useQuery } from "@apollo/client";
-import { gql } from "graphql-tag";
 import { useMutation } from "@apollo/client";
+import { CREATE_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
 
 const center = {
   position: "relative",
@@ -25,73 +24,31 @@ const boxstyle = {
   height: "70%",
 };
 
-const GET_DATA = gql`
-  query {
-    allBusinessUnit {
-      businessUnitDl
-      businessUnitName
-      businessUnitDescription
-    }
-  }
-`;
-const CREATE_BUSINESS_UNIT = gql`
-  mutation CreateBusinessUnit(
-    $businessUnitName: String!
-    $businessUnitDesc: String!
-    $businessUnitDL: String!
-    $createdBy: String!
-  ) {
-    createBusinessUnit(
-      businessUnitName: $businessUnitName
-      businessUnitDesc: $businessUnitDesc
-      businessUnitDL: $businessUnitDL
-      createdBy: $createdBy
-    )
-    businessUnitName
-    businessUnitDesc
-    businessUnitDL
-    createdBy
-  }
-`;
-
 export default function NewBusinessUnit() {
   const [businessUnitName, setbusinessUnitName] = useState("");
-  const [businessUnitDesc, setbusinessUnitDesc] = useState("");
-  const [businessUnitDL, setbusinessUnitDL] = useState("");
-  const createdBy = "owner";
+  const [businessUnitDescription, setbusinessUnitDescription] = useState("");
+  const [businessUnitDl, setbusinessUnitDl] = useState("");
 
-  const { loading, error, data } = useQuery(GET_DATA);
-  //console.log(data, error, loading);
-
-  const [createBusinessUnit] = useMutation(CREATE_BUSINESS_UNIT, {
-    refetchQueries: [{ query: GET_DATA }],
-  });
+  const [createBusinessUnit,{ data, loading, error }] = useMutation(CREATE_BUSINESS_UNIT);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
-    console.log(
-      "Submitting with variables:",
-      businessUnitName,
-      businessUnitDesc,
-      businessUnitDL
-    );
-
     try {
-      const { data } = await createBusinessUnit({
+      const data2  = createBusinessUnit({
         variables: {
           businessUnitName,
-          businessUnitDesc,
-          businessUnitDL,
-          createdBy,
-        },
-        //refetchQueries: [{ query: GET_DATA }],
+          businessUnitDescription,
+          businessUnitDl,
+          createdBy:"rjnsaurabh143@gmail.com"
+        }
+       
       });
-      console.log("Business unit created:", data.createBusinessUnit);
+      console.log("Business unit created:", data);
       setbusinessUnitName("");
-      setbusinessUnitDesc("");
-      setbusinessUnitDL("");
+      setbusinessUnitDescription("");
+      setbusinessUnitDl("");
     } catch (error) {
       console.error("Error creating business unit:", error.message);
     }
@@ -129,8 +86,8 @@ export default function NewBusinessUnit() {
                   label="Business Description"
                   name="Business Description"
                   type="text"
-                  value={businessUnitDesc}
-                  onChange={(e) => setbusinessUnitDesc(e.target.value)}
+                  value={businessUnitDescription}
+                  onChange={(e) => setbusinessUnitDescription(e.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -141,8 +98,8 @@ export default function NewBusinessUnit() {
                   label="Business Unit DL"
                   name="Business Unit DL"
                   type="text"
-                  value={businessUnitDL}
-                  onChange={(e) => setbusinessUnitDL(e.target.value)}
+                  value={businessUnitDl}
+                  onChange={(e) => setbusinessUnitDl(e.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>

@@ -7,7 +7,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
 import { useQuery } from "@apollo/client";
-import { gql } from "graphql-tag";
+
 
 const center = {
   position: "relative",
@@ -24,23 +24,15 @@ const boxstyle = {
   height: "70%",
 };
 
-const GET_DATA = gql`
-  query {
-    allBusinessUnit {
-      businessUnitName
-      id
-    }
-  }
-  
-`;
+
 
 export default function NewSubBusinessUnit() {
-  const { loading, error, data } = useQuery(GET_DATA);
-  console.log(data);
-  const businessUnits = data?.allBusinessUnit;
+  // const { loading, error, data } = useQuery(GET_DATA);
+  // console.log(data);
+  const businessUnits = [];
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  // if (loading) return <p>Loading...</p>;
+  // if (error) return <p>Error: {error.message}</p>;
   const handleSubmit = () => {};
   return (
     <>
