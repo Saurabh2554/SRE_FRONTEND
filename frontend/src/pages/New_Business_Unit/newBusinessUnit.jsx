@@ -8,6 +8,8 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { useMutation } from "@apollo/client";
 import { CREATE_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const center = {
   position: "relative",
@@ -30,22 +32,26 @@ export default function NewBusinessUnit() {
   const [businessUnitDl, setbusinessUnitDl] = useState("");
 
   const [createBusinessUnit,{ data, loading, error }] = useMutation(CREATE_BUSINESS_UNIT);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
+  const STATIC_CREATED_BY = "static_email@example.com";
 
-  const handleSubmit =  (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const data2  = createBusinessUnit({
+      const { data } =  createBusinessUnit({
         variables: {
           businessUnitName,
           businessUnitDescription,
           businessUnitDl,
-          createdBy:"rjnsaurabh143@gmail.com"
-        }
-       
+          createdBy: STATIC_CREATED_BY,
+        },
       });
       console.log("Business unit created:", data);
+      setOpenSnackbar(true);
+
       setbusinessUnitName("");
       setbusinessUnitDescription("");
       setbusinessUnitDl("");
@@ -53,6 +59,14 @@ export default function NewBusinessUnit() {
       console.error("Error creating business unit:", error.message);
     }
   };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+  
   return (
     <>
       <MuiNavbar />
@@ -133,6 +147,11 @@ export default function NewBusinessUnit() {
           </form>
         </Container>
       </Box>
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Business unit successfully created!
+        </Alert>
+      </Snackbar>
     </>
   );
 }

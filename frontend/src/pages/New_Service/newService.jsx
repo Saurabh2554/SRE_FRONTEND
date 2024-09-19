@@ -1,206 +1,466 @@
+import React, { useState ,useEffect} from 'react';
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import MenuItem from "@mui/material/MenuItem";
-import { useQuery } from "@apollo/client";
-import { gql } from "graphql-tag";
 
-const center = {
-  position: "relative",
-  top: "50%",
-  left: "16%",
-  marginBottom: "5%",
-};
-const boxstyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "40%",
-  height: "70%",
-};
+import { Box, Grid, TextField, Button, MenuItem, Typography, Paper, IconButton, AppBar, Tabs, Tab } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
+import SaveIcon from '@mui/icons-material/Save';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import TabPanel from '@mui/lab/TabPanel';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
 
-// const GET_DATA = gql`
-//   query {
-//     getData {
-//       // your query fields here
-//     }
-//   }
-// `;
 
-const demoBusinessUnit = [
-  {
-    value: "Experience",
-    label: "Experience",
-  },
-  {
-    value: "Option 2",
-    label: "Option 2",
-  },
-  {
-    value: "Option 3",
-    label: "Option 3",
-  },
-];
+import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
+import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE} from "../../graphql/query/query"; 
+import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
+
+// const methods = [
+//   { value: 'GET', label: 'GET' },
+//   { value: 'POST', label: 'POST' },
+// ];
+
+
 
 export default function NewService() {
-  const handleSubmit = () => {};
-  // const { loading, error, data } = useQuery(GET_DATA);
+  const [method, setMethod] = useState('');
+  const [url, setUrl] = useState('');
+  const [start, setStart] = useState('');
+  const [pageSize, setPageSize] = useState('');
+  const [headerFields, setHeaderFields] = useState([{ key: '', value: '' }]); // For dynamic headers
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [body, setBody] = useState('');
+  const [tabValue, setTabValue] = useState('1');
+  const [businessUnit, setBusinessUnit] = useState("");
+  const [subBusinessUnit, setSubBusinessUnit] = useState("");
+  const [serviceName, setServiceName] = useState('');
+  const [responseTime, setResponseTime] = useState('');
+  const [frequencyTime, setFrequencyTime] = useState('');
+  const [recipientDL, setRecipientDL] = useState('');
+  const [labelName,setLabelName] = useState('Body');
+  const [authorizationType, setAuthorizationType] = useState('');
 
-  // if (loading) return <p>Loading...</p>;
-  // if (error) return <p>Error: {error.message}</p>;
-  return (
-    <>
-      <MuiNavbar />
-      <Box sx={boxstyle}>
-        <Container>
-          <Box height={35} />
-          <Box sx={center}>
-            <Typography component="h1" variant="h4" fontFamily={"Lato"}>
-              Monitor New Service
-            </Typography>
-          </Box>
-          <form onSubmit={handleSubmit} autoComplete="off">
+
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
+  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
+  const { data: methodData, loading: methodLoading, error: methodError } = useQuery(GET_API_TYPE);
+  const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
+  const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR);
+
+  const handleBusinessUnitChange = (e) => {
+    const selectedBusinessUnit = e.target.value;
+    setBusinessUnit(selectedBusinessUnit);
+    console.log("Before Update label",businessUnit);
+    
+    fetchSubBusinessUnits({
+      variables: {
+        id: selectedBusinessUnit,
+      },
+    });
+  };
+
+  const handleSubBusinessUnitChange = (e) => {
+    setSubBusinessUnit(e.target.value);
+  };
+  // Handle dynamic header fields
+  const handleAddHeaderField = () => {
+    setHeaderFields([...headerFields, { key: '', value: '' }]);
+  };
+
+  const handleRemoveHeaderField = (index) => {
+    setHeaderFields(headerFields.filter((_, i) => i !== index));
+  };
+
+  const handleSend = async () => {
+    try {
+      const result = await createApiMonitor({
+        variables: {
+          input: {
+            businessUnit,
+            subBusinessUnit,
+            apiName: serviceName,
+            apiType: method,
+            apiUrl: url,
+            apiCallInterval: parseInt(frequencyTime, 10),
+            expectedResponseTime: parseInt(responseTime, 10), 
+            expectedStatusCode: 200, 
+            headers: JSON.stringify(headerFields),
+           // graphqlQuery: body,
+            recipientDl: recipientDL,
+            createdBy: 'user', 
+          },
+        },
+      });
+      console.log('Mutation result:', result.data);
+      setBusinessUnit('');
+    setSubBusinessUnit('');
+    setServiceName('');
+    setMethod('');
+    setUrl('');
+    setHeaderFields([{ key: '', value: '' }]);
+    setResponseTime('');
+    setFrequencyTime('');
+    setRecipientDL('');
+    setBody('');
+    setAuthorizationType('');
+    setUsername('');
+    setPassword('');
+    setTabValue('1'); 
+    } catch (error) {
+      console.error('Error creating API monitor:', error);
+    }
+  };
+
+
+  const handleSave = () => {
+    console.log('Save configuration');
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  useEffect(() => {
+    if (method) {
+      setLabelName(method === 'GraphQL API' ? 'Query' : 'Body');
+      
+
+    }
+  }, [method]);
+
+ 
+
+  if (businessUnitsLoading) return <p>Loading Business Units...</p>;
+  if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
+  if (methodLoading) return <p>Loading methods...</p>;
+  if (methodError) return <p>Error loading methods: {methodError.message}</p>;
+  if (authTypeChoicesLoading) return <p>Loading...</p>;
+  if (authTypeChoicesError) return <p>Error loading data</p>;  
+
+  return (<><MuiNavbar />
+    <Box sx={{ padding: '30px', backgroundColor: '#f4f4f4', height: '100vh', marginTop: '70px' }}>
+      <Paper elevation={3} sx={{ padding: '20px' }}>
+        <Grid container spacing={2} alignItems="center">
+
+            <Grid item xs={12} md={4}>
+              <TextField
+                select
+                required
+                fullWidth
+                label="Business Unit"
+                value={businessUnit}
+                onChange={handleBusinessUnitChange}
+                variant="outlined"
+              >
+                {businessUnitsData.allBusinessUnit.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.id}>
+                      {unit.businessUnitName}
+                    </MenuItem>
+                  ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                select
+                required
+                fullWidth
+                label="Sub Business Unit"
+                value={subBusinessUnit}
+                onChange={handleSubBusinessUnitChange}
+                variant="outlined"
+                disabled={!subBusinessUnitData || subBusinessUnitLoading}
+              >
+                {subBusinessUnitData && subBusinessUnitData.subBusinessUnitPerBusinessUnit.map((subUnit) => (
+                <MenuItem key={subUnit.id} value={subUnit.id}>
+                  {subUnit.subBusinessUnitName}
+                </MenuItem>
+                  ))}
+              </TextField>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                required
+                fullWidth
+                label="Service Name"
+                value={serviceName}
+                onChange={(e) => setServiceName(e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+
+          <Grid item xs={12} md={2}>
+            <TextField
+              select
+              required
+              fullWidth
+              label="Method"
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              variant="outlined"
+            >
+             {methodData.apiTypeChoices.map((option) => (
+                <MenuItem key={option.key} value={option.value}>
+                  {option.value}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="URL"
+              variant="outlined"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12} md={2}>
+            <Button
+              variant="contained"
+              fullWidth
+              color="primary"
+              startIcon={<SendIcon />}
+              onClick={handleSend}
+            >
+              Send
+            </Button>
+          </Grid>
+          <Grid item xs={12} md={2}>
+            <Button
+              variant="contained"
+              fullWidth
+              color="secondary"
+              startIcon={<SaveIcon />}
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </Grid>
+        </Grid>
+
+
+        {/* Navbar for Headers, Authorization, and Body */}
+        <TabContext value={tabValue}>
+          <AppBar position="static" sx={{ marginTop: '20px',backgroundColor: '#FFFFFF' }} elevation={0}>
+            <TabList onChange={handleTabChange}>
+              <Tab label="Headers" value="1" />
+              <Tab label="Authorization" value="2" />
+              <Tab label={labelName} value="3" />
+            </TabList>
+          </AppBar>
+
+          {/* Headers Tab */}
+          <TabPanel value="1">
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  select
-                  required
-                  fullWidth
-                  id="business_unit_"
-                  label="Business Unit"
-                  name="Business Unit"
-                  type="text"
-                  defaultValue="Experience"
-                >
-                  {demoBusinessUnit.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  select
-                  required
-                  fullWidth
-                  id="sub_business_unit_"
-                  label="Sub Business Unit"
-                  name="Sub Business Unit"
-                  type="text"
-                  defaultValue="Experience"
-                >
-                  {demoBusinessUnit.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="service_name"
-                  label="Service Name"
-                  name="Service Name"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="url"
-                  label="URL"
-                  name="URL"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  select
-                  required
-                  fullWidth
-                  id="header"
-                  label="Header"
-                  name="Header"
-                  type="text"
-                  defaultValue="Experience"
-                >
-                  {demoBusinessUnit.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="payload"
-                  label="Payload"
-                  name="Payload"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="response_time"
-                  label="Response Time (in ms)"
-                  name="Response Time (in ms)"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="frequency_time"
-                  label="Frequency Time "
-                  name="Frequency Time "
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="recipient_dl"
-                  label="Recipient DL "
-                  name="Recipient DL "
-                  type="text"
-                />
-              </Grid>
+              
+
+              {/* Dynamic Header Fields */}
+              {headerFields.map((field, index) => (
+                <Grid container item spacing={2} key={index}>
+                  <Grid item xs={5}>
+                    <TextField
+                      fullWidth
+                      label="Key"
+                      variant="outlined"
+                      value={field.key}
+                      onChange={(e) => {
+                        const newFields = [...headerFields];
+                        newFields[index].key = e.target.value;
+                        setHeaderFields(newFields);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={5}>
+                    <TextField
+                      fullWidth
+                      label="Value"
+                      variant="outlined"
+                      value={field.value}
+                      onChange={(e) => {
+                        const newFields = [...headerFields];
+                        newFields[index].value = e.target.value;
+                        setHeaderFields(newFields);
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <IconButton onClick={() => handleRemoveHeaderField(index)}>
+                      <DeleteIcon color="error" />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              ))}
 
               <Grid item xs={12}>
                 <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  type="submit"
-                  sx={{
-                    borderRadius: 28,
-                    color: "#ffffff",
-                    backgroundColor: "#3B3B3D",
-                    fontFamily: "Lato",
-                  }}
+                  startIcon={<AddCircleIcon />}
+                  onClick={handleAddHeaderField}
+                  sx={{ marginTop: '10px' }}
                 >
-                  Create
+                  Add Header
                 </Button>
               </Grid>
             </Grid>
-          </form>
-        </Container>
-      </Box>
-    </>
+          </TabPanel>
+
+          {/* Authorization Tab */}
+          <TabPanel value="2">
+          {authTypeChoicesLoading ? (
+                <p>Loading Authorization Types...</p>
+              ) : authTypeChoicesError ? (
+                <p>Error loading Authorization Types: {authTypeChoicesError.message}</p>
+              ) : (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={7} mb={3}>
+                    <TextField
+                      select
+                      fullWidth
+                      label="Authorization Type"
+                      value={authorizationType}
+                      onChange={(e)=>setAuthorizationType(e.target.value)}
+                      variant="outlined"
+                    >
+                      {authTypeChoicesData.authTypeChoices.map((choice) => (
+                        <MenuItem key={choice.key} value={choice.value}>
+                          {choice.value}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  {(authorizationType === 'Basic Authentication'|| authorizationType==='API Key'||authorizationType ==='Bearer Token (OAuth)' ) && (
+                    <>
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label={authorizationType === 'Basic Authentication' ? (authorizationType === 'Bearer Token (OAuth)' ? 'Token' : 'Username' ) : (authorizationType === 'Bearer Token (OAuth)' ? 'Token' : 'Key' ) }
+                          variant="outlined"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                        />
+                      </Grid>
+                      {(authorizationType === 'Basic Authentication'|| authorizationType==='API Key' ) && (
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label={authorizationType === 'Basic Authentication' ? 'Password' : 'Value'}
+                          variant="outlined"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </Grid>)}
+                    </>
+                  )}
+
+                  {authorizationType === 'Custom Authentication'&& (
+                    <Grid container spacing={2}>
+              
+
+                    {/* Dynamic Header Fields */}
+                    {headerFields.map((field, index) => (
+                      <Grid container item spacing={2} key={index}>
+                        <Grid item xs={5}>
+                          <TextField
+                            fullWidth
+                            label="Key"
+                            variant="outlined"
+                            value={field.key}
+                            onChange={(e) => {
+                              const newFields = [...headerFields];
+                              newFields[index].key = e.target.value;
+                              setHeaderFields(newFields);
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={5}>
+                          <TextField
+                            fullWidth
+                            label="Value"
+                            variant="outlined"
+                            value={field.value}
+                            onChange={(e) => {
+                              const newFields = [...headerFields];
+                              newFields[index].value = e.target.value;
+                              setHeaderFields(newFields);
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <IconButton onClick={() => handleRemoveHeaderField(index)}>
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
+      
+                    <Grid item xs={12}>
+                      <Button
+                        startIcon={<AddCircleIcon />}
+                        onClick={handleAddHeaderField}
+                        sx={{ marginTop: '10px' }}
+                      >
+                        Add Rows
+                      </Button>
+                    </Grid>
+                  </Grid>
+                  )}
+
+                  
+                </Grid>
+                
+              )}
+
+           
+          </TabPanel>
+
+          {/* Body Tab */}
+          <TabPanel value="3">
+            <TextField
+              fullWidth
+              label={labelName}
+              variant="outlined"
+              multiline
+              rows={6}
+              value={body}
+              placeholder={method === 'GraphQL API' ? 'Write Your Query Here' : 'Input Body'}
+              onChange={(e) => setBody(e.target.value)}
+            />
+          </TabPanel>
+        </TabContext>
+
+
+        {/* Response Time, Frequency Time, and Recipient DL Fields */}
+        <Grid container spacing={2} sx={{ marginTop: '20px' }}>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Response Time (in ms)"
+                value={responseTime}
+                onChange={(e) => setResponseTime(e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Frequency Time"
+                value={frequencyTime}
+                onChange={(e) => setFrequencyTime(e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Recipient DL"
+                value={recipientDL}
+                onChange={(e) => setRecipientDL(e.target.value)}
+                variant="outlined"
+              />
+            </Grid>
+          </Grid>
+      </Paper>
+    </Box></>
   );
 }

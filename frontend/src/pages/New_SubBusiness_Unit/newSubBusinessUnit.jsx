@@ -6,7 +6,13 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
-import { useQuery } from "@apollo/client";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@apollo/client";
+import { CREATE_SUB_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
+import { GET_ALL_BUSINESS_UNIT } from "../../graphql/query/query";  // Import the query
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+
 
 
 const center = {
@@ -24,16 +30,53 @@ const boxstyle = {
   height: "70%",
 };
 
-
-
 export default function NewSubBusinessUnit() {
-  // const { loading, error, data } = useQuery(GET_DATA);
-  // console.log(data);
-  const businessUnits = [];
+  const [businessUnit, setBusinessUnit] = useState("");
+  const [subBusinessUnitName, setSubBusinessUnitName] = useState("");
+  const [subBusinessUnitDl, setSubBusinessUnitDl] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [subBusinessUnitDescription, setSubBusinessUnitDescription] = useState("");
 
-  // if (loading) return <p>Loading...</p>;
-  // if (error) return <p>Error: {error.message}</p>;
-  const handleSubmit = () => {};
+
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
+  const [createSubBusinessUnit, { loading, error }] = useMutation(CREATE_SUB_BUSINESS_UNIT);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  if (businessUnitsLoading) return <p>Loading Business Units...</p>;
+  if (businessUnitsError) return <p>Error: {businessUnitsError.message}</p>;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await createSubBusinessUnit({
+        variables: {
+          businessUnit,
+          subBusinessUnitName,
+          subBusinessUnitDescription,
+          subBusinessUnitDl,
+          createdBy: "static_email@example.com", // Replace with current user
+        },
+      });
+      console.log("Sub-business unit created:", data);
+
+      setOpenSnackbar(true);
+      setBusinessUnit("");
+      setSubBusinessUnitName("");
+      setSubBusinessUnitDescription("");
+
+      setSubBusinessUnitDl("");
+    } catch (error) {
+      console.error("Error creating sub-business unit:", error.message);
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") return;
+    setOpenSnackbar(false);
+  };
+
   return (
     <>
       <MuiNavbar />
@@ -52,13 +95,14 @@ export default function NewSubBusinessUnit() {
                   select
                   required
                   fullWidth
-                  id="business_unit_"
+                  id="business_unit"
                   label="Business Unit"
                   name="Business Unit"
-                  type="text"
+                  value={businessUnit}
+                  onChange={(e) => setBusinessUnit(e.target.value)}
                 >
-                  {businessUnits.map((unit) => (
-                    <MenuItem key={unit.id} value={unit.businessUnitName}>
+                  {businessUnitsData.allBusinessUnit.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.id}>
                       {unit.businessUnitName}
                     </MenuItem>
                   ))}
@@ -68,20 +112,36 @@ export default function NewSubBusinessUnit() {
                 <TextField
                   required
                   fullWidth
-                  id="name"
-                  label="Name"
-                  name="Name"
+                  id="sub_business_unit_name"
+                  label="Sub-Business Unit Name"
+                  name="Sub-Business Unit Name"
                   type="text"
+                  value={subBusinessUnitName}
+                  onChange={(e) => setSubBusinessUnitName(e.target.value)}
                 />
               </Grid>
+              <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="sub_business_unit_description"
+                    label="Sub-Business Unit Description"
+                    name="Sub-Business Unit Description"
+                    type="text"
+                    value={subBusinessUnitDescription}
+                    onChange={(e) => setSubBusinessUnitDescription(e.target.value)}
+                  />
+                </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
                   id="sub_business_unit_dl"
-                  label="Sub Business Unit DL"
-                  name="Sub Business Unit DL"
+                  label="Sub-Business Unit DL"
+                  name="Sub-Business Unit DL"
                   type="text"
+                  value={subBusinessUnitDl}
+                  onChange={(e) => setSubBusinessUnitDl(e.target.value)}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -89,9 +149,10 @@ export default function NewSubBusinessUnit() {
                   disabled
                   fullWidth
                   id="created_by"
-                  label="Owner" //Here current user will appear
+                  label="Owner"
                   name="Created By"
                   type="text"
+                  value="static_email@example.com" // Replace with current user
                 />
               </Grid>
 
@@ -115,6 +176,12 @@ export default function NewSubBusinessUnit() {
           </form>
         </Container>
       </Box>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          Sub-business unit successfully created!
+        </Alert>
+      </Snackbar>
     </>
   );
 }
