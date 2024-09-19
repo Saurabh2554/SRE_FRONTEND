@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import HomeIcon from "@mui/icons-material/Home";
 import EmailIcon from "@mui/icons-material/Email";
+import dataAxleLogo from "../../Resources/dataaxlelogo.png";
+
 export const MuiNavbar = () => {
   //   const handleLogout = () => {
   //     localStorage.removeItem("email");
@@ -27,11 +29,17 @@ export const MuiNavbar = () => {
           borderColor: "#C5C5C5",
         }}
       >
+        <Link to="/" style={{ textDecoration: "none" }}>
         <Toolbar>
           <Link to="/" style={{ textDecoration: "none" }}>
-            {/* <img src={logo} alt="logo" height="70px"></img> */}Data Axle
+          <img
+              src={dataAxleLogo}
+              alt="Data Axle Logo"
+              style={{ height: "50px" }} // Adjust the height as needed
+            />
           </Link>
         </Toolbar>
+        </Link>
 
         <div style={{ marginTop: "-15px" }}>
           <>
@@ -60,7 +68,7 @@ export const MuiNavbar = () => {
                   marginLeft: "15px",
                 }}
               >
-                Add Product
+                Add Sub-Business Unit
               </Link>
             </Tooltip>
             <Tooltip title="Monitor a new service" cursor="pointer">
@@ -91,6 +99,7 @@ export const MuiNavbar = () => {
                 Dashboard
               </Link>
             </Tooltip>
+            
             <Tooltip title="Connect with US" cursor="pointer">
               <Link
                 to="/"

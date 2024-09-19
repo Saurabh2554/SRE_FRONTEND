@@ -4,10 +4,48 @@ export const GET_ALL_BUSINESS_UNIT = gql`
   query {
     allBusinessUnit {
       id
-      businessUnitDl
       businessUnitName
-      businessUnitDescription
     }
   }
 `;
+
+export const GET_ALL_SUB_BUSINESS_UNIT = gql`
+  query {
+    allSubBusinessUnit {
+      id
+      subBusinessUnitName
+    }
+  }
+`;
+
+export const GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT = gql`
+  query GetSubBusinessUnitPerBusinessUnit($id: UUID!) {
+    subBusinessUnitPerBusinessUnit(id: $id) {
+      id
+      subBusinessUnitName
+    }
+  }
+`;
+
+export const GET_API_TYPE = gql`
+  query{
+    apiTypeChoices {
+    key
+    value
+  }
+  }
+`;
+
+export const GET_AUTH_VALUE = gql`
+  query{
+    authTypeChoices {
+    key
+    value
+  }
+  }
+`;
+
+
+
+
 
