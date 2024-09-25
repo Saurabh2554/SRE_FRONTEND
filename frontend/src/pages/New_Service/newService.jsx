@@ -1,5 +1,6 @@
 import React, { useState ,useEffect} from 'react';
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
+import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 
 import { Box, Grid, TextField, Button, MenuItem, Typography, Paper, IconButton, AppBar, Tabs, Tab } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -9,10 +10,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TabPanel from '@mui/lab/TabPanel';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
-
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
-import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE} from "../../graphql/query/query"; 
+import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE, VALIDATE_API} from "../../graphql/query/query"; 
 import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
 
 // const methods = [
@@ -40,13 +43,18 @@ export default function NewService() {
   const [recipientDL, setRecipientDL] = useState('');
   const [labelName,setLabelName] = useState('Body');
   const [authorizationType, setAuthorizationType] = useState('');
-
+  const [isButtonEnabled, setButtonEnabled] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [apiresponse, setApiresonse] = useState({});
 
   const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
   const { data: methodData, loading: methodLoading, error: methodError } = useQuery(GET_API_TYPE);
   const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
   const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR);
+  const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API);
 
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
@@ -113,8 +121,78 @@ export default function NewService() {
   };
 
 
-  const handleSave = () => {
-    console.log('Save configuration');
+  const handleSave = async () => {
+    if(!method || !url){
+      console.log("Enter a valid API url");
+    }
+    else{
+      const type = method.split(' ');
+
+      if(type[0] === "REST"){
+        const result = await validateApi({
+          variables: {
+            apiURL: url,
+            apiType: type[0]
+          }
+        });
+        
+        setApiresonse(result.data);
+      }
+      else{
+        if(!body){
+          console.log("Valid query is required");
+        }
+        else{
+          console.log(JSON.stringify(body));
+          console.log(url);
+          const result = await validateApi({
+            variables:{
+              apiURL: url,
+              apiType: type[0],
+              query: body
+            }
+          });
+          setApiresonse(result.data);
+          console.log(result);
+        }
+      }
+    }
+    if(apierror){
+      console.log("api not valid");
+      setOpenSnackbar(true);
+      setSnackbarMessage("Invalid API URL!");
+      setSnackbarSeverity("error");
+    }
+  };
+  useEffect(() => {
+    if(apiresponse && apiresponse.validateApi){
+      const statuscode = apiresponse?.validateApi?.status;
+      console.log("response received");
+      console.log(apiresponse);
+      console.log(statuscode);
+      if(statuscode>= 200 && statuscode<300){
+        console.log("statuscode received");
+        setButtonEnabled(true);
+        setOpenSnackbar(true);
+        setSnackbarMessage("API validated successfully!");
+        setSnackbarSeverity("success");
+      }
+    }
+  },[apiresponse]);
+
+  useEffect(() => {
+    if(!url){
+      setButtonEnabled(false);
+      setOpenSnackbar(false);
+      setApiresonse({});
+    }
+  },[url]);
+  
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -122,6 +200,7 @@ export default function NewService() {
   };
 
   useEffect(() => {
+    setBody('');
     if (method) {
       setLabelName(method === 'GraphQL API' ? 'Query' : 'Body');
       
@@ -194,7 +273,7 @@ export default function NewService() {
               select
               required
               fullWidth
-              label="Method"
+              label="API Type"
               value={method}
               onChange={(e) => setMethod(e.target.value)}
               variant="outlined"
@@ -213,6 +292,7 @@ export default function NewService() {
               variant="outlined"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              required
             />
           </Grid>
           <Grid item xs={12} md={2}>
@@ -222,6 +302,7 @@ export default function NewService() {
               color="primary"
               startIcon={<SendIcon />}
               onClick={handleSend}
+              disabled= {!isButtonEnabled}
             >
               Send
             </Button>
@@ -230,11 +311,11 @@ export default function NewService() {
             <Button
               variant="contained"
               fullWidth
-              color="secondary"
-              startIcon={<SaveIcon />}
+              color={isButtonEnabled? "success": "secondary"}
+              startIcon={<CheckCircleOutlineIcon />}
               onClick={handleSave}
             >
-              Save
+              {isButtonEnabled ? "Validated" : "Validate"}
             </Button>
           </Grid>
         </Grid>
@@ -461,6 +542,13 @@ export default function NewService() {
             </Grid>
           </Grid>
       </Paper>
-    </Box></>
+    </Box>
+    {/* <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          API validated successfully!!
+        </Alert>
+    </Snackbar> */}
+    <ReusableSnackbar open={openSnackbar} message={snackbarMessage} severity={snackbarSeverity} handleClose={handleCloseSnackbar} />
+    </>
   );
 }

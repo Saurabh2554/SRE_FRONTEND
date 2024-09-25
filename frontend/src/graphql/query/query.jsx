@@ -46,6 +46,13 @@ export const GET_AUTH_VALUE = gql`
 `;
 
 
-
+export const VALIDATE_API = gql`
+  query validateApi($apiURL: String!, $apiType: String!, $query: String){
+    validateApi(apiUrl: $apiURL, apiType: $apiType, query: $query){
+      responseTime
+      status
+    }
+  }
+`;
 
 
