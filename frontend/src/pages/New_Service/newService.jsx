@@ -92,7 +92,7 @@ export default function NewService() {
             apiUrl: url,
             apiCallInterval: parseInt(frequencyTime, 10),
             expectedResponseTime: parseInt(responseTime, 10), 
-            expectedStatusCode: 200, 
+            //expectedStatusCode: 200, 
             headers: JSON.stringify(headerFields),
            // graphqlQuery: body,
             recipientDl: recipientDL,
