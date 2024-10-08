@@ -49,8 +49,21 @@ export const GET_AUTH_VALUE = gql`
 export const VALIDATE_API = gql`
   query validateApi($apiURL: String!, $apiType: String!, $query: String){
     validateApi(apiUrl: $apiURL, apiType: $apiType, query: $query){
-      responseTime
       status
+      success
+    }
+  }
+`;
+
+export const GET_ALL_METRICS = gql`
+  query GetAllMetrics($businessUnit: UUID, $subBusinessUnit: UUID) {
+    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit) {
+      id
+      apiName
+      apiType
+      apiUrl
+      expectedResponseTime
+      availability_uptime
     }
   }
 `;

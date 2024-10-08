@@ -82,6 +82,9 @@ export default function NewService() {
 
   const handleSend = async () => {
     try {
+      //const set_APi_type =method === "REST API" ? "REST" : "GraphQL";
+      //setMethod(set_APi_type);
+      console.log(method);
       const result = await createApiMonitor({
         variables: {
           input: {
@@ -92,7 +95,7 @@ export default function NewService() {
             apiUrl: url,
             apiCallInterval: parseInt(frequencyTime, 10),
             expectedResponseTime: parseInt(responseTime, 10), 
-            expectedStatusCode: 200, 
+            //expectedStatusCode: 200, 
             headers: JSON.stringify(headerFields),
            // graphqlQuery: body,
             recipientDl: recipientDL,
@@ -279,7 +282,7 @@ export default function NewService() {
               variant="outlined"
             >
              {methodData.apiTypeChoices.map((option) => (
-                <MenuItem key={option.key} value={option.value}>
+                <MenuItem key={option.key} value={option.key}>
                   {option.value}
                 </MenuItem>
               ))}

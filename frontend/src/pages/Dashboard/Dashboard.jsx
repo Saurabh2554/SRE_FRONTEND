@@ -1,9 +1,14 @@
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
+import {ApiListWithPagination} from "../../common/components/MuiGrid/ApiListWithPagination";
+import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
+import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
+
 import React, { useState,useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto"; // Import the necessary Chart.js components
 import ChartComponent from "./ChartComponent";
 
+import {  TablePagination } from '@mui/material';
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -13,9 +18,13 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { useQuery, gql } from '@apollo/client';
+
+
+
+import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
 import { red } from "@mui/material/colors";
+import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,GET_ALL_METRICS } from "../../graphql/query/query"; 
+
 // import dayjs from "dayjs";
 // import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 // import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -41,183 +50,107 @@ const boxstyle = {
   height: "70%",
 };
 
-const demoBusinessUnit = [
-  {
-    value: "Experience",
-    label: "Experience",
-  },
-  {
-    value: "Option 2",
-    label: "Option 2",
-  },
-  {
-    value: "Option 3",
-    label: "Option 3",
-  },
-];
-
-const GET_MODELS = gql`
-  query myQuery {allBusinessUnit {
-    id
-    businessUnitDescription
-    businessUnitDl
-    businessUnitName
-    createdBy
-}}
-`;
 
 export default function Dashboard() {
   const [url, setUrl] = useState("");
+  const [searchText,setSearchText]=useState("");
   const [responseDetails, setResponseDetails] = useState([]);
-  const [error, setError] = useState(null);
-  const { loading, data } = useQuery(GET_MODELS);
-  console.log("this is graphQL",data);
-  useEffect(() => {
-    if (url) {
-      const interval = setInterval(() => {
-        fetchApiData();
-      }, 60000); // Run every 1 minute
+  //const [error, setError] = useState(null);
+  const [metrics, setMetrics] = useState([]);
 
-      return () => clearInterval(interval); // Clear interval on component unmount
-    }
-  }, [url]);
+  
+  const [businessUnit, setBusinessUnit] = useState("");
+  const [subBusinessUnit, setSubBusinessUnit] = useState("");
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
+  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
+  const [fetchMetrics, { data: metricsData }] = useLazyQuery(GET_ALL_METRICS);
 
-  const fetchApiData = async () => {
-    const startTime = performance.now(); // Start time measurement
-
-    try {
-      const res = await fetch(url);
-
-      const endTime = performance.now(); // End time measurement
-      const responseTime = (endTime - startTime).toFixed(2); // Calculate response time in milliseconds
-
-      setResponseDetails((prevDetails) => [
-        ...prevDetails,
-        {
-          timestamp: new Date().toLocaleTimeString(),
-          responseTime: responseTime,
-          statusCode: res.status,
-        },
-      ]);
-
-      setError(null);
-    } catch (err) {
-      const endTime = performance.now(); // End time measurement in case of an error
-      const responseTime = (endTime - startTime).toFixed(2);
-
-      setResponseDetails((prevDetails) => [
-        ...prevDetails,
-        {
-          timestamp: new Date().toLocaleTimeString(),
-          responseTime: responseTime,
-          statusCode: "Error",
-        },
-      ]);
-
-      setError({
-        message: "Failed to fetch data from the URL",
-        responseTime: responseTime,
-        details: err.toString(),
-      });
-    }
+ 
+  const handleBusinessUnitChange = (e) => {
+    const selectedBusinessUnit = e.target.value;
+    setBusinessUnit(selectedBusinessUnit);
+    console.log("Before Update label",businessUnit);
+    
+    fetchSubBusinessUnits({
+      variables: {
+        id: selectedBusinessUnit,
+      },
+    });
   };
+
+  const handleSubBusinessUnitChange = (e) => {
+    const selectedSubBusinessUnit = e.target.value;
+    setSubBusinessUnit(selectedSubBusinessUnit);
+    // Fetch metrics when a sub-business unit is selected
+    fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
+  };
+
+  const handleSearch =(e)=>{
+    setSearchText(e.target.value);
+  }
+
+  useEffect(() => {
+    if (metricsData) {
+      setMetrics(metricsData.getAllMetrices);
+    }
+  }, [metricsData]);
+  
+  
+
+
+  if (businessUnitsLoading) return <p>Loading Business Units...</p>;
+  if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
+  
 
   
 
-  // const getdetails=(e)=>{
-  //   const { loading, error, data } = useQuery(GET_MODELS);
-  //   console.log(data);
-  // }
+  
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    fetchApiData();
-  };
+ 
 
   
    return (
     <>
       <MuiNavbar />
       <Box sx={boxstyle}>
-        <form onSubmit={handleSubmit} autoComplete="off">
           <Grid container spacing={2}>
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
-              <Typography
-                component="h1"
-                variant="h5"
-                fontFamily={"Lato"}
-                marginRight={2}
-              >
-                Business Unit
-              </Typography>
-              <TextField
+            <TextField
                 select
                 required
-                id="business_unit_"
-                name="Business Unit"
-                type="text"
-                defaultValue="Experience"
-                size="small"
+                fullWidth
+                label="Business Unit"
+                value={businessUnit}
+                onChange={handleBusinessUnitChange}
+                variant="outlined"
               >
-                {demoBusinessUnit.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
+                {businessUnitsData.allBusinessUnit.map((unit) => (
+                    <MenuItem key={unit.id} value={unit.id}>
+                      {unit.businessUnitName}
+                    </MenuItem>
+                  ))}
               </TextField>
             </Grid>
 
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
-              <Typography
-                component="h1"
-                variant="h5"
-                fontFamily={"Lato"}
-                marginRight={2}
-              >
-                Product
-              </Typography>
-              <TextField
+            <TextField
                 select
                 required
-                id="business_unit_"
-                name="Business Unit"
-                type="text"
-                defaultValue="Experience"
-                size="small"
+                fullWidth
+                label="Sub Business Unit"
+                value={subBusinessUnit}
+                onChange={handleSubBusinessUnitChange}
+                variant="outlined"
+                disabled={!subBusinessUnitData || subBusinessUnitLoading}
               >
-                {demoBusinessUnit.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
+                {subBusinessUnitData && subBusinessUnitData.subBusinessUnitPerBusinessUnit.map((subUnit) => (
+                <MenuItem key={subUnit.id} value={subUnit.id}>
+                  {subUnit.subBusinessUnitName}
+                </MenuItem>
+                  ))}
               </TextField>
             </Grid>
 
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
-              <Typography
-                component="h1"
-                variant="h5"
-                fontFamily={"Lato"}
-                marginRight={2}
-              >
-                Service Name
-              </Typography>
-              <TextField
-                select
-                required
-                id="business_unit_"
-                name="Business Unit"
-                type="text"
-                defaultValue="Experience"
-                size="small"
-              >
-                {demoBusinessUnit.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
 
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
               <Typography
@@ -242,12 +175,54 @@ export default function Dashboard() {
 
              
             </Grid>
+
+            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
+            <TextField
+                fullWidth
+                label="Search API"
+                //value={subBusinessUnit}
+                onChange={handleSearch}
+                variant="outlined"
+                
+              >
+                
+              </TextField>
+            </Grid>
+            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
+            <Button variant="outlined">Search</Button>
+            </Grid>
+            {/* <Grid item xs={12}>
+            <Typography variant="h6">APIs</Typography>
+            {metrics.length === 0 ? (
+              <p>No APIs found.</p>
+            ) : (
+              <ul>
+                {metrics.map((api) => (
+                  <li key={api.id}>{api.apiName} - {api.apiUrl}</li> // Display the desired fields
+                ))}
+              </ul>
+            )}
+          </Grid> */}
+          <Grid item xs={12}>
+          {businessUnit && subBusinessUnit ? (
+              <ApiDataGrid metrics={metrics} />
+            ) : (
+              <Box display="flex" justifyContent="center" alignItems="center" height="400px">
+                <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7 }} />
+              </Box>
+            )}
+          {/* <ApiDataGrid metrics={metrics} />  */}
+        </Grid>
+          {/* <Grid item xs={12}>
+          <ApiListWithPagination metrics={metrics} /> 
+        </Grid> */}
+            
             
             
 
             
           </Grid>
-        </form>
+        
         
         
       </Box>
