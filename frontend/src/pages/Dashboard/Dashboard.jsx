@@ -1,9 +1,14 @@
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
+import {ApiListWithPagination} from "../../common/components/MuiGrid/ApiListWithPagination";
+import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
+import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
+
 import React, { useState,useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto"; // Import the necessary Chart.js components
 import ChartComponent from "./ChartComponent";
 
+import {  TablePagination } from '@mui/material';
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -18,7 +23,7 @@ import MenuItem from "@mui/material/MenuItem";
 
 import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
 import { red } from "@mui/material/colors";
-import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT } from "../../graphql/query/query"; 
+import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,GET_ALL_METRICS } from "../../graphql/query/query"; 
 
 // import dayjs from "dayjs";
 // import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -50,13 +55,17 @@ export default function Dashboard() {
   const [url, setUrl] = useState("");
   const [searchText,setSearchText]=useState("");
   const [responseDetails, setResponseDetails] = useState([]);
-  const [error, setError] = useState(null);
+  //const [error, setError] = useState(null);
+  const [metrics, setMetrics] = useState([]);
+
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
   const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
-  
+  const [fetchMetrics, { data: metricsData }] = useLazyQuery(GET_ALL_METRICS);
+
+ 
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
@@ -70,12 +79,24 @@ export default function Dashboard() {
   };
 
   const handleSubBusinessUnitChange = (e) => {
-    setSubBusinessUnit(e.target.value);
+    const selectedSubBusinessUnit = e.target.value;
+    setSubBusinessUnit(selectedSubBusinessUnit);
+    // Fetch metrics when a sub-business unit is selected
+    fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
   };
 
   const handleSearch =(e)=>{
     setSearchText(e.target.value);
   }
+
+  useEffect(() => {
+    if (metricsData) {
+      setMetrics(metricsData.getAllMetrices);
+    }
+  }, [metricsData]);
+  
+  
+
 
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
@@ -170,6 +191,31 @@ export default function Dashboard() {
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
             <Button variant="outlined">Search</Button>
             </Grid>
+            {/* <Grid item xs={12}>
+            <Typography variant="h6">APIs</Typography>
+            {metrics.length === 0 ? (
+              <p>No APIs found.</p>
+            ) : (
+              <ul>
+                {metrics.map((api) => (
+                  <li key={api.id}>{api.apiName} - {api.apiUrl}</li> // Display the desired fields
+                ))}
+              </ul>
+            )}
+          </Grid> */}
+          <Grid item xs={12}>
+          {businessUnit && subBusinessUnit ? (
+              <ApiDataGrid metrics={metrics} />
+            ) : (
+              <Box display="flex" justifyContent="center" alignItems="center" height="400px">
+                <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7 }} />
+              </Box>
+            )}
+          {/* <ApiDataGrid metrics={metrics} />  */}
+        </Grid>
+          {/* <Grid item xs={12}>
+          <ApiListWithPagination metrics={metrics} /> 
+        </Grid> */}
             
             
             
