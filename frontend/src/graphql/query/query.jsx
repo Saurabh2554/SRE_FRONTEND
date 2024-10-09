@@ -55,15 +55,34 @@ export const VALIDATE_API = gql`
   }
 `;
 
+// export const GET_ALL_METRICS = gql`
+//   query GetAllMetrics($businessUnit: UUID, $subBusinessUnit: UUID) {
+//     getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit) {
+//       id
+//       apiName
+//       apiType
+//       apiUrl
+//       expectedResponseTime
+//       availability_uptime
+//     }
+//   }
+// `;
+
+
 export const GET_ALL_METRICS = gql`
-  query GetAllMetrics($businessUnit: UUID, $subBusinessUnit: UUID) {
-    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit) {
+  query GetAllMetrics($businessUnit: UUID!, $subBusinessUnit: UUID!, $fromDate: DateTime, $toDate: DateTime) {
+    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate) {
       id
       apiName
       apiType
       apiUrl
       expectedResponseTime
       availability_uptime
+      success_rates
+      error_rates
+      throughput
+      avg_latency
+      downtime
     }
   }
 `;

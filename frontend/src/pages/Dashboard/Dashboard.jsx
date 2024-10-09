@@ -58,7 +58,7 @@ export default function Dashboard() {
   const [responseDetails, setResponseDetails] = useState([]);
   //const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState([]);
-
+  const [dateRange, setDateRange] = useState([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
@@ -83,12 +83,32 @@ export default function Dashboard() {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
     // Fetch metrics when a sub-business unit is selected
-    fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
+    //fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
+    console.log(dateRange[0].toISOString());
+      console.log(dateRange[1].toISOString());
+
+    if (dateRange[0] && dateRange[1]) {
+      
+      fetchMetrics({
+        variables: {
+          businessUnit,
+          subBusinessUnit: selectedSubBusinessUnit,
+          fromDate: dateRange[0].toISOString(),
+          toDate: dateRange[1].toISOString(),   
+        },
+      });
+    }
   };
 
   const handleSearch =(e)=>{
     setSearchText(e.target.value);
   }
+
+  const handleDateChange = (newDateRange) => {
+    setDateRange(newDateRange);
+    console.log('Selected Date Range:', newDateRange);
+    // Perform any additional actions, like fetching data based on the date range
+  };
 
   useEffect(() => {
     if (metricsData) {
@@ -154,7 +174,7 @@ export default function Dashboard() {
 
 
             <Grid item xs={6} sx={{ display: "flex", alignItems: "stretch" }}>
-            <DateRangePickerComponent />
+            <DateRangePickerComponent onDateChange={handleDateChange} />
           </Grid>
 
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
