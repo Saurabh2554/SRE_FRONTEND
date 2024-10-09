@@ -4,6 +4,7 @@ import { DateRangePicker } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from "dayjs";
+import { debounce } from 'lodash';
 
 export const DateRangePickerComponent = ({ onDateChange }) => {
     const today = dayjs();
@@ -11,10 +12,17 @@ export const DateRangePickerComponent = ({ onDateChange }) => {
 
   // State for the date range
   const [dateRange, setDateRange] = useState([oneWeekAgo, today]);
+
+  const debouncedOnDateChange = debounce((newDateRange) => {
+    onDateChange(newDateRange);
+  }, 300);
+
   useEffect(() => {
-    // Notify parent component of the selected date range
-    onDateChange(dateRange);
-  }, [dateRange, onDateChange]);
+    if (dateRange[0] && dateRange[1]) {
+      console.log('Selected Date Range:', dateRange);
+      debouncedOnDateChange(dateRange);
+    }
+  }, [dateRange]);
 
   return (
     <Box display="flex" flexDirection="column" alignItems="center">

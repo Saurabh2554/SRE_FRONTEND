@@ -65,11 +65,11 @@ export default function Dashboard() {
   const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
   const [fetchMetrics, { data: metricsData }] = useLazyQuery(GET_ALL_METRICS);
-
  
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
+    setMetrics([]);
     console.log("Before Update label",businessUnit);
     
     fetchSubBusinessUnits({
@@ -108,6 +108,16 @@ export default function Dashboard() {
     setDateRange(newDateRange);
     console.log('Selected Date Range:', newDateRange);
     // Perform any additional actions, like fetching data based on the date range
+    if (businessUnit && subBusinessUnit && newDateRange[0] && newDateRange[1]) {
+      fetchMetrics({
+        variables: {
+          businessUnit,
+          subBusinessUnit,
+          fromDate: newDateRange[0].toISOString(),
+          toDate: newDateRange[1].toISOString(),
+        },
+      });
+    }
   };
 
   useEffect(() => {
