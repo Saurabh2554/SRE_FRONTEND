@@ -2,13 +2,14 @@ import { MuiNavbar } from "../../common/components/Navbar/navbar";
 import {ApiListWithPagination} from "../../common/components/MuiGrid/ApiListWithPagination";
 import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
 import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
-
+import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
 import React, { useState,useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto"; // Import the necessary Chart.js components
 import ChartComponent from "./ChartComponent";
 
 import {  TablePagination } from '@mui/material';
+import { Grid2 } from '@mui/material';
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -114,7 +115,7 @@ export default function Dashboard() {
       <MuiNavbar />
       <Box sx={boxstyle}>
           <Grid container spacing={2}>
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
+            <Grid item xs={3} sx={{ display: "flex", alignItems: "stretch" }}>
             <TextField
                 select
                 required
@@ -132,7 +133,7 @@ export default function Dashboard() {
               </TextField>
             </Grid>
 
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
+            <Grid item xs={3} sx={{ display: "flex", alignItems: "stretch" }}>
             <TextField
                 select
                 required
@@ -152,29 +153,9 @@ export default function Dashboard() {
             </Grid>
 
 
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
-              <Typography
-                component="h1"
-                variant="h5"
-                fontFamily={"Lato"}
-                marginRight={5.5}
-              >
-                Select date 
-              </Typography>
-              <Typography
-                component="h5"
-                variant="subtitle2"
-                marginRight={5.5}
-                marginTop={1}
-                fontFamily={"Lato"}
-                color={'secondary'}
-              >
-                DD/MM/YYYY
-              </Typography>
-              
-
-             
-            </Grid>
+            <Grid item xs={6} sx={{ display: "flex", alignItems: "stretch" }}>
+            <DateRangePickerComponent />
+          </Grid>
 
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
             <TextField
