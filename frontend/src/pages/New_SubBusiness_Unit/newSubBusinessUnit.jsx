@@ -6,7 +6,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_SUB_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
 import { GET_ALL_BUSINESS_UNIT } from "../../graphql/query/query";  // Import the query

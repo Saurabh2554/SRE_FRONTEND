@@ -8,10 +8,11 @@ import { debounce } from 'lodash';
 
 export const DateRangePickerComponent = ({ onDateChange }) => {
     const today = dayjs();
+    const endDate = today.add(1,'day');
   const oneWeekAgo = today.subtract(7, 'day');
 
   // State for the date range
-  const [dateRange, setDateRange] = useState([oneWeekAgo, today]);
+  const [dateRange, setDateRange] = useState([oneWeekAgo, endDate]);
 
   const debouncedOnDateChange = debounce((newDateRange) => {
     onDateChange(newDateRange);

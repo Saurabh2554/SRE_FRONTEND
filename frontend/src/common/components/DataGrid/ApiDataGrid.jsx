@@ -9,8 +9,10 @@ export const ApiDataGrid = ({ metrics }) => {
     { field: 'apiName', headerName: 'API Name', width: 200 },
     { field: 'apiUrl', headerName: 'API URL', width: 250 },
     { field: 'apiType', headerName: 'API Type', width: 100 },
-    { field: 'expectedResponseTime', headerName: 'Expected Response Time (ms)', width: 200 },
+    //{ field: 'expectedResponseTime', headerName: 'Expected Response Time (ms)', width: 200 },
     { field: 'availability_uptime', headerName: 'Availability (%)', width: 200 },
+    { field: 'success_rates', headerName: 'Success(%)', width: 200 },
+    { field: '', headerName: 'Avg Response Time', width: 200 }
   ];
 
   return (
