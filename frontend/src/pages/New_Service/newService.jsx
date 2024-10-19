@@ -31,6 +31,7 @@ export default function NewService() {
   const [start, setStart] = useState('');
   const [pageSize, setPageSize] = useState('');
   const [headerFields, setHeaderFields] = useState([{ key: '', value: '' }]); // For dynamic headers
+  const [authInput, setAuthInput] = useState({ username: '', password: '' });
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [body, setBody] = useState('');
@@ -80,11 +81,65 @@ export default function NewService() {
     setHeaderFields(headerFields.filter((_, i) => i !== index));
   };
 
+  // const updateHeaderfields = () => {
+  //   if( username && password){
+  //     setHeaderFields((prevFields) => [...prevFields, {key: username, value: password},]);
+  //   }
+  // };
+  
+  const handleAuthChange = (e) => {
+    const { name, value } = e.target;
+    setAuthInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const addHeaderFields = () => {
+    let authValue = '';
+    let authorizationObj ={};
+    if(authorizationType === 'API Key'){
+      authValue = `ApiKey ${authInput.username}`;
+    }
+    else if( authorizationType === 'Bearer Token (OAuth)'){
+      authValue = `Bearer ${authInput.username}`;
+    }
+    else if(authorizationType === 'Basic Authentication' ){
+      if(authInput.username && authInput.password){
+        const encodedCredentials = btoa(`${authInput.username}:${authInput.password}`);
+        authValue = `Basic ${encodedCredentials}`;
+      }
+    }
+    
+    if(authValue != ''){
+      authorizationObj = { Authorization : authValue};
+
+      setHeaderFields((prevFields) => {
+        const existingIndex = prevFields.findIndex(
+          (field) => field.Authorization
+        );
+        if(existingIndex !== -1){
+          const updatedFields = [...prevFields];
+          updatedFields[existingIndex] = authorizationObj;
+          return updatedFields;
+        }
+        else{
+          return [...prevFields, authorizationObj];
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    setAuthInput({ username: '', password: '' });
+  }, [authorizationType]);
+
   const handleSend = async () => {
     try {
       //const set_APi_type =method === "REST API" ? "REST" : "GraphQL";
       //setMethod(set_APi_type);
       console.log(method);
+      console.log(headerFields);
       const result = await createApiMonitor({
         variables: {
           input: {
@@ -118,6 +173,7 @@ export default function NewService() {
     setUsername('');
     setPassword('');
     setTabValue('1'); 
+    setAuthInput({ username: '', password: '' });
     } catch (error) {
       console.error('Error creating API monitor:', error);
     }
@@ -135,7 +191,7 @@ export default function NewService() {
         const result = await validateApi({
           variables: {
             apiURL: url,
-            apiType: type[0]
+            apiType: 'REST'
           }
         });
         
@@ -151,7 +207,7 @@ export default function NewService() {
           const result = await validateApi({
             variables:{
               apiURL: url,
-              apiType: type[0],
+              apiType: 'GraphQL',
               query: body
             }
           });
@@ -419,78 +475,27 @@ export default function NewService() {
                           fullWidth
                           label={authorizationType === 'Basic Authentication' ? (authorizationType === 'Bearer Token (OAuth)' ? 'Token' : 'Username' ) : (authorizationType === 'Bearer Token (OAuth)' ? 'Token' : 'Key' ) }
                           variant="outlined"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
+                          name='username'
+                          value={authInput.username}
+                          onChange={handleAuthChange}
+                          onBlur = {addHeaderFields}
                         />
                       </Grid>
-                      {(authorizationType === 'Basic Authentication'|| authorizationType==='API Key' ) && (
+                      {(authorizationType === 'Basic Authentication') && (
                       <Grid item xs={12} md={6}>
                         <TextField
                           fullWidth
                           label={authorizationType === 'Basic Authentication' ? 'Password' : 'Value'}
                           variant="outlined"
                           type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
+                          name='password'
+                          value={authInput.password}
+                          onChange={handleAuthChange}
+                          onBlur = {addHeaderFields}
                         />
                       </Grid>)}
                     </>
                   )}
-
-                  {authorizationType === 'Custom Authentication'&& (
-                    <Grid container spacing={2}>
-              
-
-                    {/* Dynamic Header Fields */}
-                    {headerFields.map((field, index) => (
-                      <Grid container item spacing={2} key={index}>
-                        <Grid item xs={5}>
-                          <TextField
-                            fullWidth
-                            label="Key"
-                            variant="outlined"
-                            value={field.key}
-                            onChange={(e) => {
-                              const newFields = [...headerFields];
-                              newFields[index].key = e.target.value;
-                              setHeaderFields(newFields);
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={5}>
-                          <TextField
-                            fullWidth
-                            label="Value"
-                            variant="outlined"
-                            value={field.value}
-                            onChange={(e) => {
-                              const newFields = [...headerFields];
-                              newFields[index].value = e.target.value;
-                              setHeaderFields(newFields);
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={2}>
-                          <IconButton onClick={() => handleRemoveHeaderField(index)}>
-                            <DeleteIcon color="error" />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
-                    ))}
-      
-                    <Grid item xs={12}>
-                      <Button
-                        startIcon={<AddCircleIcon />}
-                        onClick={handleAddHeaderField}
-                        sx={{ marginTop: '10px' }}
-                      >
-                        Add Rows
-                      </Button>
-                    </Grid>
-                  </Grid>
-                  )}
-
-                  
                 </Grid>
                 
               )}
@@ -528,7 +533,7 @@ export default function NewService() {
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                label="Frequency Time"
+                label="Call Interval (in min)"
                 value={frequencyTime}
                 onChange={(e) => setFrequencyTime(e.target.value)}
                 variant="outlined"
