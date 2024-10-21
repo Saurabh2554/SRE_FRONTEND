@@ -64,7 +64,9 @@ export default function Dashboard() {
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
   const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
-  const [fetchMetrics, { data: metricsData }] = useLazyQuery(GET_ALL_METRICS);
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery(GET_ALL_METRICS,{
+    errorPolicy: "all", 
+  });
  
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
@@ -100,9 +102,19 @@ export default function Dashboard() {
     }
   };
 
-  const handleSearch =(e)=>{
-    setSearchText(e.target.value);
-  }
+  const handleSearch = () => {
+    if (businessUnit && subBusinessUnit && dateRange[0] && dateRange[1]) {
+      fetchMetrics({
+        variables: {
+          businessUnit,
+          subBusinessUnit,
+          fromDate: dateRange[0].toISOString(),
+          toDate: dateRange[1].toISOString(),
+          searchParam: searchText || null, 
+        },
+      });
+    }
+  };
 
   const handleDateChange = (newDateRange) => {
     setDateRange(newDateRange);
@@ -117,10 +129,12 @@ export default function Dashboard() {
           toDate: newDateRange[1].toISOString(),
         },
       });
+      console.log("AB200",metricsData.getAllMetrices);
     }
   };
 
   useEffect(() => {
+    console.log(metricsData);
     if (metricsData) {
       setMetrics(metricsData.getAllMetrices);
     }
@@ -131,7 +145,7 @@ export default function Dashboard() {
 
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
-  
+  console.log("Metrics Error :",metricsDataError);
 
   
 
@@ -192,7 +206,7 @@ export default function Dashboard() {
                 fullWidth
                 label="Search API"
                 //value={subBusinessUnit}
-                onChange={handleSearch}
+                onChange={(e) => setSearchText(e.target.value)}
                 variant="outlined"
                 
               >
@@ -200,7 +214,7 @@ export default function Dashboard() {
               </TextField>
             </Grid>
             <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
-            <Button variant="outlined">Search</Button>
+            <Button variant="outlined" onClick={handleSearch}>Search</Button>
             </Grid>
             {/* <Grid item xs={12}>
             <Typography variant="h6">APIs</Typography>
@@ -216,7 +230,7 @@ export default function Dashboard() {
           </Grid> */}
           <Grid item xs={12}>
           {businessUnit && subBusinessUnit ? (
-              <ApiDataGrid metrics={metrics} />
+              <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError.message : null} />
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="400px">
                 <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7 }} />

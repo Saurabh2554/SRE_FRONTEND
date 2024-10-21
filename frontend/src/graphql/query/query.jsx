@@ -70,19 +70,38 @@ export const VALIDATE_API = gql`
 
 
 export const GET_ALL_METRICS = gql`
-  query GetAllMetrics($businessUnit: UUID!, $subBusinessUnit: UUID!, $fromDate: DateTime, $toDate: DateTime) {
-    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate) {
+  query GetAllMetrics($businessUnit: UUID!, $subBusinessUnit: UUID!, $fromDate: DateTime, $toDate: DateTime ,$searchParam: String) {
+    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate,searchParam: $searchParam) {
       id
       apiName
       apiType
       apiUrl
-      expectedResponseTime
       availability_uptime
       success_rates
-      error_rates
-      throughput
       avg_latency
-      downtime
+      isApiActive
+      
+    }
+  }
+`;
+
+export const GET_METRICES_BY_ID = gql`
+  query GetAllMetrics($apiMonitoringId: UUID!) {
+    getAllMetrices(apiMonitoringId: $apiMonitoringId) {
+      apiName
+      apiType
+      apiUrl
+      avg_response_size
+      avg_latency
+      isApiActive
+      success_count
+      error_count
+      success_rates
+      error_rates
+      response_time {
+        responsetime
+        timestamp
+      }
     }
   }
 `;
