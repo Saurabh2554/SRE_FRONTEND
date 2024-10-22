@@ -10,6 +10,8 @@ import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
 import { useLocation } from 'react-router-dom';
 import { GET_METRICES_BY_ID } from "../../graphql/query/query"; 
 import { useQuery } from '@apollo/client';
+import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
+
 
 
 
@@ -38,16 +40,17 @@ export default function ApiDetailsPage() {
     p95: 240,
   });
 
-  
+  const handleDateChange = (newDateRange) => {}
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading data: {error.message}</p>;
-  const { apiName, apiUrl, apiType, avg_response_size, avg_latency,availability_uptime, response_time ,success_rates,error_rates,error_count,percentile_50,percentile_90,percentile_99} = data?.getAllMetrices[0] || {};
+  const { apiName, apiUrl, apiType, avg_response_size, avg_latency,availability_uptime, response_time ,success_rates,error_rates,error_count,percentile_50,percentile_90,percentile_99,expectedResponseTime} = data?.getAllMetrices[0] || {};
   console.log("Ayush",apiName, apiUrl, apiType, avg_response_size, avg_latency, response_time);
 
-  const responseTimes = response_time.map(({ responsetime, timestamp }) => ({
+  const responseTimes = response_time.map(({ responsetime, timestamp,success }) => ({
     responsetime,
     timestamp,
+    success
   }));
 
   return (<>
@@ -75,7 +78,7 @@ export default function ApiDetailsPage() {
     
   </Grid>
   {/* Alerts */}
-  <Grid item xs={12} md={3}>
+  <Grid item xs={12} md={2}>
     <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} >ALERTS</Typography>
     <Grid item xs={12} md={12}>
         <Typography variant="caption">Failures</Typography>
@@ -114,7 +117,7 @@ export default function ApiDetailsPage() {
       <Grid item xs={12} md={12} style={{ marginTop:"30px" }}>
       <Typography variant="h6" sx={{ fontWeight: 'bold' }} >PERFORMANCE</Typography>
       
-            <ResponseTimeChart responseTimes={responseTimes} />
+            <ResponseTimeChart responseTimes={responseTimes} expectedResponseTime={expectedResponseTime}/>
       </Grid>
       
       
@@ -129,12 +132,13 @@ export default function ApiDetailsPage() {
    </Grid> */}
 </Grid>
 
-<Grid item xs={12} md={3}> 
-<Paper elevation={3} style={{marginLeft:"10px" ,marginTop:"20px",padding: '20px' ,height: '100%' }}>    
+<Grid item xs={12} md={3} style={{marginTop:"70px"}}> 
+            <DateRangePickerComponent onDateChange={handleDateChange} /> 
+              
             <SuccessFailurePieChart success_rates={success_rates} error_rates={error_rates} />
             <Typography variant="caption" sx={{ fontWeight: 'bold', marginTop:"100px",fontSize:'15px'}} >Notifications</Typography>
 
-            </Paper>
+           
 
   </Grid>
 </Grid>

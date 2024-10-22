@@ -97,11 +97,13 @@ export const GET_METRICES_BY_ID = gql`
       success_count
       availability_uptime
       error_count
+      expectedResponseTime
       success_rates
       error_rates
       response_time {
         responsetime
         timestamp
+        success
       }
       percentile_50 {
       currPercentileResTime
