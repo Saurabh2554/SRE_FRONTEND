@@ -95,6 +95,7 @@ export const GET_METRICES_BY_ID = gql`
       avg_latency
       isApiActive
       success_count
+      availability_uptime
       error_count
       success_rates
       error_rates
@@ -102,6 +103,18 @@ export const GET_METRICES_BY_ID = gql`
         responsetime
         timestamp
       }
+      percentile_50 {
+      currPercentileResTime
+      percentageDiff
+    }
+    percentile_90 {
+      currPercentileResTime
+      percentageDiff
+    }
+    percentile_99 {
+      percentageDiff
+      currPercentileResTime
+    }
     }
   }
 `;

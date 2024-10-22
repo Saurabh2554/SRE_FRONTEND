@@ -42,7 +42,7 @@ export default function ApiDetailsPage() {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading data: {error.message}</p>;
-  const { apiName, apiUrl, apiType, avg_response_size, avg_latency, response_time ,success_rates,error_rates} = data?.getAllMetrices[0] || {};
+  const { apiName, apiUrl, apiType, avg_response_size, avg_latency,availability_uptime, response_time ,success_rates,error_rates,error_count,percentile_50,percentile_90,percentile_99} = data?.getAllMetrices[0] || {};
   console.log("Ayush",apiName, apiUrl, apiType, avg_response_size, avg_latency, response_time);
 
   const responseTimes = response_time.map(({ responsetime, timestamp }) => ({
@@ -52,51 +52,96 @@ export default function ApiDetailsPage() {
 
   return (<>
     <MuiNavbar/>
-    <div style={{ padding: '20px', transform: "translate(0%, 5%)"}}>
+    <div style={{  transform: "translate(0%, 5%)"}}>
+    <Grid container spacing={3}>
+    <Grid item xs={12} md={9} >
         
-    <Grid container spacing={2} style={{ marginTop:"10px"}}>
       
-      <Grid item xs={12} md={6}>
-      <Paper elevation={3} style={{ padding: '20px',height: '400px' }}>
-      <Typography  >
-        API Performance Metrics
-      </Typography>
-      <Typography >API Name : {apiName}</Typography>
-      <Typography >API ID : {id}</Typography>
-      <Typography >API URL : {apiUrl}</Typography>
-      <Typography >API Type : {apiType}</Typography>
-      
+    <Grid container spacing={2} style={{ marginTop: "10px",padding: '20px' }}>
+  
+  {/* Monitoring Results Section */}
+  <Grid item xs={12} md={3}>
+    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} >MONITORING RESULTS</Typography>
 
-        </Paper>
+    {/* Availability Percentage */}
+    
+      <Grid item xs={12} md={12}>
+        <Typography variant="caption">Availability Percentage</Typography>
+        <Typography>{availability_uptime}%</Typography>
       </Grid>
-      <Grid item xs={12} md={6}>
-      <Paper elevation={3} style={{ padding: '20px' }}>
+
+      
+      
+    
+  </Grid>
+  {/* Alerts */}
+  <Grid item xs={12} md={3}>
+    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} >ALERTS</Typography>
+    <Grid item xs={12} md={12}>
+        <Typography variant="caption">Failures</Typography>
+        <Typography>{error_count}</Typography>
+      </Grid>
+  </Grid>
+
+  {/* Performance Section */}
+  <Grid item xs={12} md={6}>
+    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} >PERFORMANCE</Typography>
+
+    <Grid container spacing={2}>
+      {/* P50 Section */}
+      <Grid item xs={12} md={4}>
+        <Typography variant="caption">P50</Typography>
+        <Typography>{percentile_50.currPercentileResTime} / {percentile_50.percentageDiff}</Typography>
+      </Grid>
+
+      {/* P100 Section */}
+      <Grid item xs={12} md={4}>
+        <Typography variant="caption">P90</Typography>
+        <Typography>{percentile_90.currPercentileResTime} / {percentile_90.percentageDiff}</Typography>
+      </Grid>
+      {/* P100 Section */}
+      <Grid item xs={12} md={4}>
+        <Typography variant="caption">P99</Typography>
+        <Typography>{percentile_99.currPercentileResTime} / {percentile_99.percentageDiff}</Typography>
+      </Grid>
+    </Grid>
+  </Grid>
+
+</Grid>
+
+<Grid container spacing={2} style={{ marginTop: "10px" ,padding: '20px' }}>
+
+      <Grid item xs={12} md={12} style={{ marginTop:"30px" }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold' }} >PERFORMANCE</Typography>
+      
             <ResponseTimeChart responseTimes={responseTimes} />
-            </Paper>
       </Grid>
-      <Grid item xs={12} md={6}>
-        
-          
-        <Paper elevation={3} style={{ padding: '20px',height: '253px' }}> 
-          <HeatmapChart />
-          </Paper>
       
-    </Grid>
-      <Grid item xs={12} md={3}>      
-      <Paper elevation={3} style={{ padding: '20px' }}>    
-            <SuccessFailurePieChart success_rates={success_rates} error_rates={error_rates} />
-            </Paper>
-          
-      </Grid>
-      <Grid item xs={12} md={3}>      
-      <Paper elevation={3} style={{ padding: '20px' }}>    
-            <SuccessFailurePieChart success_rates={success_rates} error_rates={error_rates} />
-            </Paper>
-          
+      
+</Grid>
+{/*For Heatmap */}
+   {/* <Grid container spacing={2} style={{ marginTop: "10px" }}>
+   <Grid item xs={12} md={12} style={{ marginTop:"50px" ,height: '253px'}}>
+      
+      <HeatmapChart />
       </Grid>
 
+   </Grid> */}
+</Grid>
+
+<Grid item xs={12} md={3}> 
+<Paper elevation={3} style={{marginLeft:"10px" ,marginTop:"20px",padding: '20px' ,height: '100%' }}>    
+            <SuccessFailurePieChart success_rates={success_rates} error_rates={error_rates} />
+            <Typography variant="caption" sx={{ fontWeight: 'bold', marginTop:"100px",fontSize:'15px'}} >Notifications</Typography>
+
+            </Paper>
+
+  </Grid>
+</Grid>
+  
       
-    </Grid>
+      
+    
   </div>
   </>
   );

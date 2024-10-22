@@ -6,10 +6,12 @@
     overflow-x: auto;     /* Enable horizontal scrolling */
     height: 400px;        /* Set a fixed height */
     position: relative;    /* Enable absolute positioning for children */
+    
   }
   
   .chart {
     min-width: 800px;     /* Minimum width to prevent squashing */
-    height: 100%;         /* Fill the height of the container */
+    height: 100%; 
+          
   }
   

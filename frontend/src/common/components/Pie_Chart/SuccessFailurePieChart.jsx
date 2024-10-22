@@ -16,7 +16,7 @@ const SuccessFailurePieChart = ({success_rates,error_rates}) => {
     ],
   };
 
-  return <Pie data={data} style={{ height: '100px', width: '100px' }} />;
+  return <Pie data={data} style={{ height: '270px', width: '270px', marginTop:'20px' ,marginBottom:'20px'}} />;
 };
 
 export default SuccessFailurePieChart;
