@@ -102,36 +102,66 @@ export default function Dashboard() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = (searchParam) => {
     if (businessUnit && subBusinessUnit && dateRange[0] && dateRange[1]) {
+      const variables = {
+        businessUnit,
+        subBusinessUnit,
+        fromDate: dateRange[0]?.toISOString(),
+        toDate: dateRange[1]?.toISOString(),
+      };
+  
+      if (searchText) {
+        variables.searchParam = searchText;
+      }
+  
+      console.log('Fetching metrics with:', variables);
+  
       fetchMetrics({
-        variables: {
-          businessUnit,
-          subBusinessUnit,
-          fromDate: dateRange[0].toISOString(),
-          toDate: dateRange[1].toISOString(),
-          searchParam: searchText || null, 
-        },
+        variables,
       });
+    } else {
+      console.log("Please select business unit, sub-business unit, and date range.");
     }
   };
 
   const handleDateChange = (newDateRange) => {
     setDateRange(newDateRange);
     console.log('Selected Date Range:', newDateRange);
-    // Perform any additional actions, like fetching data based on the date range
+  
     if (businessUnit && subBusinessUnit && newDateRange[0] && newDateRange[1]) {
+      const variables = {
+        businessUnit,
+        subBusinessUnit,
+        fromDate: newDateRange[0]?.toISOString(),
+        toDate: newDateRange[1]?.toISOString(),
+      };
+  
+      if (searchText) {
+        variables.searchParam = searchText;
+      }
+  
+      console.log('Fetching metrics with:', variables);
+  
       fetchMetrics({
-        variables: {
-          businessUnit,
-          subBusinessUnit,
-          fromDate: newDateRange[0].toISOString(),
-          toDate: newDateRange[1].toISOString(),
-        },
+        variables,
       });
-      console.log("AB200",metricsData.getAllMetrices);
     }
   };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchText.trim() === "") {
+        handleSearch(null);
+      } else {
+        handleSearch(searchText);
+      }
+    }, 500); // Debounce Wala Delay
+
+    return () => {
+      clearTimeout(handler); // Clear timeout on new input
+    };
+  }, [searchText]);
 
   useEffect(() => {
     console.log(metricsData);
@@ -201,21 +231,21 @@ export default function Dashboard() {
             <DateRangePickerComponent onDateChange={handleDateChange} />
           </Grid>
 
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
+            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center",alignItems: "center",mt:"20px" }}>
             <TextField
-                fullWidth
+                //fullWidth
                 label="Search API"
                 //value={subBusinessUnit}
                 onChange={(e) => setSearchText(e.target.value)}
                 variant="outlined"
-                
+                sx={{ width: "500px", marginRight:"100px" }}
               >
                 
               </TextField>
             </Grid>
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
+            {/* <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
             <Button variant="outlined" onClick={handleSearch}>Search</Button>
-            </Grid>
+            </Grid> */}
             {/* <Grid item xs={12}>
             <Typography variant="h6">APIs</Typography>
             {metrics.length === 0 ? (

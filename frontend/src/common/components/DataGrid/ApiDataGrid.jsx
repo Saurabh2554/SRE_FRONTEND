@@ -9,6 +9,7 @@ const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
   width: 42,
+  marginTop:13,
   height: 26,
   padding: 0,
   display: 'flex',
@@ -77,7 +78,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
               checked={isActive} // Use the is_api_active field from the metrics
               onChange={handleToggle} // Toggle the status
             />
-            <Typography variant="body2" sx={{ ml: 1 }}>
+            <Typography variant="body2" sx={{ ml: 1, mt:2 }}>
               {isActive ? 'Active' : 'Inactive'}
             </Typography>
           </Box>
