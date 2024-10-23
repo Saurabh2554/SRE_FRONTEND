@@ -5,7 +5,7 @@ import Alert from "@mui/material/Alert";
 export const ReusableSnackbar = ({open, handleClose, message, severity}) => {
     return(
         <>
-            <Snackbar open={open} autoHideDuration={5000} onClose={handleClose}>
+            <Snackbar open={open} autoHideDuration={5000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }} key="top-right">
                 <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}
                 </Alert>
