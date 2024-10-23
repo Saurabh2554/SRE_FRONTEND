@@ -21,12 +21,12 @@ export const MuiNavbar = () => {
       <AppBar
         position="fixed"
         sx={{
-          backgroundColor: "#C5C5C5", //#8b9dc3
-          display: "flex",
+          backgroundColor:"#C5C5C5", //#8b9dc3
+          //display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          borderBottom: 1,
-          borderColor: "#C5C5C5",
+          //borderBottom: 1,
+          borderColor:"white",// "#C5C5C5",
         }}
       >
         <Link to="/" style={{ textDecoration: "none" }}>

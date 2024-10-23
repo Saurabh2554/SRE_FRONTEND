@@ -539,7 +539,7 @@ export default function NewService() {
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
-                label="Call Interval (in min)"
+                label="Interval (min)"
                 value={frequencyTime}
                 onChange={(e) => setFrequencyTime(e.target.value)}
                 variant="outlined"

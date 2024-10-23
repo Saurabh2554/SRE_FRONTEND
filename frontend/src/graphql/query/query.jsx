@@ -55,15 +55,68 @@ export const VALIDATE_API = gql`
   }
 `;
 
+// export const GET_ALL_METRICS = gql`
+//   query GetAllMetrics($businessUnit: UUID, $subBusinessUnit: UUID) {
+//     getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit) {
+//       id
+//       apiName
+//       apiType
+//       apiUrl
+//       expectedResponseTime
+//       availability_uptime
+//     }
+//   }
+// `;
+
+
 export const GET_ALL_METRICS = gql`
-  query GetAllMetrics($businessUnit: UUID, $subBusinessUnit: UUID) {
-    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit) {
+  query GetAllMetrics($businessUnit: UUID!, $subBusinessUnit: UUID!, $fromDate: DateTime, $toDate: DateTime ,$searchParam: String) {
+    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate,searchParam: $searchParam) {
       id
       apiName
       apiType
       apiUrl
-      expectedResponseTime
       availability_uptime
+      success_rates
+      avg_latency
+      isApiActive
+      
+    }
+  }
+`;
+
+export const GET_METRICES_BY_ID = gql`
+  query GetAllMetrics($apiMonitoringId: UUID!) {
+    getAllMetrices(apiMonitoringId: $apiMonitoringId) {
+      apiName
+      apiType
+      apiUrl
+      avg_response_size
+      avg_latency
+      isApiActive
+      success_count
+      availability_uptime
+      error_count
+      expectedResponseTime
+      success_rates
+      error_rates
+      response_time {
+        responsetime
+        timestamp
+        success
+      }
+      percentile_50 {
+      currPercentileResTime
+      percentageDiff
+    }
+    percentile_90 {
+      currPercentileResTime
+      percentageDiff
+    }
+    percentile_99 {
+      percentageDiff
+      currPercentileResTime
+    }
     }
   }
 `;

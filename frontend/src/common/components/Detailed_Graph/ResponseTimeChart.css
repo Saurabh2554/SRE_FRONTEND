@@ -1,0 +1,17 @@
+/* ResponseTimeChart.css */
+
+.chart-container {
+    width: 100%;           /* Full width of the parent */
+    max-width: 100%;      /* Prevent overflow beyond the viewport */
+    overflow-x: auto;     /* Enable horizontal scrolling */
+    height: 400px;        /* Set a fixed height */
+    position: relative;    /* Enable absolute positioning for children */
+    
+  }
+  
+  .chart {
+    min-width: 800px;     /* Minimum width to prevent squashing */
+    height: 100%; 
+          
+  }
+  

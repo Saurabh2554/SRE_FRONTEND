@@ -2,13 +2,14 @@ import { MuiNavbar } from "../../common/components/Navbar/navbar";
 import {ApiListWithPagination} from "../../common/components/MuiGrid/ApiListWithPagination";
 import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
 import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
-
+import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
 import React, { useState,useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto"; // Import the necessary Chart.js components
 import ChartComponent from "./ChartComponent";
 
 import {  TablePagination } from '@mui/material';
+import { Grid2 } from '@mui/material';
 
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -57,18 +58,20 @@ export default function Dashboard() {
   const [responseDetails, setResponseDetails] = useState([]);
   //const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState([]);
-
+  const [dateRange, setDateRange] = useState([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
   const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
-  const [fetchMetrics, { data: metricsData }] = useLazyQuery(GET_ALL_METRICS);
-
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery(GET_ALL_METRICS,{
+    errorPolicy: "all", 
+  });
  
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
+    setMetrics([]);
     console.log("Before Update label",businessUnit);
     
     fetchSubBusinessUnits({
@@ -82,14 +85,86 @@ export default function Dashboard() {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
     // Fetch metrics when a sub-business unit is selected
-    fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
+    //fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
+    console.log(dateRange[0].toISOString());
+      console.log(dateRange[1].toISOString());
+
+    if (dateRange[0] && dateRange[1]) {
+      
+      fetchMetrics({
+        variables: {
+          businessUnit,
+          subBusinessUnit: selectedSubBusinessUnit,
+          fromDate: dateRange[0].toISOString(),
+          toDate: dateRange[1].toISOString(),   
+        },
+      });
+    }
   };
 
-  const handleSearch =(e)=>{
-    setSearchText(e.target.value);
-  }
+  const handleSearch = (searchParam) => {
+    if (businessUnit && subBusinessUnit && dateRange[0] && dateRange[1]) {
+      const variables = {
+        businessUnit,
+        subBusinessUnit,
+        fromDate: dateRange[0]?.toISOString(),
+        toDate: dateRange[1]?.toISOString(),
+      };
+  
+      if (searchText) {
+        variables.searchParam = searchText;
+      }
+  
+      console.log('Fetching metrics with:', variables);
+  
+      fetchMetrics({
+        variables,
+      });
+    } else {
+      console.log("Please select business unit, sub-business unit, and date range.");
+    }
+  };
+
+  const handleDateChange = (newDateRange) => {
+    setDateRange(newDateRange);
+    console.log('Selected Date Range:', newDateRange);
+  
+    if (businessUnit && subBusinessUnit && newDateRange[0] && newDateRange[1]) {
+      const variables = {
+        businessUnit,
+        subBusinessUnit,
+        fromDate: newDateRange[0]?.toISOString(),
+        toDate: newDateRange[1]?.toISOString(),
+      };
+  
+      if (searchText) {
+        variables.searchParam = searchText;
+      }
+  
+      console.log('Fetching metrics with:', variables);
+  
+      fetchMetrics({
+        variables,
+      });
+    }
+  };
 
   useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchText.trim() === "") {
+        handleSearch(null);
+      } else {
+        handleSearch(searchText);
+      }
+    }, 500); // Debounce Wala Delay
+
+    return () => {
+      clearTimeout(handler); // Clear timeout on new input
+    };
+  }, [searchText]);
+
+  useEffect(() => {
+    console.log(metricsData);
     if (metricsData) {
       setMetrics(metricsData.getAllMetrices);
     }
@@ -100,7 +175,7 @@ export default function Dashboard() {
 
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
-  
+  console.log("Metrics Error :",metricsDataError);
 
   
 
@@ -114,7 +189,7 @@ export default function Dashboard() {
       <MuiNavbar />
       <Box sx={boxstyle}>
           <Grid container spacing={2}>
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
+            <Grid item xs={3} sx={{ display: "flex", alignItems: "stretch" }}>
             <TextField
                 select
                 required
@@ -132,7 +207,7 @@ export default function Dashboard() {
               </TextField>
             </Grid>
 
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
+            <Grid item xs={3} sx={{ display: "flex", alignItems: "stretch" }}>
             <TextField
                 select
                 required
@@ -152,45 +227,25 @@ export default function Dashboard() {
             </Grid>
 
 
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch" }}>
-              <Typography
-                component="h1"
-                variant="h5"
-                fontFamily={"Lato"}
-                marginRight={5.5}
-              >
-                Select date 
-              </Typography>
-              <Typography
-                component="h5"
-                variant="subtitle2"
-                marginRight={5.5}
-                marginTop={1}
-                fontFamily={"Lato"}
-                color={'secondary'}
-              >
-                DD/MM/YYYY
-              </Typography>
-              
+            <Grid item xs={6} sx={{ display: "flex", alignItems: "stretch" }}>
+            <DateRangePickerComponent onDateChange={handleDateChange} />
+          </Grid>
 
-             
-            </Grid>
-
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
+            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center",alignItems: "center",mt:"20px" }}>
             <TextField
-                fullWidth
+                //fullWidth
                 label="Search API"
                 //value={subBusinessUnit}
-                onChange={handleSearch}
+                onChange={(e) => setSearchText(e.target.value)}
                 variant="outlined"
-                
+                sx={{ width: "500px", marginRight:"100px" }}
               >
                 
               </TextField>
             </Grid>
-            <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
-            <Button variant="outlined">Search</Button>
-            </Grid>
+            {/* <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
+            <Button variant="outlined" onClick={handleSearch}>Search</Button>
+            </Grid> */}
             {/* <Grid item xs={12}>
             <Typography variant="h6">APIs</Typography>
             {metrics.length === 0 ? (
@@ -205,7 +260,7 @@ export default function Dashboard() {
           </Grid> */}
           <Grid item xs={12}>
           {businessUnit && subBusinessUnit ? (
-              <ApiDataGrid metrics={metrics} />
+              <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError.message : null} />
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="400px">
                 <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7 }} />
