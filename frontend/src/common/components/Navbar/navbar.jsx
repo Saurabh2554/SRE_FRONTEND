@@ -116,28 +116,7 @@ export const MuiNavbar = () => {
             </Tooltip>
           </>
 
-          <Link to="/login" style={{ textDecoration: "none" }}>
-            <Button
-              size="medium"
-              sx={{
-                borderRadius: "15px",
-                color: "#ffffff",
-                padding: "5px",
-                backgroundColor: "black",
-                fontFamily: "Lato",
-                marginLeft: "20px",
-                marginRight: "20px",
-                marginBottom: "5px",
-                "&:hover": {
-                  backgroundColor: "#555444",
-                },
-              }}
-            >
-              Sign Out
-            </Button>
-          </Link>
-
-          <Tooltip title="Logout" cursor="pointer">
+          <Tooltip title="Logout" cursor="pointer" >
             <LogoutIcon
               //onClick={handleLogout}
               style={{

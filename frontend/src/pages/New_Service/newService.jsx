@@ -4,24 +4,16 @@ import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 
 import { Box, Grid, TextField, Button, MenuItem, Typography, Paper, IconButton, AppBar, Tabs, Tab } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TabPanel from '@mui/lab/TabPanel';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
 
 import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
 import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE, VALIDATE_API} from "../../graphql/query/query"; 
 import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
-
-// const methods = [
-//   { value: 'GET', label: 'GET' },
-//   { value: 'POST', label: 'POST' },
-// ];
 
 
 
@@ -32,6 +24,8 @@ export default function NewService() {
   const [pageSize, setPageSize] = useState('');
   const [headerFields, setHeaderFields] = useState([{ key: '', value: '' }]); // For dynamic headers
   const [authInput, setAuthInput] = useState({ username: '', password: '' });
+  const [AuthHeader, setAuthHeader] = useState([{ key: '', value: ''}]);
+  const [addheaderto, setAddheaderto] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [body, setBody] = useState('');
@@ -54,13 +48,12 @@ export default function NewService() {
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
   const { data: methodData, loading: methodLoading, error: methodError } = useQuery(GET_API_TYPE);
   const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
-  const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR);
+  const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR, { errorPolicy: "all" });
   const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API);
 
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
-    console.log("Before Update label",businessUnit);
     
     fetchSubBusinessUnits({
       variables: {
@@ -81,12 +74,6 @@ export default function NewService() {
     setHeaderFields(headerFields.filter((_, i) => i !== index));
   };
 
-  // const updateHeaderfields = () => {
-  //   if( username && password){
-  //     setHeaderFields((prevFields) => [...prevFields, {key: username, value: password},]);
-  //   }
-  // };
-  
   const handleAuthChange = (e) => {
     const { name, value } = e.target;
     setAuthInput((prev) => ({
@@ -96,37 +83,38 @@ export default function NewService() {
   };
 
   const addHeaderFields = () => {
+    
     let authValue = '';
-    let authorizationObj ={};
-    if(authorizationType === 'API Key'){
-      authValue = `ApiKey ${authInput.username}`;
+    const authorizationObj ={};
+    if(authorizationType === 'API_KEY' && (authInput.username !== '' && authInput.password !== '') ){
+      if(addheaderto == 'Header'){
+        authorizationObj[authInput.username] = authInput.password;
+      }
+      else if(addheaderto == 'QueryParams'){
+        const encodedValue = encodeURIComponent(authInput.password);
+
+        setUrl((prevUrl) => {
+          const separator = prevUrl.includes('?') ? '&' : '?';
+          return `${prevUrl}${separator}${authInput.username}=${encodedValue}`;
+        });
+      }
     }
-    else if( authorizationType === 'Bearer Token (OAuth)'){
+    else if( authorizationType === 'BEARER'){
       authValue = `Bearer ${authInput.username}`;
     }
-    else if(authorizationType === 'Basic Authentication' ){
+    else if(authorizationType === 'BASIC' ){
       if(authInput.username && authInput.password){
         const encodedCredentials = btoa(`${authInput.username}:${authInput.password}`);
         authValue = `Basic ${encodedCredentials}`;
       }
     }
     
-    if(authValue != ''){
-      authorizationObj = { Authorization : authValue};
+    if(authValue != '' || (authorizationType === 'API_KEY' && addheaderto != '')){
 
-      setHeaderFields((prevFields) => {
-        const existingIndex = prevFields.findIndex(
-          (field) => field.Authorization
-        );
-        if(existingIndex !== -1){
-          const updatedFields = [...prevFields];
-          updatedFields[existingIndex] = authorizationObj;
-          return updatedFields;
-        }
-        else{
-          return [...prevFields, authorizationObj];
-        }
-      });
+      if(authorizationType != 'API_KEY')
+        authorizationObj['Authorization'] = authValue;
+      
+      setAuthHeader([authorizationObj]);
     }
   };
 
@@ -136,10 +124,7 @@ export default function NewService() {
 
   const handleSend = async () => {
     try {
-      //const set_APi_type =method === "REST API" ? "REST" : "GraphQL";
-      //setMethod(set_APi_type);
-      console.log(method);
-      console.log(headerFields);
+      const Header = [...headerFields, ...AuthHeader];
       const result = await createApiMonitor({
         variables: {
           input: {
@@ -151,14 +136,17 @@ export default function NewService() {
             apiCallInterval: parseInt(frequencyTime, 10),
             expectedResponseTime: parseInt(responseTime, 10), 
             //expectedStatusCode: 200, 
-            headers: JSON.stringify(headerFields),
+            headers: JSON.stringify(Header),
            // graphqlQuery: body,
             recipientDl: recipientDL,
             createdBy: 'user', 
           },
         },
       });
-      console.log('Mutation result:', result.data);
+      if(error){
+        SetSnackbarFields(true, error.message, "error");
+        return
+      }
       setBusinessUnit('');
     setSubBusinessUnit('');
     setServiceName('');
@@ -172,17 +160,19 @@ export default function NewService() {
     setAuthorizationType('');
     setUsername('');
     setPassword('');
-    setTabValue('1'); 
+    setTabValue('1');
+    setButtonEnabled(false); 
     setAuthInput({ username: '', password: '' });
-    } catch (error) {
-      console.error('Error creating API monitor:', error);
+    
+    } catch (er) {
+      SetSnackbarFields(true, "Unknown Error occured!", "error");
     }
   };
 
 
   const handleSave = async () => {
     if(!method || !url){
-      console.log("Enter a valid API url");
+      SetSnackbarFields(true, "Enter a valid API Url!", "error");
     }
     else{
       const type = method.split(' ');
@@ -199,7 +189,7 @@ export default function NewService() {
       }
       else{
         if(!body){
-          console.log("Valid query is required");
+          SetSnackbarFields(true, "Valid Query is required", "error");
         }
         else{
           console.log(JSON.stringify(body));
@@ -212,39 +202,34 @@ export default function NewService() {
             }
           });
           setApiresonse(result.data);
-          console.log(result);
         }
       }
     }
     if(apierror){
-      console.log("api not valid");
-      setOpenSnackbar(true);
-      setSnackbarMessage("Invalid API URL!");
-      setSnackbarSeverity("error");
+      SetSnackbarFields(true, "Invalid API URL!", "error");
     }
   };
   useEffect(() => {
     if(apiresponse && apiresponse.validateApi){
       const statuscode = apiresponse?.validateApi?.status;
-      console.log("response received");
-      console.log(apiresponse);
-      console.log(statuscode);
+      
       if(statuscode>= 200 && statuscode<300){
-        console.log("statuscode received");
         setButtonEnabled(true);
-        setOpenSnackbar(true);
-        setSnackbarMessage("API validated successfully!");
-        setSnackbarSeverity("success");
+        SetSnackbarFields(true, "API validated successfully!", "success");
       }
     }
   },[apiresponse]);
 
+  const SetSnackbarFields =  (open, message, severity) => {
+    setOpenSnackbar(open);
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+  };
+
   useEffect(() => {
-    if(!url){
       setButtonEnabled(false);
       setOpenSnackbar(false);
       setApiresonse({});
-    }
   },[url]);
   
   const handleCloseSnackbar = (event, reason) => {
@@ -462,30 +447,31 @@ export default function NewService() {
                       variant="outlined"
                     >
                       {authTypeChoicesData.authTypeChoices.map((choice) => (
-                        <MenuItem key={choice.key} value={choice.value}>
+                        <MenuItem key={choice.key} value={choice.key}>
                           {choice.value}
                         </MenuItem>
                       ))}
                     </TextField>
                   </Grid>
-                  {(authorizationType === 'Basic Authentication'|| authorizationType==='API Key'||authorizationType ==='Bearer Token (OAuth)' ) && (
+                  {(authorizationType === 'BASIC'|| authorizationType==='API_KEY'||authorizationType ==='BEARER' ) && (
                     <>
-                      <Grid item xs={12} md={6}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={4}>
                         <TextField
                           fullWidth
-                          label={authorizationType === 'Basic Authentication' ? (authorizationType === 'Bearer Token (OAuth)' ? 'Token' : 'Username' ) : (authorizationType === 'Bearer Token (OAuth)' ? 'Token' : 'Key' ) }
+                          label={authorizationType === 'BASIC' ? (authorizationType === 'BEARER' ? 'Token' : 'Username' ) : (authorizationType === 'BEARER' ? 'Token' : 'Key' ) }
                           variant="outlined"
                           name='username'
                           value={authInput.username}
                           onChange={handleAuthChange}
-                          onBlur = {addHeaderFields}
+                          onBlur = { addHeaderFields}
                         />
                       </Grid>
-                      {(authorizationType === 'Basic Authentication') && (
-                      <Grid item xs={12} md={6}>
+                      {(authorizationType === 'BASIC' || authorizationType==='API_KEY') && (
+                      <Grid item xs={12} md={4}>
                         <TextField
                           fullWidth
-                          label={authorizationType === 'Basic Authentication' ? 'Password' : 'Value'}
+                          label={authorizationType === 'BASIC' ? 'Password' : 'Value'}
                           variant="outlined"
                           type="password"
                           name='password'
@@ -494,6 +480,26 @@ export default function NewService() {
                           onBlur = {addHeaderFields}
                         />
                       </Grid>)}
+                      {(authorizationType==='API_KEY') && (
+                        <Grid item xs={12} md={4}>
+                          <TextField 
+                          select
+                          fullWidth
+                          label="Add to"
+                          value={addheaderto}
+                          onChange={(e) => setAddheaderto(e.target.value)}
+                          onBlur={addHeaderFields}
+                          >
+                          <MenuItem key="Header" value="Header">
+                            Header
+                            </MenuItem>
+                            <MenuItem key="QueryParams" value="QueryParams">
+                            Query Params
+                            </MenuItem>
+                          </TextField>
+                        </Grid>
+                      )}
+                      </Grid>
                     </>
                   )}
                 </Grid>
