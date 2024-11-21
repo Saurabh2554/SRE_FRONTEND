@@ -11,7 +11,8 @@ import { useLocation } from 'react-router-dom';
 import { GET_METRICES_BY_ID } from "../../graphql/query/query"; 
 import { useQuery } from '@apollo/client';
 import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
-
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 
 
@@ -41,6 +42,7 @@ export default function ApiDetailsPage() {
   });
 
   const handleDateChange = (newDateRange) => {}
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading data: {error.message}</p>;
@@ -87,25 +89,43 @@ export default function ApiDetailsPage() {
   </Grid>
 
   {/* Performance Section */}
-  <Grid item xs={12} md={6}>
+  <Grid item xs={12} md={7}>
     <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} >PERFORMANCE</Typography>
 
     <Grid container spacing={2}>
       {/* P50 Section */}
       <Grid item xs={12} md={4}>
         <Typography variant="caption">P50</Typography>
-        <Typography>{percentile_50.currPercentileResTime} / {percentile_50.percentageDiff}</Typography>
+        <Typography>{percentile_50.currPercentileResTime}&nbsp;&nbsp;
+        <span style={{ color: percentile_50.percentageDiff < 0 ? 'red' : 'green' , fontSize: '0.75rem' }}>
+        {percentile_50.percentageDiff < 0 ? <ArrowDropDownIcon fontSize="small" style={{ verticalAlign: 'middle' }}/> : <ArrowDropUpIcon fontSize="small" style={{ verticalAlign: 'middle' }} />}
+          {percentile_50.percentageDiff}
+          
+          </span></Typography>
       </Grid>
 
       {/* P100 Section */}
       <Grid item xs={12} md={4}>
         <Typography variant="caption">P90</Typography>
-        <Typography>{percentile_90.currPercentileResTime} / {percentile_90.percentageDiff}</Typography>
+        <Typography>{percentile_90.currPercentileResTime} &nbsp;&nbsp;
+        <span style={{ color: percentile_90.percentageDiff < 0 ? 'red' : 'green', fontSize: '0.75rem'  }}> 
+        {percentile_90.percentageDiff < 0 ? <ArrowDropDownIcon fontSize="small" style={{ verticalAlign: 'middle' }}/> : <ArrowDropUpIcon fontSize="small" style={{ verticalAlign: 'middle' }} />}
+          {percentile_90.percentageDiff}
+          
+
+          </span></Typography>
+          
       </Grid>
       {/* P100 Section */}
       <Grid item xs={12} md={4}>
         <Typography variant="caption">P99</Typography>
-        <Typography>{percentile_99.currPercentileResTime} / {percentile_99.percentageDiff}</Typography>
+        <Typography>{percentile_99.currPercentileResTime} &nbsp;&nbsp;
+        <span style={{ color: percentile_99.percentageDiff < 0 ? 'red' : 'green',fontSize: '0.75rem' }}> 
+        {percentile_99.percentageDiff < 0 ? <ArrowDropDownIcon fontSize="small" style={{ verticalAlign: 'middle' }}/> : <ArrowDropUpIcon fontSize="small" style={{ verticalAlign: 'middle' }} />}
+          {percentile_99.percentageDiff}
+          
+
+          </span></Typography>
       </Grid>
     </Grid>
   </Grid>
