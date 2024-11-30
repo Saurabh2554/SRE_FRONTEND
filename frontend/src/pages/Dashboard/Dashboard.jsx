@@ -40,13 +40,13 @@ function confirmExit() {
 const center = {
   position: "relative",
   top: "50%",
-  left: "3%",
+  //left: "3%",
   marginBottom: "5%",
 };
 const boxstyle = {
   position: "absolute",
   top: "50%",
-  transform: "translate(5%, -50%)",
+  transform: "translate(3%, -50%)",
   width: "100%",
   height: "70%",
 };
@@ -227,18 +227,16 @@ export default function Dashboard() {
             </Grid>
 
 
-            <Grid item xs={6} sx={{ display: "flex", alignItems: "stretch" }}>
+            <Grid item xs={3} sx={{ display: "flex", alignItems: "stretch" }}>
             <DateRangePickerComponent onDateChange={handleDateChange} />
           </Grid>
 
-            <Grid item xs={12} sx={{ display: "flex", justifyContent: "center",alignItems: "center",mt:"20px" }}>
+            <Grid item xs={6} sx={{ display: "flex", justifyContent: "left",alignItems: "center", marginTop: '2%'}}>
             <TextField
-                //fullWidth
-                label="Search API"
-                //value={subBusinessUnit}
+                label="Search Metrics"
                 onChange={(e) => setSearchText(e.target.value)}
                 variant="outlined"
-                sx={{ width: "500px", marginRight:"100px" }}
+                sx={{ width: "50%" }}
               >
                 
               </TextField>
@@ -263,7 +261,7 @@ export default function Dashboard() {
               <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError.message : null} />
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="400px">
-                <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7 }} />
+                <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7, marginTop: "200px" }} />
               </Box>
             )}
           {/* <ApiDataGrid metrics={metrics} />  */}

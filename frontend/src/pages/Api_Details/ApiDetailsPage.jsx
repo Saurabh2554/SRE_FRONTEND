@@ -1,7 +1,7 @@
 import React ,{ useState, useEffect }from 'react';
 import { useParams } from 'react-router-dom';
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import {Box, Grid, Typography, Paper } from '@mui/material';
+import {Box, Grid, Typography, Paper, Tooltip } from '@mui/material';
 
 import ResponseTimeChart from '../../common/components/Detailed_Graph/ResponseTimeChart';
 import SuccessFailurePieChart from '../../common/components/Pie_Chart/SuccessFailurePieChart';
@@ -12,7 +12,7 @@ import { GET_METRICES_BY_ID } from "../../graphql/query/query";
 import { useQuery } from '@apollo/client';
 import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
 
-
+//import {responseTimes2} from data;
 
 
 const boxstyle = {
@@ -52,7 +52,8 @@ export default function ApiDetailsPage() {
     timestamp,
     success
   }));
-
+  
+  //console.log(responseTimes);
   return (<>
     <MuiNavbar/>
     <div style={{  transform: "translate(0%, 5%)"}}>
@@ -92,21 +93,27 @@ export default function ApiDetailsPage() {
 
     <Grid container spacing={2}>
       {/* P50 Section */}
-      <Grid item xs={12} md={4}>
+      <Tooltip title={<> 50% of the response times <br /> are lower than the displayed value </>}>
+      <Grid item xs={12} md={4} >
         <Typography variant="caption">P50</Typography>
         <Typography>{percentile_50.currPercentileResTime} / {percentile_50.percentageDiff}</Typography>
       </Grid>
+      </Tooltip>
 
       {/* P100 Section */}
+      <Tooltip title={<> 90% of the response times <br /> are lower than the displayed value </>}>
       <Grid item xs={12} md={4}>
         <Typography variant="caption">P90</Typography>
         <Typography>{percentile_90.currPercentileResTime} / {percentile_90.percentageDiff}</Typography>
       </Grid>
+      </Tooltip>
       {/* P100 Section */}
+      <Tooltip title={<> 99% of the response times <br /> are lower than the displayed value </>}>
       <Grid item xs={12} md={4}>
         <Typography variant="caption">P99</Typography>
         <Typography>{percentile_99.currPercentileResTime} / {percentile_99.percentageDiff}</Typography>
       </Grid>
+      </Tooltip>
     </Grid>
   </Grid>
 

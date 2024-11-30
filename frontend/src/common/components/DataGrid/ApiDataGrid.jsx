@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Typography ,Switch} from '@mui/material';
 import { useNavigate } from 'react-router-dom'; 
 import { styled } from '@mui/material/styles';
-
+import moment from 'moment';
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -47,35 +47,42 @@ const IOSSwitch = styled((props) => (
 
 
 export const ApiDataGrid = ({ metrics,error }) => {
-
+  const [istoggleActive, settoggleActive] = useState();
   const navigate = useNavigate();
   // Define columns for the DataGrid
   const columns = [
    // { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'apiName', headerName: 'API Name', width: 200 },
-    { field: 'apiUrl', headerName: 'API URL', width: 250 },
-    { field: 'apiType', headerName: 'API Type', width: 100 },
-    //{ field: 'expectedResponseTime', headerName: 'Expected Response Time (ms)', width: 200 },
-    { field: 'availability_uptime', headerName: 'Availability (%)', width: 200 },
-    //{ field: 'success_rates', headerName: 'Success(%)', width: 200 },
-    { field: 'avg_latency', headerName: 'Avg Latency(sec)', width: 200 },
+    { field: 'apiName', headerName: 'Name', width: 200 },
+    { field: 'apiUrl', headerName: 'URL', width: 250 },
+    { field: 'methodType', headerName: 'Method', width: 200 },
+    
+    { field: 'availability_uptime', headerName: 'Availability (%)', width: 150 },
+    { field: 'last_Error_Occurred', headerName: 'Last Error', width: 250,
+      renderCell: (params) => {
+        
+        return params?.row?.last_Error_Occurred? moment(params?.row?.last_Error_Occurred).format('MMMM Do YYYY, h:mm:ss a') : 'Never Failed';
+      }
+  },
+    { field: 'avg_latency', headerName: 'Avg Latency(sec)', width: 150 },
     {
       field: 'status',
       headerName: 'Status',
       width: 150,
       renderCell: (params) => {
         const isActive = params.row.isApiActive; // Access is_api_active from the row data
-
+        settoggleActive(isActive);
         // Handle toggle action
-        const handleToggle = () => {
+        const handleToggle = (event) => {
+          settoggleActive(event.target.checked);
           // Here you would usually handle the toggle logic, like updating the backend or state
+          console.log(event.target.checked);
           console.log(`Toggled status for API ${params.row.apiName}: ${!isActive ? 'Active' : 'Inactive'}`);
         };
 
         return (
           <Box display="flex" alignItems="center">
             <IOSSwitch
-              checked={isActive} // Use the is_api_active field from the metrics
+              checked={istoggleActive} // Use the is_api_active field from the metrics
               onChange={handleToggle} // Toggle the status
             />
             <Typography variant="body2" sx={{ ml: 1, mt:2 }}>
@@ -99,7 +106,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
 
   return (
     
-     <Box sx={{ height: 400, width: '90%' }}> 
+     <Box sx={{ height: 'auto', width: '80%', marginTop:'2%' }}> 
       <Typography variant="h6" gutterBottom>
         API Metrics
       </Typography>
@@ -115,6 +122,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
         pagination // Enable pagination
         autoHeight // Automatically adjust height to the content
         onRowClick={handleRowClick}
+       
         
       />
     </Box> 

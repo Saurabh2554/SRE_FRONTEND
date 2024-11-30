@@ -10,6 +10,7 @@ import TabPanel from '@mui/lab/TabPanel';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import {Radio, RadioGroup, FormControl, FormControlLabel} from '@mui/material';
 
 import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
 import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE, VALIDATE_API} from "../../graphql/query/query"; 
@@ -29,6 +30,8 @@ export default function NewService() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [body, setBody] = useState('');
+  const [bodyType, setBodytype] = useState('none');
+  const [raw, setRaw] = useState('JSON');
   const [tabValue, setTabValue] = useState('1');
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
@@ -36,7 +39,6 @@ export default function NewService() {
   const [responseTime, setResponseTime] = useState('');
   const [frequencyTime, setFrequencyTime] = useState('');
   const [recipientDL, setRecipientDL] = useState('');
-  const [labelName,setLabelName] = useState('Body');
   const [authorizationType, setAuthorizationType] = useState('');
   const [isButtonEnabled, setButtonEnabled] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -88,7 +90,8 @@ export default function NewService() {
     const authorizationObj ={};
     if(authorizationType === 'API_KEY' && (authInput.username !== '' && authInput.password !== '') ){
       if(addheaderto == 'Header'){
-        authorizationObj[authInput.username] = authInput.password;
+        authorizationObj['key'] = authInput.username;
+        authorizationObj['value'] = authInput.password;
       }
       else if(addheaderto == 'QueryParams'){
         const encodedValue = encodeURIComponent(authInput.password);
@@ -111,8 +114,10 @@ export default function NewService() {
     
     if(authValue != '' || (authorizationType === 'API_KEY' && addheaderto != '')){
 
-      if(authorizationType != 'API_KEY')
-        authorizationObj['Authorization'] = authValue;
+      if(authorizationType != 'API_KEY'){
+        authorizationObj['key'] = 'Authorization';
+        authorizationObj['value'] = authValue;
+      }
       
       setAuthHeader([authorizationObj]);
     }
@@ -131,13 +136,13 @@ export default function NewService() {
             businessUnit,
             subBusinessUnit,
             apiName: serviceName,
-            apiType: method,
+            methodType: method,
             apiUrl: url,
             apiCallInterval: parseInt(frequencyTime, 10),
             expectedResponseTime: parseInt(responseTime, 10), 
             //expectedStatusCode: 200, 
             headers: JSON.stringify(Header),
-           // graphqlQuery: body,
+            requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : (raw == 'JSON' ? JSON.stringify(body) : body),
             recipientDl: recipientDL,
             createdBy: 'user', 
           },
@@ -171,48 +176,36 @@ export default function NewService() {
 
 
   const handleSave = async () => {
-    if(!method || !url){
-      SetSnackbarFields(true, "Enter a valid API Url!", "error");
-    }
-    else{
-      const type = method.split(' ');
+   
+    const Header = [...headerFields, ...AuthHeader];
 
-      if(type[0] === "REST"){
-        const result = await validateApi({
-          variables: {
-            apiURL: url,
-            apiType: 'REST'
-          }
-        });
-        
-        setApiresonse(result.data);
-      }
-      else{
-        if(!body){
-          SetSnackbarFields(true, "Valid Query is required", "error");
+    if(url){
+      const result = await validateApi({
+        variables: {
+          apiUrl: url,
+          methodType: method,
+          headers: JSON.stringify(Header),
+          requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : body
         }
-        else{
-          console.log(JSON.stringify(body));
-          console.log(url);
-          const result = await validateApi({
-            variables:{
-              apiURL: url,
-              apiType: 'GraphQL',
-              query: body
-            }
-          });
-          setApiresonse(result.data);
-        }
+      });
+      console.log(result);
+      if(apierror){
+        console.log(apierror);
+        SetSnackbarFields(true, apierror.message || "Invalid API!", "error");
+        return
       }
-    }
-    if(apierror){
-      SetSnackbarFields(true, "Invalid API URL!", "error");
-    }
+      setApiresonse(result.data);
+
+
+    } 
   };
   useEffect(() => {
     if(apiresponse && apiresponse.validateApi){
       const statuscode = apiresponse?.validateApi?.status;
-      
+      if(!apiresponse?.validateApi?.success){
+        SetSnackbarFields(true, apiresponse?.validateApi?.message || "Invalid API!", "error");
+      }
+      console.log(statuscode);
       if(statuscode>= 200 && statuscode<300){
         setButtonEnabled(true);
         SetSnackbarFields(true, "API validated successfully!", "success");
@@ -231,7 +224,6 @@ export default function NewService() {
       setOpenSnackbar(false);
       setApiresonse({});
   },[url]);
-  
   const handleCloseSnackbar = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -243,16 +235,31 @@ export default function NewService() {
     setTabValue(newValue);
   };
 
-  useEffect(() => {
-    setBody('');
-    if (method) {
-      setLabelName(method === 'GraphQL API' ? 'Query' : 'Body');
-      
+  const handleBodychange = (event) => {
+    setBodytype(event.target.value);
 
+    if(event.target.value === 'GraphQL'){
+      method != 'POST' && setMethod('POST');
+      const found = headerFields?.some(vv => vv.key.toLowerCase() == 'content-type' && vv.value.toLowerCase() == 'application/json');
+
+      if(!found){
+        if(headerFields[0]?.key == ''){
+          setHeaderFields([{key: 'Content-Type', value:'application/json'}]);
+        }
+        else{
+          setHeaderFields([...headerFields, {key: 'Content-Type', value:'application/json'}]);
+        }
+      }
     }
-  }, [method]);
+    else{
+      setHeaderFields(headerFields?.filter((vv,id) => vv?.key.toLowerCase() != 'content-type' && vv?.value.toLowerCase() != 'application/json'))
+    }
+  };
+  
+  const handleRawChange = (event) => {
+    setRaw(event.target.value);
 
- 
+  };
 
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
@@ -317,12 +324,12 @@ export default function NewService() {
               select
               required
               fullWidth
-              label="API Type"
+              label="API Method"
               value={method}
               onChange={(e) => setMethod(e.target.value)}
               variant="outlined"
             >
-             {methodData.apiTypeChoices.map((option) => (
+             {methodData.methodTypeChoices?.map((option) => (
                 <MenuItem key={option.key} value={option.key}>
                   {option.value}
                 </MenuItem>
@@ -369,9 +376,9 @@ export default function NewService() {
         <TabContext value={tabValue}>
           <AppBar position="static" sx={{ marginTop: '20px',backgroundColor: '#FFFFFF' }} elevation={0}>
             <TabList onChange={handleTabChange}>
-              <Tab label="Headers" value="1" />
+              <Tab label= {`Headers (${headerFields.length})`} value="1" />
               <Tab label="Authorization" value="2" />
-              <Tab label={labelName} value="3" />
+              <Tab label="Body" value="3" />
             </TabList>
           </AppBar>
 
@@ -436,7 +443,7 @@ export default function NewService() {
               ) : authTypeChoicesError ? (
                 <p>Error loading Authorization Types: {authTypeChoicesError.message}</p>
               ) : (
-                <Grid container spacing={2}>
+                <Grid container >
                   <Grid item xs={12} md={7} mb={3}>
                     <TextField
                       select
@@ -511,16 +518,54 @@ export default function NewService() {
 
           {/* Body Tab */}
           <TabPanel value="3">
+            <FormControl>
+              <RadioGroup
+                row
+                value={bodyType}
+                onChange={handleBodychange}
+              >
+                <FormControlLabel
+                  value="none"
+                  control={<Radio size="small"/>}
+                  label="none"
+                />
+                <FormControlLabel
+                  value="raw"
+                  control={<Radio size="small"/>}
+                  label="raw"
+                />
+                <FormControlLabel
+                  value="GraphQL"
+                  control={<Radio size="small"/>}
+                  label="GraphQL"
+                />
+              </RadioGroup>
+            </FormControl>
+            {
+                  bodyType === 'raw' && 
+                  <TextField 
+                    select
+                    size="small"
+                    value={raw}
+                    onChange={handleRawChange}
+                  >
+                    <MenuItem value={"JSON"}>JSON</MenuItem>
+                    <MenuItem value={'Text'}>Text</MenuItem>
+                    <MenuItem value={'XML'}>XML</MenuItem>
+                  </TextField>
+                }
+            { bodyType == 'none' ? <h4>This request does not have a body</h4>:
             <TextField
               fullWidth
-              label={labelName}
+              label={bodyType === 'GraphQL' ? 'Query' : "Body"}
               variant="outlined"
               multiline
               rows={6}
               value={body}
-              placeholder={method === 'GraphQL API' ? 'Write Your Query Here' : 'Input Body'}
+              sx={{ marginTop: 2 }}
+              placeholder={bodyType === 'GraphQL' ? 'Write Your Query Here' : 'Input Body'}
               onChange={(e) => setBody(e.target.value)}
-            />
+            />}
           </TabPanel>
         </TabContext>
 
@@ -539,19 +584,36 @@ export default function NewService() {
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
+                select
                 label="Interval (min)"
                 value={frequencyTime}
                 onChange={(e) => setFrequencyTime(e.target.value)}
                 variant="outlined"
-              />
+                SelectProps={{
+                  MenuProps: {
+                    style: { maxHeight: 280 } 
+                  }
+                }}
+              >
+                {[...Array(12)]?.map((_, i) => (
+                  <MenuItem key={i} value={(i + 1) * 5}>
+                    {(i + 1) * 5}
+                  </MenuItem>
+                ))}
+              </TextField>
+              
             </Grid>
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
+                required
                 label="Recipient DL"
                 value={recipientDL}
                 onChange={(e) => setRecipientDL(e.target.value)}
                 variant="outlined"
+                type="email"
+                multiline
+                maxRows={2}
               />
             </Grid>
           </Grid>

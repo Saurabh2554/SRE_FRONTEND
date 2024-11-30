@@ -10,14 +10,15 @@ ChartJS.register(...registerables, annotationPlugin);
 const ResponseTimeChart = ({responseTimes, expectedResponseTime }) => {
 
   const labels = responseTimes.map(response => new Date(response.timestamp).toLocaleTimeString());
+  
   console.log("response time success status ",responseTimes)
   const data = {
     labels: labels,
     datasets: [
       {
         label: 'Response Time (ms)',
-        data: responseTimes.map(response => response.responsetime),
-        borderColor: responseTimes.map(response => {console.log("saurabh",response.success);return response.success?'rgba(75, 192, 192, 1)': 'rgba(255, 0, 0)'}) ,
+        data: responseTimes?.map(response => {console.log(response.responsetime<0 && response); return response.responsetime}),
+        borderColor: responseTimes?.map(response => {return response.success? (response.responsetime <= expectedResponseTime ? 'green' : '#FFCC00' ) : 'rgba(255, 0, 0)'}) ,
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 1,
         fill: true,
@@ -34,7 +35,7 @@ const ResponseTimeChart = ({responseTimes, expectedResponseTime }) => {
               xMax: 2,
               yMin: 50,
               yMax: 70,
-              backgroundColor: 'rgba(255, 99, 132, 0.25)'
+              backgroundColor: 'black'
             }
           }
         }
@@ -63,14 +64,14 @@ const ResponseTimeChart = ({responseTimes, expectedResponseTime }) => {
         annotations: {
           thresholdLine: {
             type: 'line',
-            yMin: (expectedResponseTime), // Set the y-value for the threshold line
-            yMax: (expectedResponseTime), // Same value for a horizontal line
-            borderColor: 'red',
+            yMin: expectedResponseTime, // Set the y-value for the threshold line
+            yMax: expectedResponseTime, // Same value for a horizontal line
+            borderColor: 'green',
             borderWidth: 2,
             label: {
               content: 'Threshold',
               enabled: true,
-              position: 'end',
+              
               color: 'red',
             },
           },

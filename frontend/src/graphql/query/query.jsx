@@ -29,7 +29,7 @@ export const GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT = gql`
 
 export const GET_API_TYPE = gql`
   query{
-    apiTypeChoices {
+    methodTypeChoices {
     key
     value
   }
@@ -47,10 +47,11 @@ export const GET_AUTH_VALUE = gql`
 
 
 export const VALIDATE_API = gql`
-  query validateApi($apiURL: String!, $apiType: String!, $query: String){
-    validateApi(apiUrl: $apiURL, apiType: $apiType, query: $query){
+  query validateApi($apiUrl: String!, $methodType: String!, $headers: String, $requestBody: String){
+    validateApi(apiUrl: $apiUrl, methodType: $methodType, headers: $headers, requestBody: $requestBody){
       status
       success
+      message
     }
   }
 `;
@@ -74,13 +75,13 @@ export const GET_ALL_METRICS = gql`
     getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate,searchParam: $searchParam) {
       id
       apiName
-      apiType
       apiUrl
       availability_uptime
+      methodType
       success_rates
       avg_latency
       isApiActive
-      
+      last_Error_Occurred
     }
   }
 `;
@@ -89,8 +90,9 @@ export const GET_METRICES_BY_ID = gql`
   query GetAllMetrics($apiMonitoringId: UUID!) {
     getAllMetrices(apiMonitoringId: $apiMonitoringId) {
       apiName
-      apiType
+      last_Error_Occurred
       apiUrl
+      methodType
       avg_response_size
       avg_latency
       isApiActive
