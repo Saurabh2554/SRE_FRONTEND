@@ -129,7 +129,7 @@ export default function Dashboard() {
     setDateRange(newDateRange);
     console.log('Selected Date Range:', newDateRange);
   
-    if (businessUnit && subBusinessUnit && newDateRange[0] && newDateRange[1]) {
+    if (businessUnit && subBusinessUnit && (newDateRange[0] || newDateRange[1])) {
       const variables = {
         businessUnit,
         subBusinessUnit,

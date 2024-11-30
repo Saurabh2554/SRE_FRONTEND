@@ -131,7 +131,7 @@ export default function NewService() {
             businessUnit,
             subBusinessUnit,
             apiName: serviceName,
-            apiType: method,
+           
             apiUrl: url,
             apiCallInterval: parseInt(frequencyTime, 10),
             expectedResponseTime: parseInt(responseTime, 10), 
@@ -181,7 +181,7 @@ export default function NewService() {
         const result = await validateApi({
           variables: {
             apiURL: url,
-            apiType: 'REST'
+           // apiType: 'REST'
           }
         });
         
@@ -197,7 +197,7 @@ export default function NewService() {
           const result = await validateApi({
             variables:{
               apiURL: url,
-              apiType: 'GraphQL',
+              //apiType: 'GraphQL',
               query: body
             }
           });

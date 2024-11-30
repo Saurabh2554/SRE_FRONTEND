@@ -74,7 +74,6 @@ export const GET_ALL_METRICS = gql`
     getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate,searchParam: $searchParam) {
       id
       apiName
-      apiType
       apiUrl
       availability_uptime
       success_rates
@@ -86,10 +85,9 @@ export const GET_ALL_METRICS = gql`
 `;
 
 export const GET_METRICES_BY_ID = gql`
-  query GetAllMetrics($apiMonitoringId: UUID!) {
-    getAllMetrices(apiMonitoringId: $apiMonitoringId) {
+  query GetAllMetrics($apiMonitoringId: UUID!,$fromDate: DateTime, $toDate: DateTime) {
+    getAllMetrices(apiMonitoringId: $apiMonitoringId, fromDate: $fromDate, toDate: $toDate) {
       apiName
-      apiType
       apiUrl
       avg_response_size
       avg_latency
@@ -97,6 +95,7 @@ export const GET_METRICES_BY_ID = gql`
       success_count
       availability_uptime
       error_count
+      methodType
       expectedResponseTime
       success_rates
       error_rates

@@ -54,7 +54,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
    // { field: 'id', headerName: 'ID', width: 90 },
     { field: 'apiName', headerName: 'API Name', width: 200 },
     { field: 'apiUrl', headerName: 'API URL', width: 250 },
-    { field: 'apiType', headerName: 'API Type', width: 100 },
+    
     //{ field: 'expectedResponseTime', headerName: 'Expected Response Time (ms)', width: 200 },
     { field: 'availability_uptime', headerName: 'Availability (%)', width: 200 },
     //{ field: 'success_rates', headerName: 'Success(%)', width: 200 },
@@ -99,7 +99,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
 
   return (
     
-     <Box sx={{ height: 400, width: '90%' }}> 
+     <Box sx={{ height: 400, width: '60%' }}> 
       <Typography variant="h6" gutterBottom>
         API Metrics
       </Typography>
