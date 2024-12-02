@@ -3,7 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Box, Typography ,Switch} from '@mui/material';
 import { useNavigate } from 'react-router-dom'; 
 import { styled } from '@mui/material/styles';
-
+import moment from 'moment';
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -50,15 +50,20 @@ export const ApiDataGrid = ({ metrics,error }) => {
 
   const navigate = useNavigate();
   // Define columns for the DataGrid
+  
   const columns = [
-   // { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'apiName', headerName: 'API Name', width: 200 },
-    { field: 'apiUrl', headerName: 'API URL', width: 250 },
-    
-    //{ field: 'expectedResponseTime', headerName: 'Expected Response Time (ms)', width: 200 },
-    { field: 'availability_uptime', headerName: 'Availability (%)', width: 200 },
-    //{ field: 'success_rates', headerName: 'Success(%)', width: 200 },
-    { field: 'avg_latency', headerName: 'Avg Latency(sec)', width: 200 },
+    { field: 'apiName', headerName: 'Name', width: 200 },
+    { field: 'apiUrl', headerName: 'URL', width: 250 },
+    { field: 'methodType', headerName: 'Method', width: 200 },
+
+    { field: 'availability_uptime', headerName: 'Availability (%)', width: 150 },
+    { field: 'last_Error_Occurred', headerName: 'Last Error', width: 250,
+      renderCell: (params) => {
+
+        return params?.row?.last_Error_Occurred? moment(params?.row?.last_Error_Occurred).format('MMMM Do YYYY, h:mm:ss a') : 'Never Failed';
+      }
+  },
+    { field: 'avg_latency', headerName: 'Avg Latency(sec)', width: 150 },
     {
       field: 'status',
       headerName: 'Status',
@@ -90,23 +95,19 @@ export const ApiDataGrid = ({ metrics,error }) => {
   
   
   const handleRowClick = (params) => {
-    const apiId = params.row.id; 
+    const apiId = params.row.id;
     navigate(`/api-details/${apiId}`); // Navigate to api-details AB200
-    //console.log("AB",params);
   };
 
   
 
   return (
     
-     <Box sx={{ height: 400, width: '60%' }}> 
+    <Box sx={{ height: 'auto', width: '90%', marginTop:'2%' }}>
       <Typography variant="h6" gutterBottom>
         API Metrics
       </Typography>
 
-      
-
-      
       <DataGrid
         rows={metrics} // The data , set it to metrics later , currently with default 
         columns={columns} // The column definition

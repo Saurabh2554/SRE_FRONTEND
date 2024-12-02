@@ -29,7 +29,7 @@ export const GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT = gql`
 
 export const GET_API_TYPE = gql`
   query{
-    apiTypeChoices {
+    methodTypeChoices {
     key
     value
   }
@@ -47,26 +47,14 @@ export const GET_AUTH_VALUE = gql`
 
 
 export const VALIDATE_API = gql`
-  query validateApi($apiURL: String!, $apiType: String!, $query: String){
-    validateApi(apiUrl: $apiURL, apiType: $apiType, query: $query){
+  query validateApi($apiUrl: String!, $methodType: String!, $headers: String, $requestBody: String){
+    validateApi(apiUrl: $apiUrl, methodType: $methodType, headers: $headers, requestBody: $requestBody){
       status
       success
+      message
     }
   }
 `;
-
-// export const GET_ALL_METRICS = gql`
-//   query GetAllMetrics($businessUnit: UUID, $subBusinessUnit: UUID) {
-//     getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit) {
-//       id
-//       apiName
-//       apiType
-//       apiUrl
-//       expectedResponseTime
-//       availability_uptime
-//     }
-//   }
-// `;
 
 
 export const GET_ALL_METRICS = gql`
@@ -79,7 +67,13 @@ export const GET_ALL_METRICS = gql`
       success_rates
       avg_latency
       isApiActive
-      
+      methodType
+      lastErrorOccurred
+      response_time {
+        responsetime
+        timestamp
+        success
+      }
     }
   }
 `;
@@ -120,4 +114,28 @@ export const GET_METRICES_BY_ID = gql`
   }
 `;
 
+export const GET_SERVICE_BY_ID = gql`
+query GetServiceById($serviceId: UUID!) {
+getServiceById(serviceId: $serviceId) {
+  apiCallInterval
+  apiName
+  apiUrl
+  businessUnit {
+    id
+    businessUnitName
+  }
+  methodType
+  recipientDl
+  requestBody
+  subBusinessUnit {
+    id
+    subBusinessUnitName
+  }
+  id
+  headers
+  expectedResponseTime
+}
+
+}
+`;
 

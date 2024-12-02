@@ -12,8 +12,9 @@ ChartJS.register(...registerables, annotationPlugin);
 const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => {
 
   const labels = responseTimes.map(response => new Date(response.timestamp));
+ 
  // console.log("response time success status ",responseTimes);
-  console.log("101010::",graphUnit);
+
   const data = {
     labels: labels,
     datasets: [
@@ -24,7 +25,7 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 1,
         fill: true,
-        pointRadius: 0,
+        //pointRadius: 0,
         
       },
     ],
@@ -54,17 +55,16 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
       x: {
         type: 'time', // Use time-based scale
             time: {
-                unit: graphUnit.unit, // Set the unit to 'hour' (adjust as needed)
-                 
+                unit: graphUnit.unit, // Set the unit to 'hour' (adjust as needed) 
                 displayFormats: {
-                  hour: 'hh:mm a'
+                  hour: 'yyyy-MM-dd hh:mm a'
               },
               
             },
             
         title: {
           display: true,
-          text: 'Time',
+          text: 'Timestamp',
         },
         ticks: {
           autoSkip: true, // Automatically skip labels for clarity
@@ -78,28 +78,28 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
         },
       },
     },
-    plugins: {
-      annotation: {
-        annotations: {
-          thresholdLine: {
-            type: 'line',
-            yMin: (expectedResponseTime), // Set the y-value for the threshold line
-            yMax: (expectedResponseTime), // Same value for a horizontal line
-            borderColor: 'red',
-            borderWidth: 2,
-            label: {
-              content: 'Threshold',
-              enabled: true,
-              position: 'end',
-              color: 'red',
-            },
-          },
-        },
-      },
-    },
+    // plugins: {
+    //   annotation: {
+    //     annotations: {
+    //       thresholdLine: {
+    //         type: 'line',
+    //         yMin: (1033), // Set the y-value for the threshold line
+    //         yMax: (1033), // Same value for a horizontal line
+    //         borderColor: 'red',
+    //         borderWidth: 2,
+    //         label: {
+    //           content: 'Threshold',
+    //           enabled: true,
+    //           position: 'end',
+    //           color: 'red',
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
 
   };
-  const chartWidth = `${Math.max(responseTimes.length * 5, 800)}px`;
+  const chartWidth = `${Math.max(responseTimes.length * 20, 800)}px`;
 
   return ( <div className="chart-container">
     <div className="chart" style={{ minWidth: chartWidth }}>

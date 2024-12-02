@@ -69,3 +69,25 @@ export const CREATE_API_MONITOR = gql`
     }
   }
 `;
+
+export const UPDATE_API_MONITOR = gql`
+  mutation UpdateApiMonitor($input: MonitoredApiInput
+   $apiMonitorId: UUID!
+   $isApiActive: Boolean!) 
+   {
+    updateApiMonitor(
+    id:$apiMonitorId 
+    input: $input
+    isApiActive: $isApiActive
+    ) {
+      monitoredApi {
+        id
+        apiName
+        apiUrl
+        isApiActive
+      }
+      success
+      message
+    }
+  }
+`;
