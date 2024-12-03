@@ -4,8 +4,9 @@ import { Box, Typography ,Switch} from '@mui/material';
 import { useNavigate } from 'react-router-dom'; 
 import { styled } from '@mui/material/styles';
 import moment from 'moment';
+import CircleIcon from '@mui/icons-material/Circle';
 import { light } from '@mui/material/styles/createPalette';
-import CircleIcon from '@mui/icons-material/Circle'
+
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />

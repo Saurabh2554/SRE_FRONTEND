@@ -121,7 +121,7 @@ export default function NewBusinessUnit() {
                   disabled
                   fullWidth
                   id="created_by"
-                  label="Owner" //Here current user will appear
+                  label="System Integeration" //Here current user will appear
                   name="Created By"
                   type="text"
                 />

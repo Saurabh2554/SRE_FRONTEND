@@ -16,6 +16,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import NewServiceUpdate from '../New_Service/newServiceUpdate';
 import {UPDATE_API_MONITOR} from '../../graphql/mutation/mutation';
 import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
+import NoData from "../../common/Resources/NoData.jpg";
+
 const boxstyle = {
     position: "absolute",
     top: "50%",
@@ -149,9 +151,12 @@ else if (selectedRange === '1Mon') {
 };
 
 
-
+{/* <p>Error loading data: {error.message}</p> */}
    if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading data: {error.message}</p>;
+  if (error) return <Box display="flex" justifyContent="center" alignItems="center" height="400px">
+  <img src={NoData} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7, marginTop: "200px" }} />
+  
+</Box>;
   const { apiName, apiUrl, avg_response_size,isApiActive, avg_latency,availability_uptime,methodType, response_time ,success_rates,error_rates,error_count,percentile_50,percentile_90,percentile_99,expectedResponseTime} = data?.getAllMetrices[0] || {};
  // console.log("Ayush",apiName, apiUrl, avg_response_size, avg_latency, response_time);
 

@@ -152,7 +152,7 @@ export default function NewSubBusinessUnit() {
                   label="Owner"
                   name="Created By"
                   type="text"
-                  value="static_email@example.com" // Replace with current user
+                  value="System Integeration" // Replace with current user
                 />
               </Grid>
 

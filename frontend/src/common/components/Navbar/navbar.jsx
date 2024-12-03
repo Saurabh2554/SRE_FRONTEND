@@ -102,7 +102,7 @@ export const MuiNavbar = () => {
             
             <Tooltip title="Connect with US" cursor="pointer">
               <Link
-                to="/"
+                to="/help"
                 style={{
                   textDecoration: "none",
                   color: "black",
