@@ -45,7 +45,7 @@ const center = {
 const boxstyle = {
   position: "absolute",
   top: "50%",
-  transform: "translate(3%, -50%)",
+  transform: "translate(3%, -45%)",
   width: "100%",
   height: "70%",
 };

@@ -29,16 +29,43 @@ export default function NewServiceUpdate({id}){
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+    const [mydata, setmydata] = useState()
     
     const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
-    const { data: serviceData, loading: serviceLoading, error: serviceError,refetch } = useQuery(GET_SERVICE_BY_ID,{
-        variables:{
-            serviceId:id
+    const [getServiceDetailsById] = useLazyQuery(GET_SERVICE_BY_ID)
+    //   {
+    //     variables:{
+    //         serviceId:id
+    //     },
+    //     // onCompleted: (data)=> {
+    //     //   console.log('oncomplete',data)
+    //     //   setmydata(data?.getServiceById)
+    //     // }
+    // });
+
+    const getData = async () => {
+      const response = await getServiceDetailsById({
+        variables: {
+          serviceId: id
         }
-    });
+      })
+      setmydata(response?.data?.getServiceById)
+      
+    }
+
+    useEffect(() => {
+      getData()
+    //   const parsedHeaders = JSON.parse(mydata?.headers)
+    // setHeaderFields(parsedHeaders.filter(vv=>vv.key!=''))
+    //  setFrequencyTime(mydata?.apiCallInterval)
+    //  setResponseTime(mydata?.expectedResponseTime)
+      
+    }, [id])
     
     const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API);
-    const {apiName, apiCallInterval,apiUrl,businessUnit,subBusinessUnit,methodType,headers, expectedResponseTime,requestBody} = serviceData?.getServiceById
+    // const {apiName, apiCallInterval,apiUrl,businessUnit,subBusinessUnit,methodType,headers, expectedResponseTime,requestBody} = serviceData?.getServiceById\
+    //const {apiName, apiCallInterval,apiUrl,businessUnit,subBusinessUnit,methodType,headers, expectedResponseTime,requestBody} = mydata
     
     const handleBodychange = (event) => {
         setBodytype(event.target.value);
@@ -107,11 +134,11 @@ export default function NewServiceUpdate({id}){
    
         const Header = [...headerFields, ...AuthHeader];
     
-        if(apiUrl){
+        if(mydata?.apiUrl){
           const result = await validateApi({
             variables: {
-              apiUrl: apiUrl,
-              methodType: methodType,
+              apiUrl: mydata?.apiUrl,
+              methodType: mydata?.methodType,
               headers: JSON.stringify(Header),
               requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : body
             }
@@ -128,22 +155,12 @@ export default function NewServiceUpdate({id}){
           }
     
     
-        } 
-      };
+         } 
+       };
 
-    useEffect(()=>{
-      refetch()
-     const parsedHeaders = JSON.parse(headers)
-     
-     setHeaderFields(parsedHeaders.filter(vv=>vv.key!=''))
-     setFrequencyTime(apiCallInterval)
-     setResponseTime(expectedResponseTime)
-    
-     
-    },[id])
     return <>
     
-    <Box sx={{ padding: '10px', backgroundColor: '#f4f4f4', height: '100vh', marginTop: '10px',width:"1000px" }}>
+    <Box sx={{ padding: '10px', backgroundColor: '#f4f4f4', height: '100vh', marginTop: '10px',width:"900px" }}>
       <Paper elevation={3} sx={{ padding: '20px' }}>
         <Grid container spacing={2} alignItems="center">
 
@@ -152,7 +169,7 @@ export default function NewServiceUpdate({id}){
                 required
                 fullWidth
                 label="Business Unit"
-                value={businessUnit?.businessUnitName}
+                value={mydata?.businessUnit?.businessUnitName}
                 variant="outlined"
                 disabled
               >
@@ -163,7 +180,7 @@ export default function NewServiceUpdate({id}){
                 required
                 fullWidth
                 label="Sub Business Unit"
-                value={subBusinessUnit?.subBusinessUnitName}
+                value={mydata?.subBusinessUnit?.subBusinessUnitName}
                 variant="outlined"
                 disabled
               >
@@ -174,7 +191,7 @@ export default function NewServiceUpdate({id}){
                 required
                 fullWidth
                 label="Service Name"
-                value={apiName}
+                value={mydata?.apiName}
                 variant="outlined"
                 disabled
               />
@@ -185,7 +202,7 @@ export default function NewServiceUpdate({id}){
               required
               fullWidth
               label="API Method"
-              value={methodType}
+              value={mydata?.methodType}
               variant="outlined"
               disabled
             >
@@ -196,7 +213,7 @@ export default function NewServiceUpdate({id}){
               fullWidth
               label="URL"
               variant="outlined"
-              value={apiUrl}
+              value={mydata?.apiUrl}
               required
               disabled
             />
@@ -416,7 +433,7 @@ export default function NewServiceUpdate({id}){
               variant="outlined"
               multiline
               rows={6}
-              value={body}
+              value={mydata?.body}
               sx={{ marginTop: 2 }}
               placeholder={bodyType === 'GraphQL' ? 'Write Your Query Here' : 'Input Body'}
               onChange={(e) => setBody(e.target.value)}
@@ -463,7 +480,7 @@ export default function NewServiceUpdate({id}){
                 fullWidth
                 required
                 label="Recipient DL"
-                value={recipientDL}
+                value={mydata?.recipientDL}
                 onChange={(e) => setRecipientDL(e.target.value)}
                 variant="outlined"
                 type="email"

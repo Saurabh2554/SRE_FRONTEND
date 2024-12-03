@@ -4,6 +4,8 @@ import { Box, Typography ,Switch} from '@mui/material';
 import { useNavigate } from 'react-router-dom'; 
 import { styled } from '@mui/material/styles';
 import moment from 'moment';
+import { light } from '@mui/material/styles/createPalette';
+import CircleIcon from '@mui/icons-material/Circle'
 
 const IOSSwitch = styled((props) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -79,12 +81,8 @@ export const ApiDataGrid = ({ metrics,error }) => {
 
         return (
           <Box display="flex" alignItems="center">
-            <IOSSwitch
-              checked={isActive} // Use the is_api_active field from the metrics
-              onChange={handleToggle} // Toggle the status
-            />
-            <Typography variant="body2" sx={{ ml: 1, mt:2 }}>
-              {isActive ? 'Active' : 'Inactive'}
+            <Typography variant="body2" sx={{ ml: 1, mt:2, fontWeight:light }}>
+              {isActive ?<> <CircleIcon sx = {{fontSize:"15px" }} color='success' size = 'small'/>Active</> : <><CircleIcon color='error' sx= {{fontSize:"15px" }} size = 'small'/> Inactive</>}
             </Typography>
           </Box>
         );

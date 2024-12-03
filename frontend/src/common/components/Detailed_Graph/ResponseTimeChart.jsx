@@ -21,7 +21,7 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
       {
         label: 'Response Time (ms)',
         data: responseTimes.map(response =>{ return response.responsetime} ),
-        borderColor: responseTimes.map(response => {return response.success?'rgba(75, 192, 192, 1)': 'rgba(255, 0, 0)'}) ,
+        borderColor: responseTimes.map(response => {return response.success? (response.responsetime <= expectedResponseTime ? 'green' : '#FFCC00' ) : 'rgba(255, 0, 0)'}) ,
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 1,
         fill: true,
@@ -78,25 +78,25 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
         },
       },
     },
-    // plugins: {
-    //   annotation: {
-    //     annotations: {
-    //       thresholdLine: {
-    //         type: 'line',
-    //         yMin: (1033), // Set the y-value for the threshold line
-    //         yMax: (1033), // Same value for a horizontal line
-    //         borderColor: 'red',
-    //         borderWidth: 2,
-    //         label: {
-    //           content: 'Threshold',
-    //           enabled: true,
-    //           position: 'end',
-    //           color: 'red',
-    //         },
-    //       },
-    //     },
-    //   },
-    // },
+    plugins: {
+      annotation: {
+        annotations: {
+          thresholdLine: {
+            type: 'line',
+            yMin: (expectedResponseTime), // Set the y-value for the threshold line
+            yMax: (expectedResponseTime), // Same value for a horizontal line
+            borderColor: 'red',
+            borderWidth: 2,
+            label: {
+              content: 'Threshold',
+              enabled: true,
+              position: 'end',
+              color: 'red',
+            },
+          },
+        },
+      },
+    },
 
   };
   const chartWidth = `${Math.max(responseTimes.length * 20, 800)}px`;

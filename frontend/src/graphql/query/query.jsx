@@ -68,7 +68,7 @@ export const GET_ALL_METRICS = gql`
       avg_latency
       isApiActive
       methodType
-      lastErrorOccurred
+      last_Error_Occurred
       response_time {
         responsetime
         timestamp
