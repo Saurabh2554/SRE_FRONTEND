@@ -2,7 +2,7 @@ import React, { useState ,useEffect} from 'react';
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
 import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 
-import { Box, Grid, TextField, Button, MenuItem, Typography, Paper, IconButton, AppBar, Tabs, Tab } from '@mui/material';
+import { Box, Grid, TextField, Button, MenuItem, Typography, Paper, IconButton, AppBar, Tabs, Tab, Tooltip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -11,9 +11,10 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import {Radio, RadioGroup, FormControl, FormControlLabel} from '@mui/material';
-
+import HelpIcon from '@mui/icons-material/Help';
+import Link from '@mui/material/Link';
 import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
-import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE, VALIDATE_API} from "../../graphql/query/query"; 
+import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT , GET_AUTH_VALUE,GET_API_TYPE, VALIDATE_API, VALIDATE_TEAMS_CHANNEL} from "../../graphql/query/query"; 
 import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
 
 
@@ -45,6 +46,9 @@ export default function NewService() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [apiresponse, setApiresonse] = useState({});
+  const [teamsChannelWebhookURL, setWebhookURL] = useState('');
+  const [maxretry, setmaxretry] = useState(3);
+  const [retryafter, setretryafter] = useState(60);
 
   const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
@@ -52,6 +56,7 @@ export default function NewService() {
   const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
   const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR, { errorPolicy: "all" });
   const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API);
+  const [validateTeamsChannel, {data: validateteams, loading: teamschannelloading, error: teamschannelerror}] = useLazyQuery(VALIDATE_TEAMS_CHANNEL);
 
   const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
@@ -128,8 +133,25 @@ export default function NewService() {
     setAuthInput({ username: '', password: '' });
   }, [authorizationType]);
 
-  const handleSend = async () => {
+  const handleSend = async (e) => {
+    e.preventDefault();
     try {
+      if(teamsChannelWebhookURL ){
+        console.log(teamsChannelWebhookURL);
+        const result = await validateTeamsChannel({
+          variables : {
+            channelUrl : teamsChannelWebhookURL
+          },
+        });
+        
+        if(result && !result?.data?.validateTeamsChannel?.success){
+          SetSnackbarFields(true, "Invalid Teams Channel URL", "error");
+          return;
+        }
+        console.log(result);
+      }
+
+
       const Header = [...headerFields, ...AuthHeader];
       const result = await createApiMonitor({
         variables: {
@@ -146,14 +168,30 @@ export default function NewService() {
             requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : (raw == 'JSON' ? JSON.stringify(body) : body),
             recipientDl: recipientDL,
             createdBy: 'user', 
+            teamsChannelWebhookURL : teamsChannelWebhookURL,
+            maxRetries : +maxretry,
+            retryAfter : +retryafter
           },
         },
       });
+      if(result && result?.data?.createApiMonitor?.success){
+        console.log(result.data);
+        console.log("Fffffffffff");
+        ResetStates();
+        SetSnackbarFields(true, result?.data?.createApiMonitor?.message, "success");
+      }
       if(error){
         SetSnackbarFields(true, error.message, "error");
-        return
+        return;
       }
-      setBusinessUnit('');
+      
+    } catch (er) {
+      SetSnackbarFields(true, "Unknown Error occured!", "error");
+    }
+  };
+
+  const ResetStates = () =>{
+    setBusinessUnit('');
     setSubBusinessUnit('');
     setServiceName('');
     setMethod('');
@@ -169,13 +207,8 @@ export default function NewService() {
     setTabValue('1');
     setButtonEnabled(false); 
     setAuthInput({ username: '', password: '' });
-    
-    } catch (er) {
-      SetSnackbarFields(true, "Unknown Error occured!", "error");
-    }
+    setWebhookURL('');
   };
-
-
   const handleSave = async () => {
    
     const Header = [...headerFields, ...AuthHeader];
@@ -272,8 +305,9 @@ export default function NewService() {
   return (<><MuiNavbar />
     <Box sx={{ padding: '30px', backgroundColor: '#f4f4f4', height: '100vh', marginTop: '70px' }}>
       <Paper elevation={3} sx={{ padding: '20px' }}>
+      <form onSubmit={handleSend} autoComplete="off">
         <Grid container spacing={2} alignItems="center">
-
+          
             <Grid item xs={12} md={4}>
               <TextField
                 select
@@ -352,8 +386,9 @@ export default function NewService() {
               variant="contained"
               fullWidth
               color="primary"
+              type='submit'
               startIcon={<SendIcon />}
-              onClick={handleSend}
+              
               disabled= {!isButtonEnabled}
             >
               Send
@@ -572,24 +607,26 @@ export default function NewService() {
 
 
         {/* Response Time, Frequency Time, and Recipient DL Fields */}
-        <Grid container spacing={2} sx={{ marginTop: '20px' }}>
-            <Grid item xs={12} md={4}>
+        <Grid container spacing={2} sx={{ marginTop: '20px'}}>
+            <Grid item xs={12} md={2}>
               <TextField
                 fullWidth
-                label="Response Time (in ms)"
+                label="Expected Response Time (in ms)"
                 value={responseTime}
                 onChange={(e) => setResponseTime(e.target.value)}
                 variant="outlined"
+                required
               />
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={2}>
               <TextField
                 fullWidth
                 select
-                label="Interval (min)"
+                label="Monitoring frequency (in min)"
                 value={frequencyTime}
                 onChange={(e) => setFrequencyTime(e.target.value)}
                 variant="outlined"
+                required
                 SelectProps={{
                   MenuProps: {
                     style: { maxHeight: 280 } 
@@ -604,11 +641,11 @@ export default function NewService() {
               </TextField>
               
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} md={3}>
               <TextField
                 fullWidth
                 required
-                label="Recipient DL"
+                label="Email for alerts"
                 value={recipientDL}
                 onChange={(e) => setRecipientDL(e.target.value)}
                 variant="outlined"
@@ -617,7 +654,70 @@ export default function NewService() {
                 maxRows={2}
               />
             </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Teams Channel URL for alerts"
+                value={teamsChannelWebhookURL}
+                onChange={(e) => setWebhookURL(e.target.value)}
+                variant="outlined"
+                
+              />
+            </Grid>
+            <Grid item xs={12} md={1} sx={{marginTop : "30px",marginLeft: "-10px"}}>
+              <Tooltip title={<><Link href = 'https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=newteams%2Cdotnet' target= '_blank' color="inherit">Generate WebHook Url</Link></>}>
+               <HelpIcon sx={{cursor : 'pointer'}} />
+              </Tooltip>
+            </Grid>
+            <Grid item xs={12} md={6} sx={{marginTop:'10px'}}>
+                  Retry on error a maximum of &nbsp;&nbsp;
+                  <TextField
+                    id="filled-number"
+                    value={maxretry}
+                    type="number"
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) => {setmaxretry(e.target.value)}}
+                    onBlur={() => {
+                      if (maxretry > 10) setmaxretry(10);
+                      if (maxretry < 3) setmaxretry(3);
+                    }}
+                    sx={{width:'60px','& .MuiInputBase-root': {
+                      height: '25px', 
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: '5px', 
+                    },}}
+                    inputProps={{
+                      min: 3, 
+                      max: 10, 
+                    }}
+                  /> &nbsp; times, with an interval of &nbsp;&nbsp;
+                  <TextField
+                    id="filled-number"
+                    value={retryafter}
+                    type="number"
+                    variant="outlined"
+                    size="small"
+                    onChange={(e) => {setretryafter(e.target.value)}}
+                    onBlur={() => {
+                      if (retryafter > 600) setretryafter(600);
+                      if (retryafter < 60) setretryafter(60);
+                    }}
+                    sx={{width:'70px','& .MuiInputBase-root': {
+                      height: '25px', 
+                    },
+                    '& .MuiInputBase-input': {
+                      padding: '5px', 
+                    },}}
+                    inputProps={{
+                      min: 60, 
+                      max: 600, 
+                    }}
+                  /> &nbsp; seconds.
+            </Grid>
           </Grid>
+        </form>
       </Paper>
     </Box>
     {/* <Snackbar open={openSnackbar} autoHideDuration={5000} onClose={handleCloseSnackbar}>
