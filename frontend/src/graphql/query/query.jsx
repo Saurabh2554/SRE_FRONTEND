@@ -139,3 +139,13 @@ getServiceById(serviceId: $serviceId) {
 }
 `;
 
+export const VALIDATE_TEAMS_CHANNEL = gql`
+  query validateTeamsChannel($channelUrl : String!){
+    validateTeamsChannel(channelUrl : $channelUrl){
+      message
+      success
+      status
+    }
+  }
+`;
+
