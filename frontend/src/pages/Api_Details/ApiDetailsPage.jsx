@@ -273,7 +273,7 @@ else if (+newValue === 1) {
       </Tooltip>
 
       {/* P100 Section */}
-      <Tooltip title={<> 95% of the response times <br /> are lower than the displayed value </>}>
+      <Tooltip title={<> 90% of the response times <br /> are lower than the displayed value </>}>
         <Grid item xs={12} md={3}>
           <Typography variant="caption">P90</Typography>
           <Typography>{percentile_90.currPercentileResTime} &nbsp;&nbsp;
