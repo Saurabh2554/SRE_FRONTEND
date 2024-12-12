@@ -64,14 +64,8 @@ export default function ApiDetailsPage() {
     },
   });
   const [dateRange, setDateRange] = useState([null, null]);
-  const [successRate, setSuccessRate] = useState(97.19); // Example percentages
-  const [errorRate, setErrorRate] = useState(2.29);
-  const [percentiles, setPercentiles] = useState({
-    p50: 120,
-    p90: 200,
-    p95: 240,
-  });
-  const [timeRange, setTimeRange] = useState('12H'); 
+
+  const [timeRange, setTimeRange] = useState('12'); // This State will be removed as setTimeRange is not being used
   const [graphUnit,setGraphUnit] = useState({
     stepSize : 1,
     unit : 'hour'
@@ -81,6 +75,8 @@ export default function ApiDetailsPage() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  //const[timeUnit,setTimeUnit]=useState('hours');
+ 
 
 const setGraphUnitHandler =(stepsize, unit='hour')=>{
   setGraphUnit({
@@ -134,6 +130,7 @@ const handleButtonClick =async(event)=>{
 
 const handleTimeRangeChange = (event, newValue) => {
   //const selectedRange = event.target.value;
+  
   setTimeRange(newValue);
 
   //const selectedRange = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue.target.value;
@@ -142,44 +139,45 @@ const handleTimeRangeChange = (event, newValue) => {
   // Calculate date range based on the selected time range
   const now = new Date();
   let fromDate;
+  let timeUnit;
  // let toDate = new Date(responseTimes.at(-1)?.timestamp); 
   let toDate = responseTimes?.length > 0 ? new Date(responseTimes.at(-1)?.timestamp) : now; // Fallback to 'now'
 
-   if (newValue === '12H') {
-      fromDate = new Date(toDate - 12 * 60 * 60 * 1000);
-      setGraphUnitHandler(1)
+   if (+newValue === 12) {
+    timeUnit="hours";
+      setGraphUnitHandler(1);
 
-  } else if (newValue === '24H') {
-      fromDate = new Date(toDate - 24 * 60 * 60 * 1000);
+  } else if (+newValue === 24) {
+    timeUnit="hours";
       setGraphUnitHandler(2)
   }
-  else if (newValue === '48H') {
-    fromDate = new Date(toDate - 48 * 60 * 60 * 1000);
+  else if (+newValue === 48) {
+    timeUnit="hours";
     setGraphUnitHandler(4)
 }
-else if (newValue === '72H') {
-  fromDate = new Date(toDate - 72 * 60 * 60 * 1000);
+else if (+newValue === 72) {
+  timeUnit="hours";
   setGraphUnitHandler(8)
 }
-else if (newValue === '1M') {
-  fromDate = new Date(toDate - 720 * 60 * 60 * 1000);
+else if (+newValue === 1) {
+  timeUnit="months";
   setGraphUnitHandler(1, 'day')
 }
 
 
-if (fromDate && toDate) {
+
   // Update the state for date range
   setDateRange([fromDate, toDate]);
 
   // Fetch data with the selected time range
+  
   refetch({
     apiMonitoringId: id,
-    fromDate: fromDate.toISOString(),
-    toDate: toDate.toISOString(),
+    timeRange:+newValue,
+    timeUnit:timeUnit,
   });
-} else {
-  console.error("Invalid date range: fromDate or toDate is undefined.");
-}
+  console.log("Refetched Graph");
+
 
   // Update the state for date range  1Mon
   // setDateRange([fromDate, now]);
@@ -357,11 +355,11 @@ if (fromDate && toDate) {
       <Grid container alignItems="center"  style={{ marginBottom: "20px" }}>
       <Typography variant="h6" sx={{ fontWeight: 'bold', marginRight:'20px'}} >Analysis</Typography>
       <CustomTabs value={timeRange} onChange={handleTimeRangeChange} aria-label="custom tabs">
-      <CustomTab label="12H" key="12H" value="12H" />
-      <CustomTab label="24H" key="24H" value="24H" />
-      <CustomTab label="48H" key="48H" value="48H" />
-      <CustomTab label="72H" key="72H" value="72H" />
-      <CustomTab label="1M" key="1M" value="1M" />
+      <CustomTab label="12H" key="12" value="12" />
+      <CustomTab label="24H" key="24" value="24" />
+      <CustomTab label="48H" key="48" value="48" />
+      <CustomTab label="72H" key="72" value="72" />
+      <CustomTab label="1M" key="1" value="1" />
 
     </CustomTabs>
     

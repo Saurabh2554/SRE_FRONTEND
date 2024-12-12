@@ -79,8 +79,8 @@ export const GET_ALL_METRICS = gql`
 `;
 
 export const GET_METRICES_BY_ID = gql`
-  query GetAllMetrics($apiMonitoringId: UUID!,$fromDate: DateTime, $toDate: DateTime) {
-    getAllMetrices(apiMonitoringId: $apiMonitoringId, fromDate: $fromDate, toDate: $toDate) {
+  query GetAllMetrics($apiMonitoringId: UUID!,$fromDate: DateTime, $toDate: DateTime ,$timeRange:Int,$timeUnit:String) {
+    getAllMetrices(apiMonitoringId: $apiMonitoringId, fromDate: $fromDate, toDate: $toDate,timeRange:$timeRange,timeUnit:$timeUnit) {
       apiName
       apiUrl
       avg_response_size

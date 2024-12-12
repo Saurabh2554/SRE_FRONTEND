@@ -82,17 +82,29 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
         annotations: {
           thresholdLine: {
             type: 'line',
-            yMin: (expectedResponseTime), // Set the y-value for the threshold line
-            yMax: (expectedResponseTime), // Same value for a horizontal line
+            yMin: expectedResponseTime, // Set the y-value for the threshold line
+            yMax: expectedResponseTime, // Same value for a horizontal line
             borderColor: 'red',
             borderWidth: 2,
             label: {
-              content: 'Threshold',
-              enabled: true,
+              content: `Expected Response Time: ${expectedResponseTime} ms`, // Tooltip content
+              enabled: true, // Enable label for annotation
               position: 'end',
-              color: 'red',
+              color: 'white',
+              backgroundColor: 'red',
+              font: {
+                size: 12,
+                weight: 'bold',
+              },
             },
+             // Enable hover interaction
+          hoverBackgroundColor: 'rgba(255, 99, 132, 0.25)', // Optional for visual feedback
+          borderDash: [5, 5], // Dashed line for better visibility
+          
+            
           },
+          
+          
         },
       },
       tooltip: {
