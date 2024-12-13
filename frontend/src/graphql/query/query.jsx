@@ -88,6 +88,7 @@ export const GET_METRICES_BY_ID = gql`
       isApiActive
       success_count
       availability_uptime
+      avg_first_byte_time
       error_count
       methodType
       expectedResponseTime

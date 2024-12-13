@@ -197,7 +197,7 @@ else if (+newValue === 1) {
   <img src={NoData} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7, marginTop: "200px" }} />
   
 </Box>;
-  const { apiName, apiUrl, avg_response_size,isApiActive, avg_latency,availability_uptime,methodType, response_time ,success_rates,error_rates,error_count,percentile_50,percentile_90,percentile_99,expectedResponseTime} = data?.getAllMetrices[0] || {};
+  const { apiName, apiUrl, avg_response_size,isApiActive, avg_latency,availability_uptime,methodType, response_time ,success_rates,error_rates,error_count,percentile_50,percentile_90,percentile_99,expectedResponseTime,avg_first_byte_time} = data?.getAllMetrices[0] || {};
  // console.log("Ayush",apiName, apiUrl, avg_response_size, avg_latency, response_time);
   
   const responseTimes = response_time?.map(({ responsetime, timestamp,success }) => ({
@@ -262,7 +262,7 @@ else if (+newValue === 1) {
       {/* P50 Section */}
       <Tooltip title={<> 50% of the response times <br /> are lower than the displayed value </>}>
       <Grid item xs={12} md={3}>
-        <Typography variant="caption">P50</Typography>
+        <Typography variant="caption">P50 (in ms)</Typography>
         <Typography>{percentile_50.currPercentileResTime}&nbsp;&nbsp;
         <span style={{ color: percentile_50.percentageDiff < 0 ? 'red' : 'green' , fontSize: '0.75rem' }}>
         {percentile_50.percentageDiff < 0 ? <ArrowDropDownIcon fontSize="small" style={{ verticalAlign: 'middle' }}/> : <ArrowDropUpIcon fontSize="small" style={{ verticalAlign: 'middle' }} />}
@@ -275,7 +275,7 @@ else if (+newValue === 1) {
       {/* P100 Section */}
       <Tooltip title={<> 90% of the response times <br /> are lower than the displayed value </>}>
         <Grid item xs={12} md={3}>
-          <Typography variant="caption">P90</Typography>
+          <Typography variant="caption">P90 (in ms)</Typography>
           <Typography>{percentile_90.currPercentileResTime} &nbsp;&nbsp;
           <span style={{ color: percentile_90.percentageDiff < 0 ? 'red' : 'green', fontSize: '0.75rem'  }}> 
           {percentile_90.percentageDiff < 0 ? <ArrowDropDownIcon fontSize="small" style={{ verticalAlign: 'middle' }}/> : <ArrowDropUpIcon fontSize="small" style={{ verticalAlign: 'middle' }} />}
@@ -290,7 +290,7 @@ else if (+newValue === 1) {
 
       <Tooltip title={<> 99% of the response times <br /> are lower than the displayed value </>}>  
       <Grid item xs={12} md={3}>
-        <Typography variant="caption">P99</Typography>
+        <Typography variant="caption">P99 (in ms)</Typography>
         <Typography>{percentile_99.currPercentileResTime} &nbsp;&nbsp;
         <span style={{ color: percentile_99.percentageDiff < 0 ? 'red' : 'green',fontSize: '0.75rem' }}> 
         {percentile_99.percentageDiff < 0 ? <ArrowDropDownIcon fontSize="small" style={{ verticalAlign: 'middle' }}/> : <ArrowDropUpIcon fontSize="small" style={{ verticalAlign: 'middle' }} />}
@@ -333,7 +333,7 @@ else if (+newValue === 1) {
       {/*  */}
     <Grid item xs={12} md={3}>
         <Typography variant="caption">Avg First byte Time</Typography>
-        <Typography>{avg_response_size}</Typography>
+        <Typography>{avg_first_byte_time} sec</Typography>
       </Grid>
       {/* Failures */}
     <Grid item xs={12} md={3}>
@@ -405,7 +405,6 @@ else if (+newValue === 1) {
       </Grid>
       <Grid item xs={12} md={3}  >
       <SuccessFailurePieChart success_rates={success_rates} error_rates={error_rates} circumference = {20} />
-      <Typography variant="caption" sx={{ fontWeight: 'bold', marginTop:"100px",fontSize:'15px'}} >Notifications</Typography> 
       </Grid>
       
       

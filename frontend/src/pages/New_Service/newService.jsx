@@ -55,7 +55,9 @@ export default function NewService() {
   const { data: methodData, loading: methodLoading, error: methodError } = useQuery(GET_API_TYPE);
   const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
   const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR, { errorPolicy: "all" });
-  const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API);
+  const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API,{
+    fetchPolicy: 'network-only',
+  });
   const [validateTeamsChannel, {data: validateteams, loading: teamschannelloading, error: teamschannelerror}] = useLazyQuery(VALIDATE_TEAMS_CHANNEL);
 
   const handleBusinessUnitChange = (e) => {

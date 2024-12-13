@@ -57,7 +57,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
   const columns = [
     { field: 'apiName', headerName: 'Name', width: 200 },
     { field: 'apiUrl', headerName: 'URL', width: 250 },
-    { field: 'methodType', headerName: 'Method', width: 200 },
+    { field: 'methodType', headerName: 'Method', width: 100 },
 
     { field: 'availability_uptime', headerName: 'Availability (%)', width: 150 },
     { field: 'last_Error_Occurred', headerName: 'Last Error', width: 250,
