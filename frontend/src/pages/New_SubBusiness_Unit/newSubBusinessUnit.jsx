@@ -101,7 +101,7 @@ export default function NewSubBusinessUnit() {
                   value={businessUnit}
                   onChange={(e) => setBusinessUnit(e.target.value)}
                 >
-                  {businessUnitsData.allBusinessUnit.map((unit) => (
+                  {businessUnitsData.businessUnit.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
                       {unit.businessUnitName}
                     </MenuItem>

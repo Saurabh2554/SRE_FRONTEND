@@ -86,14 +86,16 @@ export default function NewService() {
 
   const handleAuthChange = (e) => {
     const { name, value } = e.target;
+    console.log(name, " name ", value)
     setAuthInput((prev) => ({
       ...prev,
       [name]: value,
     }));
+ 
   };
 
   const addHeaderFields = () => {
-    
+
     let authValue = '';
     const authorizationObj ={};
     if(authorizationType === 'API_KEY' && (authInput.username !== '' && authInput.password !== '') ){
@@ -178,7 +180,7 @@ export default function NewService() {
       });
       if(result && result?.data?.createApiMonitor?.success){
         console.log(result.data);
-        console.log("Fffffffffff");
+
         ResetStates();
         SetSnackbarFields(true, result?.data?.createApiMonitor?.message, "success");
       }
@@ -320,7 +322,7 @@ export default function NewService() {
                 onChange={handleBusinessUnitChange}
                 variant="outlined"
               >
-                {businessUnitsData.allBusinessUnit.map((unit) => (
+                {businessUnitsData?.businessUnit?.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
                       {unit.businessUnitName}
                     </MenuItem>

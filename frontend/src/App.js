@@ -5,6 +5,7 @@ import NewSubBusinessUnit from "./pages/New_SubBusiness_Unit/newSubBusinessUnit"
 import NewService from "./pages/New_Service/newService";
 import ApiDetailsPage from "./pages/Api_Details/ApiDetailsPage";
 import Help from "./pages/Help/HelpPage";
+import MonitorService from "./pages/Monitor/MonitorService";
 function App() {
   return (
     <>
@@ -22,6 +23,7 @@ function App() {
             element={<NewSubBusinessUnit />}
           ></Route>
           <Route path="/newService" exact element={<NewService />}></Route>
+          <Route path="/monitorService" exact element={<MonitorService />}></Route>
           <Route path="/api-details/:id" element={<ApiDetailsPage />} />
           <Route
             path="/help"

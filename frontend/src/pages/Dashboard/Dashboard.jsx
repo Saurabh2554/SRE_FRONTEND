@@ -163,7 +163,6 @@ export default function Dashboard() {
   }, [searchText]);
 
   useEffect(() => {
-    console.log(metricsData);
     if (metricsData) {
       setMetrics(metricsData.getAllMetrices);
     }
@@ -172,7 +171,7 @@ export default function Dashboard() {
   
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
-  console.log("Metrics Error :",metricsDataError);
+  console.log("Metrics Error :",businessUnitsData);
 
   
    return (
@@ -190,7 +189,7 @@ export default function Dashboard() {
                 onChange={handleBusinessUnitChange}
                 variant="outlined"
               >
-                {businessUnitsData.allBusinessUnit.map((unit) => (
+                {businessUnitsData?.businessUnit?.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
                       {unit.businessUnitName}
                     </MenuItem>

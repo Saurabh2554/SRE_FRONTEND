@@ -103,7 +103,6 @@ const handleButtonClick =async(event)=>{
   if(event.target.innerText ==='Deactivate'){
     const result = await updateApiMonitor({
       variables:{
-        input:{},
         apiMonitorId:id,
         isApiActive:false
       }

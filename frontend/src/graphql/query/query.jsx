@@ -2,7 +2,7 @@ import { gql } from "graphql-tag";
 
 export const GET_ALL_BUSINESS_UNIT = gql`
   query {
-    allBusinessUnit {
+    businessUnit {
       id
       businessUnitName
     }
@@ -11,7 +11,7 @@ export const GET_ALL_BUSINESS_UNIT = gql`
 
 export const GET_ALL_SUB_BUSINESS_UNIT = gql`
   query {
-    allSubBusinessUnit {
+   subBusinessUnit {
       id
       subBusinessUnitName
     }
