@@ -103,7 +103,6 @@ const handleButtonClick =async(event)=>{
   if(event.target.innerText ==='Deactivate'){
     const result = await updateApiMonitor({
       variables:{
-        input:{},
         apiMonitorId:id,
         isApiActive:false
       }
@@ -331,10 +330,12 @@ else if (+newValue === 1) {
         
       </Grid>
       {/*  */}
+      <Tooltip title={<> Average time elapsed to receive <br/>the first byte of the response. </>}>
     <Grid item xs={12} md={3}>
         <Typography variant="caption">Avg First byte Time</Typography>
         <Typography>{avg_first_byte_time} sec</Typography>
       </Grid>
+      </Tooltip>
       {/* Failures */}
     <Grid item xs={12} md={3}>
         <Typography variant="caption">Failures</Typography>

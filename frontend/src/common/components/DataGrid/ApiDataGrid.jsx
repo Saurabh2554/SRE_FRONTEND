@@ -63,7 +63,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
     { field: 'last_Error_Occurred', headerName: 'Last Error', width: 250,
       renderCell: (params) => {
 
-        return params?.row?.last_Error_Occurred? moment(params?.row?.last_Error_Occurred).format('MMMM Do YYYY, h:mm:ss a') : 'Never Failed';
+        return params?.row?.last_Error_Occurred? moment(params?.row?.last_Error_Occurred).format('MMMM Do YYYY, h:mm:ss a') : 'Never Failed Since Scheduled';
       }
   },
     { field: 'avg_latency', headerName: 'Avg Latency(sec)', width: 150 },
@@ -72,7 +72,7 @@ export const ApiDataGrid = ({ metrics,error }) => {
       headerName: 'Status',
       width: 150,
       renderCell: (params) => {
-        const isActive = params.row.isApiActive; // Access is_api_active from the row data
+        const isActive = params.row.isApiActive; 
 
         // Handle toggle action
         const handleToggle = () => {
@@ -108,12 +108,12 @@ export const ApiDataGrid = ({ metrics,error }) => {
       </Typography>
 
       <DataGrid
-        rows={metrics} // The data , set it to metrics later , currently with default 
-        columns={columns} // The column definition
-        pageSize={5} // Number of rows per page
-        rowsPerPageOptions={[5, 10, 25]} // Page size options
-        pagination // Enable pagination
-        autoHeight // Automatically adjust height to the content
+        rows={metrics} 
+        columns={columns} 
+        pageSize={5}
+        rowsPerPageOptions={[5, 10, 25]} 
+        pagination 
+        autoHeight 
         onRowClick={handleRowClick}
         
       />
