@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Tab1 from './Tab1';
 import Tab4 from './Tab4';
 import Tab3 from './Tab3';
 import Tab2 from './Tab2';
-import { Box, Grid, TextField, Button, MenuItem, Typography, Paper, Stepper, Step, StepLabel } from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Box,Button,Stepper, Step, StepLabel } from '@mui/material';
 import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
+import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import {VALIDATE_TEAMS_CHANNEL} from "../../graphql/query/query"; 
 import { useMutation,useLazyQuery } from "@apollo/client";
 import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
@@ -35,23 +35,27 @@ const MonitorService = () => {
       addheaderto: '',
     },
     tab3: {
-        responseTime: '',
+      degradedResponseTime: 3000,
+      failedResponseTime: 20000
     },
     tab4: {
-      frequencyTime: '',
-      recipientDL: '',
+      apiCallInterval: '',
+      recipientDl: '',
       teamsChannelWebhookURL: '',
-      maxretry: 3,
-      retryafter: 60,
+      maxRetries: 3,
+      retryAfter: 60,
+      createdBy: 'user'
     },
   });
+
+  const initialStateRef = useRef(state);
   const [snackbarState, setSnackBarState]=useState({
     open:false,
     message:'',
     severity:''
   })
   const handleCloseSnackbar = (event, reason) => {
-    console.log(reason,"reason")
+    
     if (reason === "clickaway") {
       return;
     }
@@ -70,7 +74,6 @@ const MonitorService = () => {
     }
   };
   const handleSend = async(e)=>{
-    console.log(activeStep,"active-step.....")
     e.preventDefault()
     
     if(activeStep===3){
@@ -79,7 +82,7 @@ const MonitorService = () => {
         const {url,method,headerFields,bodyType,body,raw,authHeader} = state.tab2
         const {responseTime} = state.tab3
         const {frequencyTime, recipientDL,teamsChannelWebhookURL,maxretry,retryafter} = state.tab4
-        console.log(activeStep,"active-step-check-2.....")
+        
         if(teamsChannelWebhookURL ){
  
           const result = await validateTeamsChannel({
@@ -95,40 +98,36 @@ const MonitorService = () => {
         }
 
         
+        const Header = [...headerFields, ...authHeader];
+        const result = await createApiMonitor({
+          variables: {
+            input: {
+              businessUnit,
+              subBusinessUnit,
+              apiName: serviceName,
+              methodType: method,
+              apiUrl: url,
+              headers: JSON.stringify(Header),
+              requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : (raw == 'JSON' ? JSON.stringify(body) : body),
+              assertionAndLimit: state.tab3,
+              schedulingAndAlerting: state.tab4
+            },
+          },
+        });
+        if(result && result?.data?.createApiMonitor?.success){
 
-        // const Header = [...headerFields, ...authHeader];
-        // const result = await createApiMonitor({
-        //   variables: {
-        //     input: {
-        //       businessUnit,
-        //       subBusinessUnit,
-        //       apiName: serviceName,
-        //       methodType: method,
-        //       apiUrl: url,
-        //       apiCallInterval: parseInt(frequencyTime, 10),
-        //       expectedResponseTime: parseInt(responseTime, 10), 
-        //       headers: JSON.stringify(Header),
-        //       requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : (raw == 'JSON' ? JSON.stringify(body) : body),
-        //       recipientDl: recipientDL,
-        //       createdBy: 'user', 
-        //       teamsChannelWebhookURL : teamsChannelWebhookURL,
-        //       maxRetries : +maxretry,
-        //       retryAfter : +retryafter
-        //     },
-        //   },
-        // });
-        // if(result && result?.data?.createApiMonitor?.success){
-
-        //   SetSnackbarFields(true, result?.data?.createApiMonitor?.message, "success");
+          SetSnackbarFields(true, result?.data?.createApiMonitor?.message, "success");
          
-        // }
-        // if(error){
-        //   SetSnackbarFields(true, error.message, "error");
-        //   return;
-        // }
-        // window.location.reload()
+        }
+        if(error){
+          SetSnackbarFields(true, error.message, "error");
+          return;
+        }
+        setState(initialStateRef.current);
+        setActiveStep(0);
+        setIsButtonEnabled(false);
       } catch (er) {
-        console.log(er,"err")
+        
         SetSnackbarFields(true, "Unknown Error occured!", "error");
       }
     }else{
@@ -141,43 +140,42 @@ const MonitorService = () => {
   
   return (
     <div style={{padding:20}}>
-       
-      <div style={{marginBottom:30}}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => (
-          <Step key={index}>
-            <StepLabel
-              onClick={() => handleStepClick(index)}
-              style={{
-                cursor: index <= activeStep ? 'pointer' : 'default',
-                color: index <= activeStep ? 'inherit' : 'gray',
-              }}
-            >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      </div>
-      <form onSubmit={handleSend} autoComplete="off">
+      <MuiNavbar />
+      <Box sx={{ display: 'flex', flexDirection: 'column', width: '80%', margin: '10rem auto'}}>
+        <div style={{marginBottom: '3rem'}}>
+          <Stepper activeStep={activeStep}>
+            {steps.map((label, index) => (
+              <Step key={index}>
+                <StepLabel
+                  onClick={() => handleStepClick(index)}
+                  style={{
+                    cursor: index <= activeStep ? 'pointer' : 'default',
+                    color: index <= activeStep ? 'inherit' : 'gray',
+                  }}
+                >
+                  {label}
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </div>
+      <form onSubmit={handleSend} autoComplete="off" style={{display: 'flex', flexDirection: 'column'}}>
       {activeStep === 0 && <Tab1 state={state.tab1}  setState={(newState) => setState({ ...state, tab1: newState })} />}
       {activeStep === 1 && <Tab2 state={state.tab2} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} enableButton = {setIsButtonEnabled} isButtonEnabled = {isButtonEnabled} setState={(newState) => {setState({ ...state, tab2: newState })}} />}
       {activeStep === 2 && <Tab3 state={state.tab3}  setState={(newState) => setState({ ...state, tab3: newState })} />}
       {activeStep === 3 && <Tab4 state={state.tab4} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} setState={(newState) => setState({ ...state, tab4: newState })} />}
       <Button
         variant="contained"
-        fullWidth
         color="primary"
         type='submit'
-        // startIcon={<SendIcon />}
-        
+        sx={{width: '25%', alignSelf: 'center'}}
         disabled= {activeStep===1 && !isButtonEnabled}
       >
-       {activeStep===3 ? 'Send' : <span>Next <ArrowForwardIcon /></span>}
+       {activeStep===3 ? 'Send' : <span>Next</span>}
       </Button> 
-       
       </form>
        <ReusableSnackbar open={snackbarState.open} message={snackbarState.message} severity={snackbarState.severity} handleClose={handleCloseSnackbar} />
+      </Box>
     </div>
   );
 };

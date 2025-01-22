@@ -1,15 +1,16 @@
-import { TextField, MenuItem  } from '@mui/material';
+import { TextField, MenuItem , Grid2} from '@mui/material';
 
 
 const Tab4 = ({ state, setState }) => {
   return (
     <div>
+    <Grid2 container direction={'column'} rowSpacing={5} sx={{marginBottom: '3rem'}}>
      <TextField
         fullWidth
         select
         label="Monitoring frequency (in min)"
-        value={state.frequencyTime}
-        onChange={(e) => setState({ ...state, frequencyTime: e.target.value })}
+        value={state.apiCallInterval}
+        onChange={(e) => setState({ ...state, apiCallInterval: e.target.value })}
         variant="outlined"
         required
         SelectProps={{
@@ -28,8 +29,8 @@ const Tab4 = ({ state, setState }) => {
             fullWidth
             required
             label="Email for alerts"
-            value={state.recipientDL}
-            onChange={(e) => setState({ ...state, recipientDL: e.target.value })}
+            value={state.recipientDl}
+            onChange={(e) => setState({ ...state, recipientDl: e.target.value })}
             variant="outlined"
             type="email"
             multiline
@@ -43,16 +44,18 @@ const Tab4 = ({ state, setState }) => {
             variant="outlined"
             
         />
+        <Grid2 item>
+        Retry on error a maximum of &nbsp;&nbsp;
         <TextField
             id="filled-number"
-            value={state.maxretry}
+            value={state.maxRetries}
             type="number"
             variant="outlined"
             size="small"
-            onChange={(e) => setState({ ...state, maxretry: e.target.value })}
+            onChange={(e) => setState({ ...state, maxRetries: e.target.value })}
             onBlur={() => {
-                if (state.maxretry > 10) setState({ ...state, maxretry: 10 });
-                if (state.maxretry < 3) setState({ ...state, maxretry: 3 });
+                if (state.maxRetries > 10) setState({ ...state, maxRetries: 10 });
+                if (state.maxRetries < 3) setState({ ...state, maxRetries: 3 });
             }}
             sx={{width:'60px','& .MuiInputBase-root': {
                 height: '25px', 
@@ -64,17 +67,17 @@ const Tab4 = ({ state, setState }) => {
                 min: 3, 
                 max: 10, 
             }}
-        />
+        /> &nbsp; times, with an interval of &nbsp;&nbsp;
         <TextField
             id="filled-number"
-            value={state.retryafter}
+            value={state.retryAfter}
             type="number"
             variant="outlined"
             size="small"
-            onChange={(e) => setState({ ...state, retryafter: e.target.value })}
+            onChange={(e) => setState({ ...state, retryAfter: e.target.value })}
             onBlur={() => {
-                if (state.retryafter > 600) setState({ ...state, retryafter: 600 });
-                if (state.retryafter < 60) setState({ ...state, retryafter: 60 });
+                if (state.retryAfter > 600) setState({ ...state, retryAfter: 600 });
+                if (state.retryAfter < 60) setState({ ...state, retryAfter: 60 });
             }}
             sx={{width:'70px','& .MuiInputBase-root': {
                 height: '25px', 
@@ -85,9 +88,10 @@ const Tab4 = ({ state, setState }) => {
             inputProps={{
                 min: 60, 
                 max: 600, 
-            }}
-        />
-      
+            }} 
+        /> &nbsp; seconds.
+        </Grid2>
+      </Grid2>
       {/* Add the rest of Tab3 fields */}
     </div>
   );
