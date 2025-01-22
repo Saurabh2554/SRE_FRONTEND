@@ -9,7 +9,7 @@ import 'chartjs-adapter-date-fns';
 
 ChartJS.register(...registerables, annotationPlugin);
 
-const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => {
+const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
   const labels = responseTimes.map(response => new Date(response.timestamp));
  
  // console.log("response time success status ",responseTimes);
@@ -20,7 +20,7 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
       {
         label: 'Response Time (ms)',
         data: responseTimes.map(response =>{ return response.responsetime} ),
-        borderColor: responseTimes.map(response => {return response.success? (response.responsetime <= expectedResponseTime ? 'green' : '#FFCC00' ) : 'rgba(255, 0, 0)'}) ,
+        borderColor: responseTimes.map(response => {return response.success? (response.responsetime <= expectedresTimes.degradedResponseTime ? 'green' : response.responsetime<= expectedresTimes.failedResponseTime ? '#f7be00' :  'rgba(255, 0, 0)') : 'rgba(255, 0, 0)'}) ,
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 1,
         fill: true,
@@ -82,12 +82,12 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
         annotations: {
           thresholdLine: {
             type: 'line',
-            yMin: expectedResponseTime, // Set the y-value for the threshold line
-            yMax: expectedResponseTime, // Same value for a horizontal line
-            borderColor: 'red',
+            yMin: expectedresTimes.degradedResponseTime, // Set the y-value for the threshold line
+            yMax: expectedresTimes.degradedResponseTime, // Same value for a horizontal line
+            borderColor: '#f7be00',
             borderWidth: 2,
             label: {
-              content: `Expected Response Time: ${expectedResponseTime} ms`, // Tooltip content
+              content: `Expected Response Time: ${expectedresTimes.degradedResponseTime} ms`, // Tooltip content
               enabled: true, // Enable label for annotation
               position: 'end',
               color: 'white',
@@ -98,13 +98,30 @@ const ResponseTimeChart = ({graphUnit,responseTimes, expectedResponseTime }) => 
               },
             },
              // Enable hover interaction
-          hoverBackgroundColor: 'rgba(255, 99, 132, 0.25)', // Optional for visual feedback
+          hoverBackgroundColor: '#f7be00', // Optional for visual feedback
           borderDash: [5, 5], // Dashed line for better visibility
-          
-            
           },
-          
-          
+          thresholdLine2: {
+            type: 'line',
+            yMin: expectedresTimes.failedResponseTime, // Set the y-value for the threshold line
+            yMax: expectedresTimes.failedResponseTime, // Same value for a horizontal line
+            borderColor: 'red',
+            borderWidth: 2,
+            label: {
+              content: `Expected Response Time: ${expectedresTimes.failedResponseTime} ms`, // Tooltip content
+              enabled: true, // Enable label for annotation
+              position: 'end',
+              color: 'white',
+              backgroundColor: 'red',
+              font: {
+                size: 12,
+                weight: 'bold',
+              },
+            },
+             // Enable hover interaction
+          hoverBackgroundColor: '#f7be00', // Optional for visual feedback
+          borderDash: [5, 5], // Dashed line for better visibility
+          },
         },
       },
       tooltip: {

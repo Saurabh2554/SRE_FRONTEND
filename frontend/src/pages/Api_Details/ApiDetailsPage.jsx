@@ -5,10 +5,8 @@ import {Box, Grid, Typography, Paper, MenuItem, Select, FormControl, InputLabel,
 
 import ResponseTimeChart from '../../common/components/Detailed_Graph/ResponseTimeChart';
 import SuccessFailurePieChart from '../../common/components/Pie_Chart/SuccessFailurePieChart';
-import HeatmapChart from '../../common/components/HeatMap/HeatmapChart';
 import { GET_METRICES_BY_ID } from "../../graphql/query/query"; 
 import { useQuery,useLazyQuery,useMutation } from '@apollo/client';
-import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CircleIcon from '@mui/icons-material/Circle';
@@ -175,7 +173,6 @@ else if (+newValue === 1) {
     timeRange:+newValue,
     timeUnit:timeUnit,
   });
-  console.log("Refetched Graph");
 
 
   // Update the state for date range  1Mon
@@ -189,7 +186,7 @@ else if (+newValue === 1) {
   // });
 };
 
-
+let expectedresTimes = data?.getAllMetrices[0]?.assertionAndLimit[0];
 {/* <p>Error loading data: {error.message}</p> */}
    if (loading) return <p>Loading...</p>;
   if (error) return <Box display="flex" justifyContent="center" alignItems="center" height="400px">
@@ -402,7 +399,7 @@ else if (+newValue === 1) {
     <CircleIcon sx = {{fontSize:"15px" }} color='error' size = 'small'/> &nbsp;Failed Results
     </div>
       
-            <ResponseTimeChart graphUnit={graphUnit} responseTimes={responseTimes} expectedResponseTime={expectedResponseTime}/>
+            <ResponseTimeChart graphUnit={graphUnit} responseTimes={responseTimes} expectedresTimes={expectedresTimes}/>
       </Grid>
       <Grid item xs={12} md={3}  >
       <SuccessFailurePieChart success_rates={success_rates} error_rates={error_rates} circumference = {20} />

@@ -69,11 +69,6 @@ export const GET_ALL_METRICS = gql`
       isApiActive
       methodType
       last_Error_Occurred
-      response_time {
-        responsetime
-        timestamp
-        success
-      }
     }
   }
 `;
@@ -91,9 +86,12 @@ export const GET_METRICES_BY_ID = gql`
       avg_first_byte_time
       error_count
       methodType
-      expectedResponseTime
       success_rates
       error_rates
+      assertionAndLimit {
+        degradedResponseTime
+        failedResponseTime
+      }
       response_time {
         responsetime
         timestamp
