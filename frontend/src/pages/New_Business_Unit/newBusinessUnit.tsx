@@ -1,47 +1,48 @@
-import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import Box from "@mui/material/Box";
-import { useState } from "react";
-import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import { useMutation } from "@apollo/client";
-import { CREATE_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+import { MuiNavbar } from '../../common/components/Navbar/navbar';
+import Box from '@mui/material/Box';
+import { useState } from 'react';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { useMutation } from '@apollo/client';
+import { CREATE_BUSINESS_UNIT } from '../../graphql/mutation/mutation';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const center = {
-  position: "relative",
-  top: "50%",
-  left: "8%",
-  marginBottom: "5%",
+  position: 'relative',
+  top: '50%',
+  left: '8%',
+  marginBottom: '5%',
 };
 const boxstyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "40%",
-  height: "70%",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40%',
+  height: '70%',
 };
 
 export default function NewBusinessUnit() {
-  const [businessUnitName, setbusinessUnitName] = useState("");
-  const [businessUnitDescription, setbusinessUnitDescription] = useState("");
-  const [businessUnitDl, setbusinessUnitDl] = useState("");
+  const [businessUnitName, setbusinessUnitName] = useState('');
+  const [businessUnitDescription, setbusinessUnitDescription] = useState('');
+  const [businessUnitDl, setbusinessUnitDl] = useState('');
 
-  const [createBusinessUnit,{ data, loading, error }] = useMutation(CREATE_BUSINESS_UNIT);
+  const [createBusinessUnit, { data, loading, error }] =
+    useMutation(CREATE_BUSINESS_UNIT);
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-  const STATIC_CREATED_BY = "static_email@example.com";
+  const STATIC_CREATED_BY = 'static_email@example.com';
 
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const { data } =  createBusinessUnit({
+      const { data } = createBusinessUnit({
         variables: {
           businessUnitName,
           businessUnitDescription,
@@ -49,24 +50,24 @@ export default function NewBusinessUnit() {
           createdBy: STATIC_CREATED_BY,
         },
       });
-      console.log("Business unit created:", data);
+      console.log('Business unit created:', data);
       setOpenSnackbar(true);
 
-      setbusinessUnitName("");
-      setbusinessUnitDescription("");
-      setbusinessUnitDl("");
+      setbusinessUnitName('');
+      setbusinessUnitDescription('');
+      setbusinessUnitDl('');
     } catch (error) {
-      console.error("Error creating business unit:", error.message);
+      console.error('Error creating business unit:', error.message);
     }
   };
 
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
     setOpenSnackbar(false);
   };
-  
+
   return (
     <>
       <MuiNavbar />
@@ -74,7 +75,7 @@ export default function NewBusinessUnit() {
         <Container>
           <Box height={35} />
           <Box sx={center}>
-            <Typography component="h1" variant="h4" fontFamily={"Lato"}>
+            <Typography component="h1" variant="h4" fontFamily={'Lato'}>
               Create New Business Unit
             </Typography>
           </Box>
@@ -135,9 +136,9 @@ export default function NewBusinessUnit() {
                   type="submit"
                   sx={{
                     borderRadius: 28,
-                    color: "#ffffff",
-                    backgroundColor: "#3B3B3D",
-                    fontFamily: "Lato",
+                    color: '#ffffff',
+                    backgroundColor: '#3B3B3D',
+                    fontFamily: 'Lato',
                   }}
                 >
                   Create
@@ -147,8 +148,16 @@ export default function NewBusinessUnit() {
           </form>
         </Container>
       </Box>
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
           Business unit successfully created!
         </Alert>
       </Snackbar>

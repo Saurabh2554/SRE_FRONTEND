@@ -1,7 +1,17 @@
 // components/TabbedNavigation.js
 
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, IconButton, MenuItem, Paper, Tab, TextField, AppBar } from '@mui/material';
+import {
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
+  Tab,
+  TextField,
+  AppBar,
+} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import SaveIcon from '@mui/icons-material/Save';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -9,8 +19,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import TabPanel from '@mui/lab/TabPanel';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
-import { useQuery, useLazyQuery } from "@apollo/client";
-import { GET_ALL_BUSINESS_UNIT, GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT, GET_AUTH_VALUE, GET_API_TYPE } from "../../../graphql/query/query";
+import { useQuery, useLazyQuery } from '@apollo/client';
+import {
+  GET_ALL_BUSINESS_UNIT,
+  GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,
+  GET_AUTH_VALUE,
+  GET_API_TYPE,
+} from '../../../graphql/query/query';
 
 export default function TabbedNavigation({
   method,
@@ -57,11 +72,15 @@ export default function TabbedNavigation({
   handleBusinessUnitChange,
   handleSubBusinessUnitChange,
   handleTabChange,
-  tabValue
+  tabValue,
 }) {
   return (
     <TabContext value={tabValue}>
-      <AppBar position="static" sx={{ marginTop: '20px', backgroundColor: '#FFFFFF' }} elevation={0}>
+      <AppBar
+        position="static"
+        sx={{ marginTop: '20px', backgroundColor: '#FFFFFF' }}
+        elevation={0}
+      >
         <TabList onChange={handleTabChange}>
           <Tab label="Headers" value="1" />
           <Tab label="Authorization" value="2" />
@@ -179,10 +198,12 @@ export default function TabbedNavigation({
           multiline
           rows={6}
           value={body}
-          placeholder={method === 'GraphQL API' ? 'Write Your Query Here' : 'Input Body'}
+          placeholder={
+            method === 'GraphQL API' ? 'Write Your Query Here' : 'Input Body'
+          }
           onChange={(e) => setBody(e.target.value)}
         />
       </TabPanel>
-      </TabContext>
+    </TabContext>
   );
 }

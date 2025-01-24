@@ -1,31 +1,39 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import './ResponseTimeChart.css'; 
-import annotationPlugin from 'chartjs-plugin-annotation'; 
+import './ResponseTimeChart.css';
+import annotationPlugin from 'chartjs-plugin-annotation';
 import { Chart as ChartJS, registerables } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
-
 ChartJS.register(...registerables, annotationPlugin);
 
-const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
-  const labels = responseTimes.map(response => new Date(response.timestamp));
- 
- // console.log("response time success status ",responseTimes);
+const ResponseTimeChart = ({ graphUnit, responseTimes, expectedresTimes }) => {
+  const labels = responseTimes.map((response) => new Date(response.timestamp));
+
+  // console.log("response time success status ",responseTimes);
 
   const data = {
     labels: labels,
     datasets: [
       {
         label: 'Response Time (ms)',
-        data: responseTimes.map(response =>{ return response.responsetime} ),
-        borderColor: responseTimes.map(response => {return response.success? (response.responsetime <= expectedresTimes.degradedResponseTime ? 'green' : response.responsetime<= expectedresTimes.failedResponseTime ? '#f7be00' :  'rgba(255, 0, 0)') : 'rgba(255, 0, 0)'}) ,
+        data: responseTimes.map((response) => {
+          return response.responsetime;
+        }),
+        borderColor: responseTimes.map((response) => {
+          return response.success
+            ? response.responsetime <= expectedresTimes.degradedResponseTime
+              ? 'green'
+              : response.responsetime <= expectedresTimes.failedResponseTime
+                ? '#f7be00'
+                : 'rgba(255, 0, 0)'
+            : 'rgba(255, 0, 0)';
+        }),
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 1,
         fill: true,
         pointRadius: 0,
-        
       },
     ],
     options: {
@@ -39,12 +47,12 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
               xMax: 2,
               yMin: 50,
               yMax: 70,
-              backgroundColor: 'rgba(255, 99, 132, 0.25)'
-            }
-          }
-        }
-      }
-    }
+              backgroundColor: 'rgba(255, 99, 132, 0.25)',
+            },
+          },
+        },
+      },
+    },
   };
 
   const options = {
@@ -53,22 +61,21 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
     scales: {
       x: {
         type: 'time', // Use time-based scale
-            time: {
-                unit: graphUnit.unit, // Set the unit to 'hour' (adjust as needed) 
-                displayFormats: {
-                  hour: 'yyyy-MM-dd hh:mm a'
-              },
-              
-            },
-            
+        time: {
+          unit: graphUnit.unit, // Set the unit to 'hour' (adjust as needed)
+          displayFormats: {
+            hour: 'yyyy-MM-dd hh:mm a',
+          },
+        },
+
         title: {
           display: true,
           text: 'Timestamp',
         },
         ticks: {
           autoSkip: true, // Automatically skip labels for clarity
-          stepSize: graphUnit.stepSize // Prevent excessive label rotation
-      }
+          stepSize: graphUnit.stepSize, // Prevent excessive label rotation
+        },
       },
       y: {
         title: {
@@ -97,9 +104,9 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
                 weight: 'bold',
               },
             },
-             // Enable hover interaction
-          hoverBackgroundColor: '#f7be00', // Optional for visual feedback
-          borderDash: [5, 5], // Dashed line for better visibility
+            // Enable hover interaction
+            hoverBackgroundColor: '#f7be00', // Optional for visual feedback
+            borderDash: [5, 5], // Dashed line for better visibility
           },
           thresholdLine2: {
             type: 'line',
@@ -118,9 +125,9 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
                 weight: 'bold',
               },
             },
-             // Enable hover interaction
-          hoverBackgroundColor: '#f7be00', // Optional for visual feedback
-          borderDash: [5, 5], // Dashed line for better visibility
+            // Enable hover interaction
+            hoverBackgroundColor: '#f7be00', // Optional for visual feedback
+            borderDash: [5, 5], // Dashed line for better visibility
           },
         },
       },
@@ -134,18 +141,18 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
             const xPosition = tooltipItems[0].element.x;
             const yTop = chartArea.top;
             const yBottom = chartArea.bottom;
-  
+
             // Draw vertical line
             context.save();
             context.beginPath();
             context.moveTo(xPosition, yTop);
             context.lineTo(xPosition, yBottom);
-            
+
             context.lineWidth = 1;
             context.strokeStyle = 'rgba(133,133,133, 0.1)';
             context.stroke();
             context.restore();
-  
+
             return tooltipItems[0].label;
           },
         },
@@ -153,7 +160,7 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
     },
     interaction: {
       mode: 'nearest', // Evertical line interaction
-      axis: 'x', 
+      axis: 'x',
       intersect: false, // Ensures the vertical line appears even when not directly over a point
     },
     elements: {
@@ -162,7 +169,6 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
         hoverRadius: 6, // Enlarges points on hover
       },
     },
-
   };
   const verticalLinePlugin = {
     id: 'verticalLinePlugin',
@@ -173,7 +179,7 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
         const x = activePoint.element.x;
         const topY = chart.chartArea.top;
         const bottomY = chart.chartArea.bottom;
-  
+
         ctx.save();
         ctx.beginPath();
         ctx.setLineDash([5, 5]);
@@ -186,15 +192,17 @@ const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
       }
     },
   };
-  
+
   ChartJS.register(verticalLinePlugin);
   const chartWidth = `${Math.max(responseTimes.length * 5, 800)}px`;
 
-  return ( <div className="chart-container">
-    <div className="chart" style={{ minWidth: chartWidth }}>
-      <Line data={data} options={options} />
+  return (
+    <div className="chart-container">
+      <div className="chart" style={{ minWidth: chartWidth }}>
+        <Line data={data} options={options} />
+      </div>
     </div>
-  </div>)
+  );
 };
 
 export default ResponseTimeChart;

@@ -1,34 +1,34 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const CREATE_BUSINESS_UNIT = gql`
-mutation CreateBusinessUnit(
-  $businessUnitName: String!
-  $businessUnitDescription: String!
-  $businessUnitDl: String!
-  $createdBy: String!
-) {
-  createBusinessUnit(
-    businessUnitName: $businessUnitName
-    businessUnitDescription: $businessUnitDescription
-    businessUnitDl: $businessUnitDl
-    createdBy: $createdBy
+  mutation CreateBusinessUnit(
+    $businessUnitName: String!
+    $businessUnitDescription: String!
+    $businessUnitDl: String!
+    $createdBy: String!
   ) {
-    businessUnit {
-      id
-      businessUnitName
-      businessUnitDescription
-      businessUnitDl
-      createdBy
+    createBusinessUnit(
+      businessUnitName: $businessUnitName
+      businessUnitDescription: $businessUnitDescription
+      businessUnitDl: $businessUnitDl
+      createdBy: $createdBy
+    ) {
+      businessUnit {
+        id
+        businessUnitName
+        businessUnitDescription
+        businessUnitDl
+        createdBy
+      }
+      success
+      message
     }
-    success
-    message
   }
-}
 `;
 
 export const CREATE_SUB_BUSINESS_UNIT = gql`
   mutation CreateSubbusinessUnit(
-    $businessUnit: UUID!  # Ensure the type is UUID to match the backend
+    $businessUnit: UUID! # Ensure the type is UUID to match the backend
     $subBusinessUnitName: String!
     $subBusinessUnitDescription: String!
     $subBusinessUnitDl: String!
@@ -41,7 +41,8 @@ export const CREATE_SUB_BUSINESS_UNIT = gql`
       subBusinessUnitDl: $subBusinessUnitDl
       createdBy: $createdBy
     ) {
-      subBusinessUnit {  # This should match the return type from your mutation
+      subBusinessUnit {
+        # This should match the return type from your mutation
         id
         subBusinessUnitName
         subBusinessUnitDescription
@@ -53,8 +54,6 @@ export const CREATE_SUB_BUSINESS_UNIT = gql`
     }
   }
 `;
-
-
 
 export const CREATE_API_MONITOR = gql`
   mutation CreateApiMonitor($input: MonitoredApiInput!) {
@@ -71,14 +70,15 @@ export const CREATE_API_MONITOR = gql`
 `;
 
 export const UPDATE_API_MONITOR = gql`
-  mutation UpdateApiMonitor($input: MonitoredApiInput
-   $apiMonitorId: UUID!
-   $isApiActive: Boolean!) 
-   {
+  mutation UpdateApiMonitor(
+    $input: MonitoredApiInput
+    $apiMonitorId: UUID!
+    $isApiActive: Boolean!
+  ) {
     updateApiMonitor(
-    id:$apiMonitorId 
-    input: $input
-    isApiActive: $isApiActive
+      id: $apiMonitorId
+      input: $input
+      isApiActive: $isApiActive
     ) {
       monitoredApi {
         id

@@ -1,45 +1,49 @@
-import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import MenuItem from "@mui/material/MenuItem";
-import { useState} from "react";
-import { useMutation, useQuery } from "@apollo/client";
-import { CREATE_SUB_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
-import { GET_ALL_BUSINESS_UNIT } from "../../graphql/query/query";  // Import the query
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-
-
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import MenuItem from '@mui/material/MenuItem';
+import { useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import { CREATE_SUB_BUSINESS_UNIT } from '../../graphql/mutation/mutation.tsx';
+import { GET_ALL_BUSINESS_UNIT } from '../../graphql/query/query.tsx'; // Import the query
+import { MuiNavbar } from '../../common/components/Navbar/navbar.tsx';
 
 const center = {
-  position: "relative",
-  top: "50%",
-  left: "3%",
-  marginBottom: "5%",
+  position: 'relative',
+  top: '50%',
+  left: '3%',
+  marginBottom: '5%',
 };
 const boxstyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "40%",
-  height: "70%",
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40%',
+  height: '70%',
 };
 
 export default function NewSubBusinessUnit() {
-  const [businessUnit, setBusinessUnit] = useState("");
-  const [subBusinessUnitName, setSubBusinessUnitName] = useState("");
-  const [subBusinessUnitDl, setSubBusinessUnitDl] = useState("");
+  const [businessUnit, setBusinessUnit] = useState('');
+  const [subBusinessUnitName, setSubBusinessUnitName] = useState('');
+  const [subBusinessUnitDl, setSubBusinessUnitDl] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [subBusinessUnitDescription, setSubBusinessUnitDescription] = useState("");
+  const [subBusinessUnitDescription, setSubBusinessUnitDescription] =
+    useState('');
 
-
-  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
-  const [createSubBusinessUnit, { loading, error }] = useMutation(CREATE_SUB_BUSINESS_UNIT);
+  const {
+    data: businessUnitsData,
+    loading: businessUnitsLoading,
+    error: businessUnitsError,
+  } = useQuery(GET_ALL_BUSINESS_UNIT);
+  const [createSubBusinessUnit, { loading, error }] = useMutation(
+    CREATE_SUB_BUSINESS_UNIT
+  );
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -56,24 +60,24 @@ export default function NewSubBusinessUnit() {
           subBusinessUnitName,
           subBusinessUnitDescription,
           subBusinessUnitDl,
-          createdBy: "static_email@example.com", // Replace with current user
+          createdBy: 'static_email@example.com', // Replace with current user
         },
       });
-      console.log("Sub-business unit created:", data);
+      console.log('Sub-business unit created:', data);
 
       setOpenSnackbar(true);
-      setBusinessUnit("");
-      setSubBusinessUnitName("");
-      setSubBusinessUnitDescription("");
+      setBusinessUnit('');
+      setSubBusinessUnitName('');
+      setSubBusinessUnitDescription('');
 
-      setSubBusinessUnitDl("");
+      setSubBusinessUnitDl('');
     } catch (error) {
-      console.error("Error creating sub-business unit:", error.message);
+      console.error('Error creating sub-business unit:', error.message);
     }
   };
 
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") return;
+    if (reason === 'clickaway') return;
     setOpenSnackbar(false);
   };
 
@@ -84,7 +88,7 @@ export default function NewSubBusinessUnit() {
         <Container>
           <Box height={35} />
           <Box sx={center}>
-            <Typography component="h1" variant="h4" fontFamily={"Lato"}>
+            <Typography component="h1" variant="h4" fontFamily="Lato">
               Create New Sub-Business Unit
             </Typography>
           </Box>
@@ -121,17 +125,19 @@ export default function NewSubBusinessUnit() {
                 />
               </Grid>
               <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="sub_business_unit_description"
-                    label="Sub-Business Unit Description"
-                    name="Sub-Business Unit Description"
-                    type="text"
-                    value={subBusinessUnitDescription}
-                    onChange={(e) => setSubBusinessUnitDescription(e.target.value)}
-                  />
-                </Grid>
+                <TextField
+                  required
+                  fullWidth
+                  id="sub_business_unit_description"
+                  label="Sub-Business Unit Description"
+                  name="Sub-Business Unit Description"
+                  type="text"
+                  value={subBusinessUnitDescription}
+                  onChange={(e) =>
+                    setSubBusinessUnitDescription(e.target.value)
+                  }
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -164,9 +170,9 @@ export default function NewSubBusinessUnit() {
                   type="submit"
                   sx={{
                     borderRadius: 28,
-                    color: "#ffffff",
-                    backgroundColor: "#3B3B3D",
-                    fontFamily: "Lato",
+                    color: '#ffffff',
+                    backgroundColor: '#3B3B3D',
+                    fontFamily: 'Lato',
                   }}
                 >
                   Create
@@ -177,8 +183,16 @@ export default function NewSubBusinessUnit() {
         </Container>
       </Box>
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
           Sub-business unit successfully created!
         </Alert>
       </Snackbar>
