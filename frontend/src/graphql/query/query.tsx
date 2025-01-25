@@ -1,19 +1,10 @@
-import { gql } from 'graphql-tag';
+import { gql } from '@apollo/client';
 
 export const GET_ALL_BUSINESS_UNIT = gql`
-  query {
+  query GetBusinessUnit {
     businessUnit {
       id
       businessUnitName
-    }
-  }
-`;
-
-export const GET_ALL_SUB_BUSINESS_UNIT = gql`
-  query {
-    subBusinessUnit {
-      id
-      subBusinessUnitName
     }
   }
 `;
@@ -28,7 +19,7 @@ export const GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT = gql`
 `;
 
 export const GET_API_TYPE = gql`
-  query {
+  query GetApiType {
     methodTypeChoices {
       key
       value
@@ -37,7 +28,7 @@ export const GET_API_TYPE = gql`
 `;
 
 export const GET_AUTH_VALUE = gql`
-  query {
+  query GetAuthValue {
     authTypeChoices {
       key
       value
@@ -65,33 +56,33 @@ export const VALIDATE_API = gql`
   }
 `;
 
-export const GET_ALL_METRICS = gql`
-  query GetAllMetrics(
-    $businessUnit: UUID!
-    $subBusinessUnit: UUID!
-    $fromDate: DateTime
-    $toDate: DateTime
-    $searchParam: String
-  ) {
-    getAllMetrices(
-      businessUnit: $businessUnit
-      subBusinessUnit: $subBusinessUnit
-      fromDate: $fromDate
-      toDate: $toDate
-      searchParam: $searchParam
-    ) {
-      id
-      apiName
-      apiUrl
-      availability_uptime
-      success_rates
-      avg_latency
-      isApiActive
-      methodType
-      last_Error_Occurred
-    }
-  }
-`;
+// export const GET_ALL_METRICS = gql`
+//   query GetAllMetrics(
+//     $businessUnit: UUID!
+//     $subBusinessUnit: UUID!
+//     $fromDate: DateTime
+//     $toDate: DateTime
+//     $searchParam: String
+//   ) {
+//     getAllMetrices(
+//       businessUnit: $businessUnit
+//       subBusinessUnit: $subBusinessUnit
+//       fromDate: $fromDate
+//       toDate: $toDate
+//       searchParam: $searchParam
+//     ) {
+//       id
+//       apiName
+//       apiUrl
+//       availability_uptime
+//       success_rates
+//       avg_latency
+//       isApiActive
+//       methodType
+//       last_Error_Occurred
+//     }
+//   }
+// `;
 
 export const GET_METRICES_BY_ID = gql`
   query GetAllMetrics(
@@ -148,7 +139,6 @@ export const GET_METRICES_BY_ID = gql`
 export const GET_SERVICE_BY_ID = gql`
   query GetServiceById($serviceId: UUID!) {
     getServiceById(serviceId: $serviceId) {
-      apiCallInterval
       apiName
       apiUrl
       businessUnit {
@@ -156,7 +146,6 @@ export const GET_SERVICE_BY_ID = gql`
         businessUnitName
       }
       methodType
-      recipientDl
       requestBody
       subBusinessUnit {
         id
@@ -164,7 +153,6 @@ export const GET_SERVICE_BY_ID = gql`
       }
       id
       headers
-      expectedResponseTime
     }
   }
 `;

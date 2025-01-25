@@ -47,7 +47,7 @@ const IOSSwitch = styled((props) => (
   },
 }));
 
-export const ApiDataGrid = ({ metrics, error }) => {
+export function ApiDataGrid({ metrics, error }) {
   const navigate = useNavigate();
   // Define columns for the DataGrid
 
@@ -144,4 +144,4 @@ export const ApiDataGrid = ({ metrics, error }) => {
       />
     </Box>
   );
-};
+}

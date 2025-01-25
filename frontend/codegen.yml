@@ -1,0 +1,11 @@
+overwrite: true
+schema: "http://127.0.0.1:8000/graphql/" # GraphQL API endpoint or schema file
+documents: "src/graphql/**/*.{tsx,graphql}" # Location of GraphQL queries/mutations
+generates:
+  src/graphql/types.tsx:
+    plugins:
+      - "typescript" # Generates base types
+      - "typescript-operations" # Generates operation-specific types
+hooks:
+  afterOneFileWrite:
+    - prettier --write

@@ -2,12 +2,15 @@
 import React, { useState } from 'react';
 import { Grid, Typography, TablePagination } from '@mui/material';
 
-export const ApiListWithPagination = ({ metrics }) => {
-  const [page, setPage] = useState(0);  // Tracks the current page
-  const [rowsPerPage, setRowsPerPage] = useState(5);  // Rows per page
+export function ApiListWithPagination({ metrics }) {
+  const [page, setPage] = useState(0); // Tracks the current page
+  const [rowsPerPage, setRowsPerPage] = useState(5); // Rows per page
 
   // Pagination logic: calculate the current slice of metrics to display
-  const paginatedMetrics = metrics.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedMetrics = metrics.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -32,7 +35,9 @@ export const ApiListWithPagination = ({ metrics }) => {
       ) : (
         paginatedMetrics.map((api) => (
           <Grid item xs={12} key={api.id}>
-            <Typography>{api.apiName} - {api.apiUrl}</Typography> 
+            <Typography>
+              {api.apiName} - {api.apiUrl}
+            </Typography>
           </Grid>
         ))
       )}
@@ -51,4 +56,4 @@ export const ApiListWithPagination = ({ metrics }) => {
       </Grid>
     </Grid>
   );
-};
+}

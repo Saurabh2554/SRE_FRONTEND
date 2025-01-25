@@ -4,8 +4,6 @@ import {
   RadioGroup,
   FormControl,
   FormControlLabel,
-} from '@mui/material';
-import {
   Grid,
   TextField,
   Button,
@@ -15,14 +13,14 @@ import {
   Tab,
 } from '@mui/material';
 import { useQuery } from '@apollo/client';
-import { GET_AUTH_VALUE } from '../../graphql/query/query';
 import TabPanel from '@mui/lab/TabPanel';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { GET_AUTH_VALUE } from '../../graphql/query/query';
 
-const Tab22 = ({ state, setState }) => {
+function Tab22({ state, setState }) {
   const [tabValue, setTabValue] = useState('1');
   const {
     data: authTypeChoicesData,
@@ -50,15 +48,15 @@ const Tab22 = ({ state, setState }) => {
   const addHeaderFields = () => {
     let authValue = '';
     const authorizationObj = {};
-    let url = state.url;
+    let { url } = state;
     if (
       state.authorizationType === 'API_KEY' &&
       state.authInput.username !== '' &&
       state.authInput.password !== ''
     ) {
       if (state.addheaderto == 'Header') {
-        authorizationObj['key'] = state.authInput.username;
-        authorizationObj['value'] = state.authInput.password;
+        authorizationObj.key = state.authInput.username;
+        authorizationObj.value = state.authInput.password;
       } else if (state.addheaderto == 'QueryParams') {
         const encodedValue = encodeURIComponent(state.authInput.password);
         const separator = url.includes('?') ? '&' : '?';
@@ -80,11 +78,11 @@ const Tab22 = ({ state, setState }) => {
       (state.authorizationType === 'API_KEY' && state.addheaderto != '')
     ) {
       if (state.authorizationType != 'API_KEY') {
-        authorizationObj['key'] = 'Authorization';
-        authorizationObj['value'] = authValue;
+        authorizationObj.key = 'Authorization';
+        authorizationObj.value = authValue;
       }
 
-      setState({ ...state, authHeader: [authorizationObj], url: url });
+      setState({ ...state, authHeader: [authorizationObj], url });
     }
   };
   const handleAuthChange = (e) => {
@@ -95,7 +93,7 @@ const Tab22 = ({ state, setState }) => {
   const handleBodychange = (event) => {
     let headerFieldTemp = [];
     let method = '';
-    let bodyType = event.target.value;
+    const bodyType = event.target.value;
 
     if (event.target.value == 'GraphQl') {
       if (method !== 'POST') {
@@ -134,8 +132,8 @@ const Tab22 = ({ state, setState }) => {
         return {
           ...state,
           headerFields: headerFieldTemp,
-          method: method,
-          bodyType: bodyType,
+          method,
+          bodyType,
           raw: 'JSON',
         };
       })()
@@ -259,69 +257,67 @@ const Tab22 = ({ state, setState }) => {
               {(state.authorizationType === 'BASIC' ||
                 state.authorizationType === 'API_KEY' ||
                 state.authorizationType === 'BEARER') && (
-                <>
-                  <Grid container spacing={2}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <TextField
+                      fullWidth
+                      label={
+                        state.authorizationType === 'BASIC'
+                          ? state.authorizationType === 'BEARER'
+                            ? 'Token'
+                            : 'Username'
+                          : state.authorizationType === 'BEARER'
+                            ? 'Token'
+                            : 'Key'
+                      }
+                      variant="outlined"
+                      name="username"
+                      value={state.authInput.username}
+                      onChange={handleAuthChange}
+                      onBlur={addHeaderFields}
+                    />
+                  </Grid>
+                  {(state.authorizationType === 'BASIC' ||
+                    state.authorizationType === 'API_KEY') && (
                     <Grid item xs={12} md={4}>
                       <TextField
                         fullWidth
                         label={
                           state.authorizationType === 'BASIC'
-                            ? state.authorizationType === 'BEARER'
-                              ? 'Token'
-                              : 'Username'
-                            : state.authorizationType === 'BEARER'
-                              ? 'Token'
-                              : 'Key'
+                            ? 'Password'
+                            : 'Value'
                         }
                         variant="outlined"
-                        name="username"
-                        value={state.authInput.username}
+                        type="password"
+                        name="password"
+                        value={state.authInput.password}
                         onChange={handleAuthChange}
                         onBlur={addHeaderFields}
                       />
                     </Grid>
-                    {(state.authorizationType === 'BASIC' ||
-                      state.authorizationType === 'API_KEY') && (
-                      <Grid item xs={12} md={4}>
-                        <TextField
-                          fullWidth
-                          label={
-                            state.authorizationType === 'BASIC'
-                              ? 'Password'
-                              : 'Value'
-                          }
-                          variant="outlined"
-                          type="password"
-                          name="password"
-                          value={state.authInput.password}
-                          onChange={handleAuthChange}
-                          onBlur={addHeaderFields}
-                        />
-                      </Grid>
-                    )}
-                    {state.authorizationType === 'API_KEY' && (
-                      <Grid item xs={12} md={4}>
-                        <TextField
-                          select
-                          fullWidth
-                          label="Add to"
-                          value={state.addheaderto}
-                          onChange={(e) =>
-                            setState({ ...state, addheaderto: e.target.value })
-                          }
-                          onBlur={addHeaderFields}
-                        >
-                          <MenuItem key="Header" value="Header">
-                            Header
-                          </MenuItem>
-                          <MenuItem key="QueryParams" value="QueryParams">
-                            Query Params
-                          </MenuItem>
-                        </TextField>
-                      </Grid>
-                    )}
-                  </Grid>
-                </>
+                  )}
+                  {state.authorizationType === 'API_KEY' && (
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        select
+                        fullWidth
+                        label="Add to"
+                        value={state.addheaderto}
+                        onChange={(e) =>
+                          setState({ ...state, addheaderto: e.target.value })
+                        }
+                        onBlur={addHeaderFields}
+                      >
+                        <MenuItem key="Header" value="Header">
+                          Header
+                        </MenuItem>
+                        <MenuItem key="QueryParams" value="QueryParams">
+                          Query Params
+                        </MenuItem>
+                      </TextField>
+                    </Grid>
+                  )}
+                </Grid>
               )}
             </Grid>
           )}
@@ -343,9 +339,9 @@ const Tab22 = ({ state, setState }) => {
                 setState({ ...state, raw: event.target.value })
               }
             >
-              <MenuItem value={'JSON'}>JSON</MenuItem>
-              <MenuItem value={'Text'}>Text</MenuItem>
-              <MenuItem value={'XML'}>XML</MenuItem>
+              <MenuItem value="JSON">JSON</MenuItem>
+              <MenuItem value="Text">Text</MenuItem>
+              <MenuItem value="XML">XML</MenuItem>
             </TextField>
           )}
           {state.bodyType == 'none' ? (
@@ -371,6 +367,6 @@ const Tab22 = ({ state, setState }) => {
       </TabContext>
     </div>
   );
-};
+}
 
 export default Tab22;
