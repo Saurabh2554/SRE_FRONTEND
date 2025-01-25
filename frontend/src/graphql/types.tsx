@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = {
@@ -26,8 +27,8 @@ export type Scalars = {
   Int: { input: number; output: number };
   Float: { input: number; output: number };
   DateTime: { input: any; output: any };
-  JSONString: { input: any; output: any };
-  UUID: { input: any; output: any };
+  JSONString: { input: string; output: any };
+  UUID: { input: string; output: string };
 };
 
 export type ApiMetricesType = {
@@ -73,8 +74,10 @@ export type ApiMonitorUpdateMutation = {
 /** An enumeration. */
 export enum ApimonitoringMonitoredApiMethodtypeChoices {
   /** GET */
+  // eslint-disable-next-line no-unused-vars
   Get = 'GET',
   /** POST */
+  // eslint-disable-next-line no-unused-vars
   Post = 'POST',
 }
 
@@ -319,7 +322,7 @@ export type CreateBusinessUnitMutation = {
     message?: string | null;
     businessUnit?: {
       __typename?: 'BusinessUnitType';
-      id: any;
+      id: string;
       businessUnitName: string;
       businessUnitDescription: string;
     } | null;
@@ -341,7 +344,7 @@ export type CreateSubbusinessUnitMutation = {
     message?: string | null;
     subBusinessUnit?: {
       __typename?: 'SubBusinessUnitType';
-      id: any;
+      id: string;
       subBusinessUnitName: string;
       subBusinessUnitDescription: string;
     } | null;
@@ -360,7 +363,7 @@ export type CreateApiMonitorMutation = {
     message?: string | null;
     monitoredApi?: {
       __typename?: 'MoniterApiType';
-      id: any;
+      id: string;
       apiName?: string | null;
       apiUrl: string;
     } | null;
@@ -381,7 +384,7 @@ export type UpdateApiMonitorMutation = {
     message?: string | null;
     monitoredApi?: {
       __typename?: 'MoniterApiType';
-      id: any;
+      id: string;
       apiName?: string | null;
       apiUrl: string;
       isApiActive: boolean;
@@ -395,7 +398,7 @@ export type GetBusinessUnitQuery = {
   __typename?: 'Query';
   businessUnit?: Array<{
     __typename?: 'BusinessUnitType';
-    id: any;
+    id: string;
     businessUnitName: string;
   } | null> | null;
 };
@@ -408,7 +411,7 @@ export type GetSubBusinessUnitPerBusinessUnitQuery = {
   __typename?: 'Query';
   subBusinessUnitPerBusinessUnit?: Array<{
     __typename?: 'SubBusinessUnitType';
-    id: any;
+    id: string;
     subBusinessUnitName: string;
   } | null> | null;
 };
@@ -517,16 +520,16 @@ export type GetServiceByIdQuery = {
     apiUrl: string;
     methodType: ApimonitoringMonitoredApiMethodtypeChoices;
     requestBody?: string | null;
-    id: any;
-    headers?: any | null;
+    id: string;
+    headers?: string | null;
     businessUnit: {
       __typename?: 'BusinessUnitType';
-      id: any;
+      id: string;
       businessUnitName: string;
     };
     subBusinessUnit: {
       __typename?: 'SubBusinessUnitType';
-      id: any;
+      id: string;
       subBusinessUnitName: string;
     };
   } | null;

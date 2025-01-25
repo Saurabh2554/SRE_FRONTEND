@@ -6,3 +6,6 @@ generates:
     plugins:
       - "typescript" # Generates base types
       - "typescript-operations" # Generates operation-specific types
+hooks:
+  afterOneFileWrite:
+    - prettier --write
