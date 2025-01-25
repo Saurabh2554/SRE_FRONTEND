@@ -1,20 +1,14 @@
 import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import { ApiListWithPagination } from '../../common/components/MuiGrid/ApiListWithPagination';
-import { ApiDataGrid } from '../../common/components/DataGrid/ApiDataGrid';
-import APImonitoringLogo from '../../common/Resources/APImonitoringLogo.png';
-import { DateRangePickerComponent } from '../../common/components/DateRangePicker/DateRangePickerComponent';
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto'; // Import the necessary Chart.js components
-import ChartComponent from './ChartComponent';
 
-import { TablePagination } from '@mui/material';
-import { Grid2 } from '@mui/material';
+import { TablePagination, Grid2, Tooltip } from '@mui/material';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import { Tooltip } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
@@ -22,6 +16,10 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
 import { red } from '@mui/material/colors';
+import ChartComponent from './ChartComponent';
+import { DateRangePickerComponent } from '../../common/components/DateRangePicker/DateRangePickerComponent';
+import { ApiDataGrid } from '../../common/components/DataGrid/ApiDataGrid';
+import APImonitoringLogo from '../../common/Resources/APImonitoringLogo.png';
 import {
   GET_ALL_BUSINESS_UNIT,
   GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,
@@ -56,7 +54,7 @@ export default function Dashboard() {
   const [url, setUrl] = useState('');
   const [searchText, setSearchText] = useState('');
   const [responseDetails, setResponseDetails] = useState([]);
-  //const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
 
@@ -93,7 +91,7 @@ export default function Dashboard() {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
     // Fetch metrics when a sub-business unit is selected
-    //fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
+    // fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
     console.log(dateRange[0].toISOString());
     console.log(dateRange[1].toISOString());
 
@@ -238,13 +236,13 @@ export default function Dashboard() {
 
           <Grid item xs={12} sx={{ mt: '20px' }}>
             <TextField
-              //fullWidth
+              // fullWidth
               label="Search API"
-              //value={subBusinessUnit}
+              // value={subBusinessUnit}
               onChange={(e) => setSearchText(e.target.value)}
               variant="outlined"
               sx={{ width: '24%' }}
-            ></TextField>
+            />
           </Grid>
           {/* <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
             <Button variant="outlined" onClick={handleSearch}>Search</Button>

@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { MuiNavbar } from '../../common/components/Navbar/navbar';
-import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 
 import {
   Box,
@@ -15,6 +13,10 @@ import {
   Tabs,
   Tab,
   Tooltip,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormControlLabel,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
@@ -23,15 +25,11 @@ import TabPanel from '@mui/lab/TabPanel';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import {
-  Radio,
-  RadioGroup,
-  FormControl,
-  FormControlLabel,
-} from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import Link from '@mui/material/Link';
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
+import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
+import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import {
   GET_ALL_BUSINESS_UNIT,
   GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,
@@ -153,8 +151,8 @@ export default function NewService() {
       authInput.password !== ''
     ) {
       if (addheaderto == 'Header') {
-        authorizationObj['key'] = authInput.username;
-        authorizationObj['value'] = authInput.password;
+        authorizationObj.key = authInput.username;
+        authorizationObj.value = authInput.password;
       } else if (addheaderto == 'QueryParams') {
         const encodedValue = encodeURIComponent(authInput.password);
 
@@ -179,8 +177,8 @@ export default function NewService() {
       (authorizationType === 'API_KEY' && addheaderto != '')
     ) {
       if (authorizationType != 'API_KEY') {
-        authorizationObj['key'] = 'Authorization';
-        authorizationObj['value'] = authValue;
+        authorizationObj.key = 'Authorization';
+        authorizationObj.value = authValue;
       }
 
       setAuthHeader([authorizationObj]);
@@ -220,7 +218,7 @@ export default function NewService() {
             apiUrl: url,
             apiCallInterval: parseInt(frequencyTime, 10),
             expectedResponseTime: parseInt(responseTime, 10),
-            //expectedStatusCode: 200,
+            // expectedStatusCode: 200,
             headers: JSON.stringify(Header),
             requestBody:
               bodyType == 'GraphQL'
@@ -230,7 +228,7 @@ export default function NewService() {
                   : body,
             recipientDl: recipientDL,
             createdBy: 'user',
-            teamsChannelWebhookURL: teamsChannelWebhookURL,
+            teamsChannelWebhookURL,
             maxRetries: +maxretry,
             retryAfter: +retryafter,
           },
@@ -248,7 +246,6 @@ export default function NewService() {
       }
       if (error) {
         SetSnackbarFields(true, error.message, 'error');
-        return;
       }
     } catch (er) {
       SetSnackbarFields(true, 'Unknown Error occured!', 'error');
@@ -595,67 +592,65 @@ export default function NewService() {
                     {(authorizationType === 'BASIC' ||
                       authorizationType === 'API_KEY' ||
                       authorizationType === 'BEARER') && (
-                      <>
-                        <Grid container spacing={2}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} md={4}>
+                          <TextField
+                            fullWidth
+                            label={
+                              authorizationType === 'BASIC'
+                                ? authorizationType === 'BEARER'
+                                  ? 'Token'
+                                  : 'Username'
+                                : authorizationType === 'BEARER'
+                                  ? 'Token'
+                                  : 'Key'
+                            }
+                            variant="outlined"
+                            name="username"
+                            value={authInput.username}
+                            onChange={handleAuthChange}
+                            onBlur={addHeaderFields}
+                          />
+                        </Grid>
+                        {(authorizationType === 'BASIC' ||
+                          authorizationType === 'API_KEY') && (
                           <Grid item xs={12} md={4}>
                             <TextField
                               fullWidth
                               label={
                                 authorizationType === 'BASIC'
-                                  ? authorizationType === 'BEARER'
-                                    ? 'Token'
-                                    : 'Username'
-                                  : authorizationType === 'BEARER'
-                                    ? 'Token'
-                                    : 'Key'
+                                  ? 'Password'
+                                  : 'Value'
                               }
                               variant="outlined"
-                              name="username"
-                              value={authInput.username}
+                              type="password"
+                              name="password"
+                              value={authInput.password}
                               onChange={handleAuthChange}
                               onBlur={addHeaderFields}
                             />
                           </Grid>
-                          {(authorizationType === 'BASIC' ||
-                            authorizationType === 'API_KEY') && (
-                            <Grid item xs={12} md={4}>
-                              <TextField
-                                fullWidth
-                                label={
-                                  authorizationType === 'BASIC'
-                                    ? 'Password'
-                                    : 'Value'
-                                }
-                                variant="outlined"
-                                type="password"
-                                name="password"
-                                value={authInput.password}
-                                onChange={handleAuthChange}
-                                onBlur={addHeaderFields}
-                              />
-                            </Grid>
-                          )}
-                          {authorizationType === 'API_KEY' && (
-                            <Grid item xs={12} md={4}>
-                              <TextField
-                                select
-                                fullWidth
-                                label="Add to"
-                                value={addheaderto}
-                                onChange={(e) => setAddheaderto(e.target.value)}
-                                onBlur={addHeaderFields}
-                              >
-                                <MenuItem key="Header" value="Header">
-                                  Header
-                                </MenuItem>
-                                <MenuItem key="QueryParams" value="QueryParams">
-                                  Query Params
-                                </MenuItem>
-                              </TextField>
-                            </Grid>
-                          )}
-                        </Grid>
-                      </>
+                        )}
+                        {authorizationType === 'API_KEY' && (
+                          <Grid item xs={12} md={4}>
+                            <TextField
+                              select
+                              fullWidth
+                              label="Add to"
+                              value={addheaderto}
+                              onChange={(e) => setAddheaderto(e.target.value)}
+                              onBlur={addHeaderFields}
+                            >
+                              <MenuItem key="Header" value="Header">
+                                Header
+                              </MenuItem>
+                              <MenuItem key="QueryParams" value="QueryParams">
+                                Query Params
+                              </MenuItem>
+                            </TextField>
+                          </Grid>
+                        )}
+                      </Grid>
                     )}
                   </Grid>
                 )}
@@ -689,9 +684,9 @@ export default function NewService() {
                     value={raw}
                     onChange={handleRawChange}
                   >
-                    <MenuItem value={'JSON'}>JSON</MenuItem>
-                    <MenuItem value={'Text'}>Text</MenuItem>
-                    <MenuItem value={'XML'}>XML</MenuItem>
+                    <MenuItem value="JSON">JSON</MenuItem>
+                    <MenuItem value="Text">Text</MenuItem>
+                    <MenuItem value="XML">XML</MenuItem>
                   </TextField>
                 )}
                 {bodyType == 'none' ? (
@@ -780,15 +775,13 @@ export default function NewService() {
               >
                 <Tooltip
                   title={
-                    <>
-                      <Link
-                        href="https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=newteams%2Cdotnet"
-                        target="_blank"
-                        color="inherit"
-                      >
-                        Generate WebHook Url
-                      </Link>
-                    </>
+                    <Link
+                      href="https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook?tabs=newteams%2Cdotnet"
+                      target="_blank"
+                      color="inherit"
+                    >
+                      Generate WebHook Url
+                    </Link>
                   }
                 >
                   <HelpIcon sx={{ cursor: 'pointer' }} />

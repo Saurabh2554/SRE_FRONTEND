@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -5,13 +6,17 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import MenuItem from '@mui/material/MenuItem';
-import { useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { CREATE_SUB_BUSINESS_UNIT } from '../../graphql/mutation/mutation.tsx';
 import { GET_ALL_BUSINESS_UNIT } from '../../graphql/query/query.tsx'; // Import the query
 import { MuiNavbar } from '../../common/components/Navbar/navbar.tsx';
+import {
+  BusinessUnitType,
+  SubBusinessUnitCreateMutation,
+  CreateSubbusinessUnitMutationVariables,
+} from '../../graphql/types.tsx';
 
 const center = {
   position: 'relative',
@@ -40,10 +45,13 @@ export default function NewSubBusinessUnit() {
     data: businessUnitsData,
     loading: businessUnitsLoading,
     error: businessUnitsError,
-  } = useQuery(GET_ALL_BUSINESS_UNIT);
-  const [createSubBusinessUnit, { loading, error }] = useMutation(
-    CREATE_SUB_BUSINESS_UNIT
-  );
+  } = useQuery<{ businessUnit: BusinessUnitType[] }>(GET_ALL_BUSINESS_UNIT);
+  const [createSubBusinessUnit, { loading, error }] = useMutation<
+    {
+      createSubBusinessUnit: SubBusinessUnitCreateMutation;
+    },
+    CreateSubbusinessUnitMutationVariables
+  >(CREATE_SUB_BUSINESS_UNIT);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -51,7 +59,7 @@ export default function NewSubBusinessUnit() {
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error: {businessUnitsError.message}</p>;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
       const { data } = await createSubBusinessUnit({
@@ -60,7 +68,6 @@ export default function NewSubBusinessUnit() {
           subBusinessUnitName,
           subBusinessUnitDescription,
           subBusinessUnitDl,
-          createdBy: 'static_email@example.com', // Replace with current user
         },
       });
       console.log('Sub-business unit created:', data);
@@ -71,12 +78,19 @@ export default function NewSubBusinessUnit() {
       setSubBusinessUnitDescription('');
 
       setSubBusinessUnitDl('');
-    } catch (error) {
-      console.error('Error creating sub-business unit:', error.message);
+    } catch (errorEx) {
+      if (errorEx instanceof Error) {
+        console.error('Error creating sub-business unit:', errorEx.message);
+      } else {
+        console.error('Error creating sub-business unit');
+      }
     }
   };
 
-  const handleCloseSnackbar = (event, reason) => {
+  const handleCloseSnackbar = (
+    event: Event | React.SyntheticEvent<Element, Event>,
+    reason: string
+  ) => {
     if (reason === 'clickaway') return;
     setOpenSnackbar(false);
   };
@@ -105,7 +119,7 @@ export default function NewSubBusinessUnit() {
                   value={businessUnit}
                   onChange={(e) => setBusinessUnit(e.target.value)}
                 >
-                  {businessUnitsData.businessUnit.map((unit) => (
+                  {businessUnitsData?.businessUnit.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
                       {unit.businessUnitName}
                     </MenuItem>
@@ -189,7 +203,7 @@ export default function NewSubBusinessUnit() {
         onClose={handleCloseSnackbar}
       >
         <Alert
-          onClose={handleCloseSnackbar}
+          // onClose={handleCloseSnackbar}
           severity="success"
           sx={{ width: '100%' }}
         >

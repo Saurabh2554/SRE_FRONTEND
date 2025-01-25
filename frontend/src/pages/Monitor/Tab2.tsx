@@ -1,18 +1,18 @@
 import React from 'react';
 import { Grid, TextField, Button, MenuItem } from '@mui/material';
 import { useQuery, useLazyQuery } from '@apollo/client';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { GET_API_TYPE, VALIDATE_API } from '../../graphql/query/query';
 import Tab22 from './Tab22';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
-const Tab2 = ({
+function Tab2({
   state,
   enableButton,
   isButtonEnabled,
   setState,
   snackbarState,
   SetSnackbarFields,
-}) => {
+}) {
   const {
     data: methodData,
     loading: methodLoading,
@@ -113,6 +113,6 @@ const Tab2 = ({
       {/* Add the rest of Tab2 fields */}
     </>
   );
-};
+}
 
 export default Tab2;

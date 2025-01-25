@@ -1,7 +1,7 @@
 import React from 'react';
 import HeatMap from 'react-heatmap-grid';
 
-const HeatmapChart = () => {
+function HeatmapChart() {
   const xLabels = [
     '10:00',
     '11:00',
@@ -31,7 +31,7 @@ const HeatmapChart = () => {
     'API 7',
   ]; // Example API names
   const data = [
-    [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8], //Hardcoded Values
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8], // Hardcoded Values
     [2, 4, 6, 8, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8],
     [2, 4, 6, 8, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8],
     [2, 4, 6, 8, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -55,6 +55,6 @@ const HeatmapChart = () => {
       />
     </div>
   );
-};
+}
 
 export default HeatmapChart;

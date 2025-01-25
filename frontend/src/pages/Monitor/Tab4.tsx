@@ -1,11 +1,11 @@
 import { TextField, MenuItem, Grid2 } from '@mui/material';
 
-const Tab4 = ({ state, setState }) => {
+function Tab4({ state, setState }) {
   return (
     <div>
       <Grid2
         container
-        direction={'column'}
+        direction="column"
         rowSpacing={5}
         sx={{ marginBottom: '3rem' }}
       >
@@ -111,6 +111,6 @@ const Tab4 = ({ state, setState }) => {
       {/* Add the rest of Tab3 fields */}
     </div>
   );
-};
+}
 
 export default Tab4;

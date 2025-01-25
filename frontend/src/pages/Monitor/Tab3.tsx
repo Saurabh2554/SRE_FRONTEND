@@ -1,11 +1,12 @@
 import { TextField, MenuItem, Grid2, Menu } from '@mui/material';
 import resTimes from '../../constants/constants';
-const Tab3 = ({ state, setState }) => {
+
+function Tab3({ state, setState }) {
   return (
     <div>
       <Grid2
         container
-        direction={'column'}
+        direction="column"
         rowSpacing={3}
         sx={{ marginBottom: '3rem' }}
       >
@@ -61,6 +62,6 @@ const Tab3 = ({ state, setState }) => {
       {/* Add the rest of Tab3 fields */}
     </div>
   );
-};
+}
 
 export default Tab3;

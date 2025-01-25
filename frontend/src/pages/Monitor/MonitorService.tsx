@@ -1,16 +1,16 @@
 import React, { useState, useRef } from 'react';
+import { Box, Button, Stepper, Step, StepLabel } from '@mui/material';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import Tab1 from './Tab1';
 import Tab4 from './Tab4';
 import Tab3 from './Tab3';
 import Tab2 from './Tab2';
-import { Box, Button, Stepper, Step, StepLabel } from '@mui/material';
 import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import { VALIDATE_TEAMS_CHANNEL } from '../../graphql/query/query';
-import { useMutation, useLazyQuery } from '@apollo/client';
 import { CREATE_API_MONITOR } from '../../graphql/mutation/mutation';
 
-const MonitorService = () => {
+function MonitorService() {
   const [
     validateTeamsChannel,
     {
@@ -161,8 +161,6 @@ const MonitorService = () => {
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
-
-    return;
   };
 
   return (
@@ -249,6 +247,6 @@ const MonitorService = () => {
       </Box>
     </div>
   );
-};
+}
 
 export default MonitorService;

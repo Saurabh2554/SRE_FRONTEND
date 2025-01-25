@@ -2,7 +2,7 @@ import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-const SuccessFailurePieChart = ({ success_rates, error_rates }) => {
+function SuccessFailurePieChart({ success_rates, error_rates }) {
   const data = {
     labels: ['Success', 'Failure'],
     datasets: [
@@ -24,6 +24,6 @@ const SuccessFailurePieChart = ({ success_rates, error_rates }) => {
       style={{ marginTop: '50px', height: '100px', width: '100px' }}
     />
   );
-};
+}
 
 export default SuccessFailurePieChart;

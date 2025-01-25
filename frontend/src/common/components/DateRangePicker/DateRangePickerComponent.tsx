@@ -6,7 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash';
 
-export const DateRangePickerComponent = ({ onDateChange }) => {
+export function DateRangePickerComponent({ onDateChange }) {
   const today = dayjs();
   const endDate = today.add(1, 'day');
   const oneWeekAgo = today.subtract(7, 'day');
@@ -43,4 +43,4 @@ export const DateRangePickerComponent = ({ onDateChange }) => {
       </LocalizationProvider>
     </Box>
   );
-};
+}

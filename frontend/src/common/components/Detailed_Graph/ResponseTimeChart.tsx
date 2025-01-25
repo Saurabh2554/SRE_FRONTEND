@@ -8,13 +8,13 @@ import 'chartjs-adapter-date-fns';
 
 ChartJS.register(...registerables, annotationPlugin);
 
-const ResponseTimeChart = ({ graphUnit, responseTimes, expectedresTimes }) => {
+function ResponseTimeChart({ graphUnit, responseTimes, expectedresTimes }) {
   const labels = responseTimes.map((response) => new Date(response.timestamp));
 
   // console.log("response time success status ",responseTimes);
 
   const data = {
-    labels: labels,
+    labels,
     datasets: [
       {
         label: 'Response Time (ms)',
@@ -137,7 +137,7 @@ const ResponseTimeChart = ({ graphUnit, responseTimes, expectedresTimes }) => {
         callbacks: {
           title: (tooltipItems) => {
             const context = tooltipItems[0].chart.ctx;
-            const chartArea = tooltipItems[0].chart.chartArea;
+            const { chartArea } = tooltipItems[0].chart;
             const xPosition = tooltipItems[0].element.x;
             const yTop = chartArea.top;
             const yBottom = chartArea.bottom;
@@ -174,9 +174,9 @@ const ResponseTimeChart = ({ graphUnit, responseTimes, expectedresTimes }) => {
     id: 'verticalLinePlugin',
     beforeDraw: (chart) => {
       if (chart.tooltip._active && chart.tooltip._active.length) {
-        const ctx = chart.ctx;
+        const { ctx } = chart;
         const activePoint = chart.tooltip._active[0];
-        const x = activePoint.element.x;
+        const { x } = activePoint.element;
         const topY = chart.chartArea.top;
         const bottomY = chart.chartArea.bottom;
 
@@ -203,6 +203,6 @@ const ResponseTimeChart = ({ graphUnit, responseTimes, expectedresTimes }) => {
       </div>
     </div>
   );
-};
+}
 
 export default ResponseTimeChart;

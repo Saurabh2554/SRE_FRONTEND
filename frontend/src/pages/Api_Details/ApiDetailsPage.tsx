@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import {
   Box,
   Grid,
@@ -16,22 +15,24 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Tabs,
+  Tab,
 } from '@mui/material';
-
-import ResponseTimeChart from '../../common/components/Detailed_Graph/ResponseTimeChart';
-import SuccessFailurePieChart from '../../common/components/Pie_Chart/SuccessFailurePieChart';
-import { GET_METRICES_BY_ID } from '../../graphql/query/query';
 import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CircleIcon from '@mui/icons-material/Circle';
 import CloseIcon from '@mui/icons-material/Close';
+import { display, styled } from '@mui/system';
+import { MuiNavbar } from '../../common/components/Navbar/navbar';
+
+import ResponseTimeChart from '../../common/components/Detailed_Graph/ResponseTimeChart';
+import SuccessFailurePieChart from '../../common/components/Pie_Chart/SuccessFailurePieChart';
+import { GET_METRICES_BY_ID } from '../../graphql/query/query';
 import NewServiceUpdate from '../New_Service/newServiceUpdate';
 import { UPDATE_API_MONITOR } from '../../graphql/mutation/mutation';
 import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 import NoData from '../../common/Resources/NoData.jpg';
-import { Tabs, Tab } from '@mui/material';
-import { display, styled } from '@mui/system';
 
 const boxstyle = {
   position: 'absolute',
@@ -88,12 +89,12 @@ export default function ApiDetailsPage() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  //const[timeUnit,setTimeUnit]=useState('hours');
+  // const[timeUnit,setTimeUnit]=useState('hours');
 
   const setGraphUnitHandler = (stepsize, unit = 'hour') => {
     setGraphUnit({
       stepSize: stepsize,
-      unit: unit,
+      unit,
     });
   };
 
@@ -139,19 +140,19 @@ export default function ApiDetailsPage() {
   };
 
   const handleTimeRangeChange = (event, newValue) => {
-    //const selectedRange = event.target.value;
+    // const selectedRange = event.target.value;
 
     setTimeRange(newValue);
 
-    //const selectedRange = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue.target.value;
+    // const selectedRange = typeof eventOrValue === 'string' ? eventOrValue : eventOrValue.target.value;
     // setTimeRange(selectedRange);
-    //const selectedRange = newValue;
+    // const selectedRange = newValue;
     // Calculate date range based on the selected time range
     const now = new Date();
     let fromDate;
     let timeUnit;
     // let toDate = new Date(responseTimes.at(-1)?.timestamp);
-    let toDate =
+    const toDate =
       responseTimes?.length > 0
         ? new Date(responseTimes.at(-1)?.timestamp)
         : now; // Fallback to 'now'
@@ -181,7 +182,7 @@ export default function ApiDetailsPage() {
     refetch({
       apiMonitoringId: id,
       timeRange: +newValue,
-      timeUnit: timeUnit,
+      timeUnit,
     });
 
     // Update the state for date range  1Mon
@@ -195,7 +196,7 @@ export default function ApiDetailsPage() {
     // });
   };
 
-  let expectedresTimes = data?.getAllMetrices[0]?.assertionAndLimit[0];
+  const expectedresTimes = data?.getAllMetrices[0]?.assertionAndLimit[0];
   {
     /* <p>Error loading data: {error.message}</p> */
   }
@@ -611,7 +612,7 @@ export default function ApiDetailsPage() {
               />
             </Grid>
 
-            {/*For Heatmap */}
+            {/* For Heatmap */}
             {/* <Grid container spacing={2} style={{ marginTop: "10px" }}>
    <Grid item xs={12} md={12} style={{ marginTop:"50px" ,height: '253px'}}>
       

@@ -1,4 +1,3 @@
-import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import Box from '@mui/material/Box';
 import { useState } from 'react';
 import Grid from '@mui/material/Grid';
@@ -7,9 +6,10 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useMutation } from '@apollo/client';
-import { CREATE_BUSINESS_UNIT } from '../../graphql/mutation/mutation';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { CREATE_BUSINESS_UNIT } from '../../graphql/mutation/mutation';
+import { MuiNavbar } from '../../common/components/Navbar/navbar';
 
 const center = {
   position: 'relative',
@@ -75,7 +75,7 @@ export default function NewBusinessUnit() {
         <Container>
           <Box height={35} />
           <Box sx={center}>
-            <Typography component="h1" variant="h4" fontFamily={'Lato'}>
+            <Typography component="h1" variant="h4" fontFamily="Lato">
               Create New Business Unit
             </Typography>
           </Box>
@@ -122,7 +122,7 @@ export default function NewBusinessUnit() {
                   disabled
                   fullWidth
                   id="created_by"
-                  label="System Integeration" //Here current user will appear
+                  label="System Integeration" // Here current user will appear
                   name="Created By"
                   type="text"
                 />

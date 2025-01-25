@@ -1,14 +1,6 @@
 import { useQuery, useLazyQuery } from '@apollo/client';
 import React, { useState, useEffect } from 'react';
 import {
-  GET_ALL_BUSINESS_UNIT,
-  GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,
-  GET_AUTH_VALUE,
-  GET_API_TYPE,
-  VALIDATE_API,
-  VALIDATE_TEAMS_CHANNEL,
-} from '../../graphql/query/query';
-import {
   Box,
   Grid,
   TextField,
@@ -23,7 +15,16 @@ import {
   Tooltip,
   Grid2,
 } from '@mui/material';
-const Tab1 = ({ state, setState }) => {
+import {
+  GET_ALL_BUSINESS_UNIT,
+  GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,
+  GET_AUTH_VALUE,
+  GET_API_TYPE,
+  VALIDATE_API,
+  VALIDATE_TEAMS_CHANNEL,
+} from '../../graphql/query/query';
+
+function Tab1({ state, setState }) {
   const {
     data: businessUnitsData,
     loading: businessUnitsLoading,
@@ -48,7 +49,6 @@ const Tab1 = ({ state, setState }) => {
         },
       });
     }
-    return;
   };
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const Tab1 = ({ state, setState }) => {
     <div>
       <Grid2
         container
-        direction={'column'}
+        direction="column"
         rowSpacing={5}
         sx={{ marginBottom: '3rem' }}
       >
@@ -118,6 +118,6 @@ const Tab1 = ({ state, setState }) => {
       </Grid2>
     </div>
   );
-};
+}
 
 export default Tab1;
