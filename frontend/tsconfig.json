@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "es6"],
+    "allowJs": true,
+    "jsx": "react-jsx", // For React 17+
+    "strict": true, // Enable strict mode for better type checking
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+  },
+  "include": ["src"]
+}

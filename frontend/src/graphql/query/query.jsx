@@ -1,19 +1,10 @@
-import { gql } from "graphql-tag";
+import { gql } from '@apollo/client';
 
 export const GET_ALL_BUSINESS_UNIT = gql`
-  query {
+  query GetBusinessUnit {
     businessUnit {
       id
       businessUnitName
-    }
-  }
-`;
-
-export const GET_ALL_SUB_BUSINESS_UNIT = gql`
-  query {
-   subBusinessUnit {
-      id
-      subBusinessUnitName
     }
   }
 `;
@@ -28,27 +19,36 @@ export const GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT = gql`
 `;
 
 export const GET_API_TYPE = gql`
-  query{
+  query GetApiType {
     methodTypeChoices {
-    key
-    value
-  }
+      key
+      value
+    }
   }
 `;
 
 export const GET_AUTH_VALUE = gql`
-  query{
+  query GetAuthValue {
     authTypeChoices {
-    key
-    value
-  }
+      key
+      value
+    }
   }
 `;
 
-
 export const VALIDATE_API = gql`
-  query validateApi($apiUrl: String!, $methodType: String!, $headers: String, $requestBody: String){
-    validateApi(apiUrl: $apiUrl, methodType: $methodType, headers: $headers, requestBody: $requestBody){
+  query validateApi(
+    $apiUrl: String!
+    $methodType: String!
+    $headers: String
+    $requestBody: String
+  ) {
+    validateApi(
+      apiUrl: $apiUrl
+      methodType: $methodType
+      headers: $headers
+      requestBody: $requestBody
+    ) {
       status
       success
       message
@@ -56,10 +56,21 @@ export const VALIDATE_API = gql`
   }
 `;
 
-
 export const GET_ALL_METRICS = gql`
-  query GetAllMetrics($businessUnit: UUID!, $subBusinessUnit: UUID!, $fromDate: DateTime, $toDate: DateTime ,$searchParam: String) {
-    getAllMetrices(businessUnit: $businessUnit, subBusinessUnit: $subBusinessUnit, fromDate: $fromDate, toDate: $toDate,searchParam: $searchParam) {
+  query GetAllMetrics(
+    $businessUnit: UUID!
+    $subBusinessUnit: UUID!
+    $fromDate: DateTime
+    $toDate: DateTime
+    $searchParam: String
+  ) {
+    getAllMetrices(
+      businessUnit: $businessUnit
+      subBusinessUnit: $subBusinessUnit
+      fromDate: $fromDate
+      toDate: $toDate
+      searchParam: $searchParam
+    ) {
       id
       apiName
       apiUrl
@@ -74,8 +85,20 @@ export const GET_ALL_METRICS = gql`
 `;
 
 export const GET_METRICES_BY_ID = gql`
-  query GetAllMetrics($apiMonitoringId: UUID!,$fromDate: DateTime, $toDate: DateTime ,$timeRange:Int,$timeUnit:String) {
-    getAllMetrices(apiMonitoringId: $apiMonitoringId, fromDate: $fromDate, toDate: $toDate,timeRange:$timeRange,timeUnit:$timeUnit) {
+  query GetAllMetrics(
+    $apiMonitoringId: UUID!
+    $fromDate: DateTime
+    $toDate: DateTime
+    $timeRange: Int
+    $timeUnit: String
+  ) {
+    getAllMetrices(
+      apiMonitoringId: $apiMonitoringId
+      fromDate: $fromDate
+      toDate: $toDate
+      timeRange: $timeRange
+      timeUnit: $timeUnit
+    ) {
       apiName
       apiUrl
       avg_response_size
@@ -98,53 +121,48 @@ export const GET_METRICES_BY_ID = gql`
         success
       }
       percentile_50 {
-      currPercentileResTime
-      percentageDiff
-    }
-    percentile_90 {
-      currPercentileResTime
-      percentageDiff
-    }
-    percentile_99 {
-      percentageDiff
-      currPercentileResTime
-    }
+        currPercentileResTime
+        percentageDiff
+      }
+      percentile_90 {
+        currPercentileResTime
+        percentageDiff
+      }
+      percentile_99 {
+        percentageDiff
+        currPercentileResTime
+      }
     }
   }
 `;
 
 export const GET_SERVICE_BY_ID = gql`
-query GetServiceById($serviceId: UUID!) {
-getServiceById(serviceId: $serviceId) {
-  apiCallInterval
-  apiName
-  apiUrl
-  businessUnit {
-    id
-    businessUnitName
+  query GetServiceById($serviceId: UUID!) {
+    getServiceById(serviceId: $serviceId) {
+      apiName
+      apiUrl
+      businessUnit {
+        id
+        businessUnitName
+      }
+      methodType
+      requestBody
+      subBusinessUnit {
+        id
+        subBusinessUnitName
+      }
+      id
+      headers
+    }
   }
-  methodType
-  recipientDl
-  requestBody
-  subBusinessUnit {
-    id
-    subBusinessUnitName
-  }
-  id
-  headers
-  expectedResponseTime
-}
-
-}
 `;
 
 export const VALIDATE_TEAMS_CHANNEL = gql`
-  query validateTeamsChannel($channelUrl : String!){
-    validateTeamsChannel(channelUrl : $channelUrl){
+  query validateTeamsChannel($channelUrl: String!) {
+    validateTeamsChannel(channelUrl: $channelUrl) {
       message
       success
       status
     }
   }
 `;
-

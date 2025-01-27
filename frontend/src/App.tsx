@@ -11,23 +11,23 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" exact element={<Dashboard />}></Route>
+          <Route path="/"  element={<Dashboard />}></Route>
           <Route
             path="/newBusinessUnit"
-            exact
+            
             element={<NewBusinessUnit />}
           ></Route>
           <Route
             path="/newSubBusinessUnit"
-            exact
+            
             element={<NewSubBusinessUnit />}
           ></Route>
-          <Route path="/newService" exact element={<NewService />}></Route>
-          <Route path="/monitorService" exact element={<MonitorService />}></Route>
+          <Route path="/newService"  element={<NewService />}></Route>
+          <Route path="/monitorService"  element={<MonitorService />}></Route>
           <Route path="/api-details/:id" element={<ApiDetailsPage />} />
           <Route
             path="/help"
-            exact
+            
             element={<Help />}
           ></Route>
         </Routes>
