@@ -56,33 +56,33 @@ export const VALIDATE_API = gql`
   }
 `;
 
-// export const GET_ALL_METRICS = gql`
-//   query GetAllMetrics(
-//     $businessUnit: UUID!
-//     $subBusinessUnit: UUID!
-//     $fromDate: DateTime
-//     $toDate: DateTime
-//     $searchParam: String
-//   ) {
-//     getAllMetrices(
-//       businessUnit: $businessUnit
-//       subBusinessUnit: $subBusinessUnit
-//       fromDate: $fromDate
-//       toDate: $toDate
-//       searchParam: $searchParam
-//     ) {
-//       id
-//       apiName
-//       apiUrl
-//       availability_uptime
-//       success_rates
-//       avg_latency
-//       isApiActive
-//       methodType
-//       last_Error_Occurred
-//     }
-//   }
-// `;
+export const GET_ALL_METRICS = gql`
+  query GetAllMetrics(
+    $businessUnit: UUID!
+    $subBusinessUnit: UUID!
+    $fromDate: DateTime
+    $toDate: DateTime
+    $searchParam: String
+  ) {
+    getAllMetrices(
+      businessUnit: $businessUnit
+      subBusinessUnit: $subBusinessUnit
+      fromDate: $fromDate
+      toDate: $toDate
+      searchParam: $searchParam
+    ) {
+      id
+      apiName
+      apiUrl
+      availability_uptime
+      success_rates
+      avg_latency
+      isApiActive
+      methodType
+      last_Error_Occurred
+    }
+  }
+`;
 
 export const GET_METRICES_BY_ID = gql`
   query GetAllMetrics(
