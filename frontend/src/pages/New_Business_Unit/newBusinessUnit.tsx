@@ -8,8 +8,12 @@ import Container from '@mui/material/Container';
 import { useMutation } from '@apollo/client';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { CREATE_BUSINESS_UNIT } from '../../graphql/mutation/mutation';
-import { MuiNavbar } from '../../common/components/Navbar/navbar';
+import { CREATE_BUSINESS_UNIT } from '../../graphql/mutation/mutation.tsx';
+import { MuiNavbar } from '../../common/components/Navbar/navbar.tsx';
+import {
+  BusinessUnitCreateMutation,
+  CreateBusinessUnitMutationVariables,
+} from '../../graphql/types.tsx';
 
 const center = {
   position: 'relative',
@@ -30,24 +34,25 @@ export default function NewBusinessUnit() {
   const [businessUnitName, setbusinessUnitName] = useState('');
   const [businessUnitDescription, setbusinessUnitDescription] = useState('');
   const [businessUnitDl, setbusinessUnitDl] = useState('');
-
-  const [createBusinessUnit, { data, loading, error }] =
-    useMutation(CREATE_BUSINESS_UNIT);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const [createBusinessUnit, { loading, error }] = useMutation<
+    BusinessUnitCreateMutation,
+    CreateBusinessUnitMutationVariables
+  >(CREATE_BUSINESS_UNIT);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   const STATIC_CREATED_BY = 'static_email@example.com';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const { data } = createBusinessUnit({
+      const { data } = await createBusinessUnit({
         variables: {
           businessUnitName,
           businessUnitDescription,
           businessUnitDl,
-          createdBy: STATIC_CREATED_BY,
         },
       });
       console.log('Business unit created:', data);
@@ -57,11 +62,18 @@ export default function NewBusinessUnit() {
       setbusinessUnitDescription('');
       setbusinessUnitDl('');
     } catch (error) {
-      console.error('Error creating business unit:', error.message);
+      if (error instanceof Error) {
+        console.error('Error creating business unit:', error.message);
+      } else {
+        console.error('Error creating sub-business unit');
+      }
     }
   };
 
-  const handleCloseSnackbar = (event, reason) => {
+  const handleCloseSnackbar = (
+    event: Event | React.SyntheticEvent<Element, Event>,
+    reason: string
+  ) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -154,7 +166,7 @@ export default function NewBusinessUnit() {
         onClose={handleCloseSnackbar}
       >
         <Alert
-          onClose={handleCloseSnackbar}
+          //onClose={handleCloseSnackbar}
           severity="success"
           sx={{ width: '100%' }}
         >
