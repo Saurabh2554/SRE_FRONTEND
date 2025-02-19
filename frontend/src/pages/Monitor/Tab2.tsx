@@ -4,20 +4,49 @@ import { useQuery,useLazyQuery } from "@apollo/client";
 import { GET_API_TYPE, VALIDATE_API} from "../../graphql/query/query"; 
 import Tab22 from './Tab22';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import { FormState } from './MonitorService';
+import {
+  GetApiTypeQuery,
+  ValidateApiQuery,
+  ValidateApiQueryVariables,
+} from "../../graphql/types";
 
+type Tab2Types = {
+  state: FormState["tab2"];
+  setState: (newState: FormState["tab2"]) => void;
+  isButtonEnabled: boolean;
+  SetSnackbarFields: (
+    open: boolean,
+    message: string | null | undefined,
+    severity: string
+  ) => void;
+  snackbarState: {
+    open: boolean;
+    message: string | null | undefined;
+    severity: string;
+  };
+  enableButton: React.Dispatch<React.SetStateAction<boolean>>
+};
 
-const Tab2 = ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSnackbarFields }) => {
+const Tab2: React.FC <Tab2Types> =  ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSnackbarFields }) => {
 
-  const { data: methodData, loading: methodLoading, error: methodError } = useQuery(GET_API_TYPE);
+  const {
+    data: methodData,
+    loading: methodLoading,
+    error: methodError,
+  } = useQuery<GetApiTypeQuery>(GET_API_TYPE);
 
-  const [validateApi, {data: validateapi, loading: apiloading, error: apierror}] = useLazyQuery(VALIDATE_API,{
-      fetchPolicy: 'network-only',
-    });
+  const [
+    validateApi,
+    { data: validateapi, loading: apiloading, error: apierror },
+  ] = useLazyQuery<ValidateApiQuery, ValidateApiQueryVariables>(VALIDATE_API, {
+    fetchPolicy: "network-only",
+  });
   
-  const handleUrlChange = (e) => {
-    setState({...state, url: e.target.value});
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, url: e.target.value });
     enableButton(false);
-    SetSnackbarFields(false,"", "");
+    SetSnackbarFields(false, "", "");
   };
 
   const handleValidateUrl = async () => {
@@ -32,12 +61,12 @@ const Tab2 = ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSn
           requestBody: state.bodyType == 'GraphQL' ? JSON.stringify({query: state.body.trim()})  : state.body
         }
       });
-      if(apierror || !(result.data.validateApi.success)){
+      if(apierror || !(result?.data?.validateApi?.success)){
         SetSnackbarFields(true, apierror?.message || "Invalid API!", "error");
         return
       }
       enableButton(true);
-      SetSnackbarFields(true, "Api validated successfully!" || "Invalid API!", "success");
+      SetSnackbarFields(true, "Api validated successfully!", "success");
     }
     else{
       SetSnackbarFields(true, "Enter a valid API URL", "error");
@@ -59,9 +88,11 @@ const Tab2 = ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSn
         variant="outlined"
         >
         {methodData?.methodTypeChoices?.map((option) => (
-            <MenuItem key={option.key} value={option.key}>
-            {option.value}
+          
+            <MenuItem key={option?.key} value={option?.key}>
+              {option?.value}
             </MenuItem>
+
         ))}
       </TextField>
       </Grid>
@@ -88,7 +119,7 @@ const Tab2 = ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSn
 
       </Grid>
       </Grid>
-    <Tab22 state = {state} setState = {setState} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} />
+    <Tab22 state = {state} setState = {setState}/>
       {/* Add the rest of Tab2 fields */}
     </>
   );

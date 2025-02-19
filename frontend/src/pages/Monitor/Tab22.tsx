@@ -8,11 +8,22 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { FormState } from './MonitorService';
+import { GetAuthValueQuery, GetAuthValueQueryVariables } from '../../graphql/types';
 
+type Tab22Types = {
+  state: FormState["tab2"];
+  setState: (newState: FormState["tab2"]) => void;
+};
 
-const Tab22 = ({ state , setState }) => {
+const Tab22 : React.FC <Tab22Types> = ({ state , setState }) => {
   const [tabValue, setTabValue] = useState('1');
-  const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
+  const {
+    data: authTypeChoicesData,
+    loading: authTypeChoicesLoading,
+    error: authTypeChoicesError,
+  } = useQuery<GetAuthValueQuery, GetAuthValueQueryVariables>(GET_AUTH_VALUE);
+
   const [options] = useState(['none', 'raw', 'GraphQl']);
 
   const renderedOptions = useMemo(() => {
@@ -28,13 +39,16 @@ const Tab22 = ({ state , setState }) => {
     });
   }, [options]);
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (
+    event: React.SyntheticEvent,
+    newValue: string
+  ) => {
     setTabValue(newValue);
   };
-  const addHeaderFields = () => {
 
+  const addHeaderFields = () => {
     let authValue = '';
-    const authorizationObj ={};
+    const authorizationObj: { key?: string ; value?: string  }= {};
     let url = state.url;
     if(state.authorizationType === 'API_KEY' && (state.authInput.username !== '' && state.authInput.password !== '') ){
       if(state.addheaderto == 'Header'){
@@ -58,8 +72,8 @@ const Tab22 = ({ state , setState }) => {
       }
     }
     
-    if(authValue != '' || (state.authorizationType === 'API_KEY' && state.addheaderto != '')){
-
+    if(authValue != '' || (state.authorizationType === 'API_KEY' && state.addheaderto != ''))
+    {
       if(state.authorizationType != 'API_KEY'){
         authorizationObj['key'] = 'Authorization';
         authorizationObj['value'] = authValue;
@@ -68,39 +82,57 @@ const Tab22 = ({ state , setState }) => {
       setState({...state,authHeader:[authorizationObj],url:url});
     }
   };
-const handleAuthChange = (e) => {
+  const handleAuthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-     setState({...state, authInput:{...state.authInput, [name]:value}})
-};
+    setState({ ...state, authInput: { ...state.authInput, [name]: value } });
+  };
 
-const handleBodychange = (event) => {
-    let headerFieldTemp = [];
-    let method = '';
+  const handleBodychange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let headerFieldTemp: { key: string; value: string }[] = [];
+    let method = "";
     let bodyType = event.target.value;
 
-    if(event.target.value == 'GraphQl'){
-      if(method!=='POST'){
-        method = 'POST'
+    if (event.target.value == "GraphQl") {
+      if (method !== "POST") {
+        method = "POST";
       }
-      const found = state.headerFields?.some(vv => vv.key.toLowerCase() == 'content-type' && vv.value.toLowerCase() == 'application/json');
-   
-      if(!found){
-        if(state.headerFields[0]?.key == ''){
-            headerFieldTemp = [{key: 'Content-Type', value:'application/json'}]
-        }
-        else{
-            headerFieldTemp = [...state.headerFields, {key: 'Content-Type', value:'application/json'}] 
-          }
-        }
-      }
-    else{
-        if(event.target.value ==='raw'){
-          method = 'POST'
-        }
-        headerFieldTemp = state.headerFields?.filter((vv,id) => vv?.key.toLowerCase() != 'content-type' && vv?.value.toLowerCase() != 'application/json')
-     }
-    setState(((prevState)=>{return {...state, headerFields:headerFieldTemp, method :method, bodyType:bodyType, raw: "JSON" }})())
+      const found = state.headerFields?.some(
+        (vv) =>
+          vv.key.toLowerCase() == "content-type" &&
+          vv.value.toLowerCase() == "application/json"
+      );
 
+      if (!found) {
+        if (state.headerFields[0]?.key == "") {
+          headerFieldTemp = [{ key: "Content-Type", value: "application/json" }];
+        } else {
+          headerFieldTemp = [
+            ...state.headerFields,
+            { key: "Content-Type", value: "application/json" },
+          ];
+        }
+      }
+    } else {
+      if (event.target.value === "raw") {
+        method = "POST";
+      }
+      headerFieldTemp = state.headerFields?.filter(
+        (vv, id) =>
+          vv?.key.toLowerCase() != "content-type" &&
+          vv?.value.toLowerCase() != "application/json"
+      );
+    }
+    setState(
+      ((prevState) => {
+        return {
+          ...state,
+          headerFields: headerFieldTemp,
+          method: method,
+          bodyType: bodyType,
+          raw: "JSON",
+        };
+      })()
+    );
   };
   return (
     <div>
@@ -185,8 +217,8 @@ const handleBodychange = (event) => {
                       variant="outlined"
                     >
                       {authTypeChoicesData?.authTypeChoices?.map((choice) => (
-                        <MenuItem key={choice.key} value={choice.key}>
-                          {choice.value}
+                        <MenuItem key={choice?.key} value={choice?.key}>
+                          {choice?.value}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -197,7 +229,7 @@ const handleBodychange = (event) => {
                       <Grid item xs={12} md={4}>
                         <TextField
                           fullWidth
-                          label={state.authorizationType === 'BASIC' ? (state.authorizationType === 'BEARER' ? 'Token' : 'Username' ) : (state.authorizationType === 'BEARER' ? 'Token' : 'Key' ) }
+                          label={state.authorizationType === 'BASIC' ? 'Username' : (state.authorizationType === 'API_KEY' ? 'Key': 'Token' ) }
                           variant="outlined"
                           name='username'
                           value={state.authInput.username}

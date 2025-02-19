@@ -9,14 +9,65 @@ import { MuiNavbar } from '../../common/components/Navbar/navbar';
 import {VALIDATE_TEAMS_CHANNEL} from "../../graphql/query/query"; 
 import { useMutation,useLazyQuery } from "@apollo/client";
 import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
+import {
+  ValidateTeamsChannelQuery,
+  ValidateTeamsChannelQueryVariables,
+  CreateApiMonitorMutation,
+  CreateApiMonitorMutationVariables,
+} from "../../graphql/types";
 
-
+export type FormState = {
+  tab1: {
+    businessUnit: string;
+    subBusinessUnit: string;
+    serviceName: string;
+  };
+  tab2: {
+    method: string;
+    url: string;
+    bodyType: string;
+    raw: string;
+    body: string;
+    headerFields: { key: string; value: string }[];
+    authorizationType: string;
+    authInput: { username: string; password: string };
+    authHeader: { key?: string; value?: string }[];
+    addheaderto: string;
+  };
+  tab3: {
+    degradedResponseTime: number;
+    failedResponseTime: number;
+  };
+  tab4: {
+    apiCallInterval: number;
+    recipientDl: string;
+    teamsChannelWebhookURL: string;
+    maxRetries: number;
+    retryAfter: number;
+    createdBy: string;
+  };
+};
 const MonitorService = () => {
-  const [validateTeamsChannel, {data: validateteams, loading: teamschannelloading, error: teamschannelerror}] = useLazyQuery(VALIDATE_TEAMS_CHANNEL,{
-    fetchPolicy: 'network-only',
+  const [
+    validateTeamsChannel,
+    {
+      data: validateteams,
+      loading: teamschannelloading,
+      error: teamschannelerror,
+    },
+  ] = useLazyQuery<
+    ValidateTeamsChannelQuery,
+    ValidateTeamsChannelQueryVariables
+  >(VALIDATE_TEAMS_CHANNEL, {
+    fetchPolicy: "network-only",
   });
-  const [createApiMonitor, { data, loading, error }] = useMutation(CREATE_API_MONITOR, { errorPolicy: "all" });
-  const [state, setState] = useState({
+  const [createApiMonitor, { data, loading, error }] = useMutation<
+    CreateApiMonitorMutation,
+    CreateApiMonitorMutationVariables
+  >(CREATE_API_MONITOR, {
+    errorPolicy: "all",
+  });
+  const [state, setState] = useState<FormState>({
     tab1: {
       businessUnit: '',
       subBusinessUnit: '',
@@ -39,7 +90,7 @@ const MonitorService = () => {
       failedResponseTime: 20000
     },
     tab4: {
-      apiCallInterval: '',
+      apiCallInterval: 0,
       recipientDl: '',
       teamsChannelWebhookURL: '',
       maxRetries: 3,
@@ -49,55 +100,64 @@ const MonitorService = () => {
   });
 
   const initialStateRef = useRef(state);
-  const [snackbarState, setSnackBarState]=useState({
+  const [snackbarState, setSnackBarState]=useState<{
+    open: boolean,
+    message: string | null | undefined
+    severity: string
+  }>({
     open:false,
     message:'',
     severity:''
   })
-  const handleCloseSnackbar = (event, reason) => {
+  const handleCloseSnackbar = (event: React.SyntheticEvent, reason: string) => {
     
     if (reason === "clickaway") {
       return;
     }
     setSnackBarState({...snackbarState,open:false});
   };
-  const SetSnackbarFields =  (open, message, severity) => {
-    setSnackBarState({open, message,severity});
+  const SetSnackbarFields = (
+    open: boolean,
+    message: string | null | undefined,
+    severity: string
+  ) => {
+    setSnackBarState({ open, message, severity });
   };
   const [isButtonEnabled, setIsButtonEnabled] = useState(false)
   const steps = ['Domain', 'Request', 'Assertions & Limit', 'Scheduling & Alerting'];
   const [activeStep, setActiveStep] = useState(0);
  
-  const handleStepClick = (step) => {
+  const handleStepClick = (step: number) => {
     if (step <= activeStep) {
       setActiveStep(step);
     }
   };
-  const handleSend = async(e)=>{
-    e.preventDefault()
-    
-    if(activeStep===3){
+  const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (activeStep === 3) {
       try {
-        const {businessUnit,subBusinessUnit,serviceName} = state.tab1
-        const {url,method,headerFields,bodyType,body,raw,authHeader} = state.tab2
-        const {responseTime} = state.tab3
-        const {frequencyTime, recipientDL,teamsChannelWebhookURL,maxretry,retryafter} = state.tab4
-        
-        if(teamsChannelWebhookURL ){
- 
+        const { businessUnit, subBusinessUnit, serviceName } = state.tab1;
+        const { url, method, headerFields, bodyType, body, raw, authHeader } = state.tab2;
+        const { teamsChannelWebhookURL } = state.tab4;
+
+        if (teamsChannelWebhookURL) {
           const result = await validateTeamsChannel({
-            variables : {
-              channelUrl : teamsChannelWebhookURL
+            variables: {
+              channelUrl: teamsChannelWebhookURL,
             },
           });
-          
-          if(result && !result?.data?.validateTeamsChannel?.success){
-            SetSnackbarFields(true, "Invalid Teams Channel URL! Either Provide a valid one or remove it", "error");
+
+          if (result && !result?.data?.validateTeamsChannel?.success) {
+            SetSnackbarFields(
+              true,
+              "Invalid Teams Channel URL! Either Provide a valid one or remove it",
+              "error"
+            );
             return;
           }
         }
 
-        
         const Header = [...headerFields, ...authHeader];
         const result = await createApiMonitor({
           variables: {
@@ -108,18 +168,25 @@ const MonitorService = () => {
               methodType: method,
               apiUrl: url,
               headers: JSON.stringify(Header),
-              requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : (raw == 'JSON' ? JSON.stringify(body) : body),
+              requestBody:
+                bodyType == "GraphQL"
+                  ? JSON.stringify({ query: body.trim() })
+                  : raw == "JSON"
+                  ? JSON.stringify(body)
+                  : body,
               assertionAndLimit: state.tab3,
-              schedulingAndAlerting: state.tab4
+              schedulingAndAlerting: state.tab4,
             },
           },
         });
-        if(result && result?.data?.createApiMonitor?.success){
-
-          SetSnackbarFields(true, result?.data?.createApiMonitor?.message, "success");
-         
+        if (result && result?.data?.createApiMonitor?.success) {
+          SetSnackbarFields(
+            true,
+            result?.data?.createApiMonitor?.message,
+            "success"
+          );
         }
-        if(error){
+        if (error) {
           SetSnackbarFields(true, error.message, "error");
           return;
         }
@@ -127,16 +194,14 @@ const MonitorService = () => {
         setActiveStep(0);
         setIsButtonEnabled(false);
       } catch (er) {
-        
         SetSnackbarFields(true, "Unknown Error occured!", "error");
       }
-    }else{
-       setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
-    
-    return
-   
-  }
+
+    return;
+  };
   
   return (
     <div style={{padding:20}}>
@@ -160,10 +225,10 @@ const MonitorService = () => {
           </Stepper>
         </div>
       <form onSubmit={handleSend} autoComplete="off" style={{display: 'flex', flexDirection: 'column'}}>
-      {activeStep === 0 && <Tab1 state={state.tab1}  setState={(newState) => setState({ ...state, tab1: newState })} />}
-      {activeStep === 1 && <Tab2 state={state.tab2} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} enableButton = {setIsButtonEnabled} isButtonEnabled = {isButtonEnabled} setState={(newState) => {setState({ ...state, tab2: newState })}} />}
-      {activeStep === 2 && <Tab3 state={state.tab3}  setState={(newState) => setState({ ...state, tab3: newState })} />}
-      {activeStep === 3 && <Tab4 state={state.tab4} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} setState={(newState) => setState({ ...state, tab4: newState })} />}
+      {activeStep === 0 && <Tab1 state={state.tab1}  setState={(newState: FormState["tab1"]) => setState({ ...state, tab1: newState })} />}
+      {activeStep === 1 && <Tab2 state={state.tab2} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} enableButton = {setIsButtonEnabled} isButtonEnabled = {isButtonEnabled} setState={(newState: FormState["tab2"]) => {setState({ ...state, tab2: newState })}} />}
+      {activeStep === 2 && <Tab3 state={state.tab3}  setState={(newState: FormState["tab3"]) => setState({ ...state, tab3: newState })} />}
+      {activeStep === 3 && <Tab4 state={state.tab4}  setState={(newState: FormState["tab4"]) => setState({ ...state, tab4: newState })} />}
       <Button
         variant="contained"
         color="primary"
