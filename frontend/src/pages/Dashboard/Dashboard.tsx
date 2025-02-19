@@ -1,47 +1,22 @@
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import {ApiListWithPagination} from "../../common/components/MuiGrid/ApiListWithPagination";
 import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
-import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
+//import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
 import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
-import React, { useState,useEffect } from "react";
-import { Line } from "react-chartjs-2";
+import { useState,useEffect } from "react";
 import "chart.js/auto"; // Import the necessary Chart.js components
-import ChartComponent from "./ChartComponent";
-
-import {  TablePagination } from '@mui/material';
-import { Grid2 } from '@mui/material';
-
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
-import { Tooltip } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
-
-
-
-import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
-import { red } from "@mui/material/colors";
+import { BusinessUnitType, SubBusinessUnitType,ApiMetricesType } from "../../graphql/types";
+import {useQuery,useLazyQuery } from "@apollo/client";
 import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,GET_ALL_METRICS } from "../../graphql/query/query"; 
-
-// import dayjs from "dayjs";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 
 window.onbeforeunload = confirmExit;
 function confirmExit() {
     return "You have attempted to leave this page. Are you sure?";
 }
 
-const center = {
-  position: "relative",
-  top: "50%",
-  marginBottom: "5%",
-};
 const boxstyle = {
   position: "absolute",
   top: "50%",
@@ -52,22 +27,21 @@ const boxstyle = {
 
 
 export default function Dashboard() {
-  const [url, setUrl] = useState("");
   const [searchText,setSearchText]=useState("");
-  const [responseDetails, setResponseDetails] = useState([]);
-  //const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
-  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
-  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
-  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery(GET_ALL_METRICS,{
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery<{businessUnit:BusinessUnitType[]}>(GET_ALL_BUSINESS_UNIT);
+  
+  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery<{subBusinessUnit: SubBusinessUnitType[]}>(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
+
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery<{getAllMetrics: ApiMetricesType}>(GET_ALL_METRICS,{
     errorPolicy: "all", 
   });
  
-  const handleBusinessUnitChange = (e) => {
+  const handleBusinessUnitChange = (e:any) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
     setMetrics([]);
@@ -80,13 +54,9 @@ export default function Dashboard() {
     });
   };
 
-  const handleSubBusinessUnitChange = (e) => {
+  const handleSubBusinessUnitChange = (e: any) => {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
-    // Fetch metrics when a sub-business unit is selected
-    //fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
-    console.log(dateRange[0].toISOString());
-      console.log(dateRange[1].toISOString());
 
     if (dateRange[0] && dateRange[1]) {
       
@@ -113,8 +83,6 @@ export default function Dashboard() {
       if (searchText) {
         variables.searchParam = searchText;
       }
-  
-      console.log('Fetching metrics with:', variables);
   
       fetchMetrics({
         variables,

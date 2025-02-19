@@ -7,6 +7,7 @@
     "strict": true, // Enable strict mode for better type checking
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
