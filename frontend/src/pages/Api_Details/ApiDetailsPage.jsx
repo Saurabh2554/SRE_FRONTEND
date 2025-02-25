@@ -1,12 +1,12 @@
-import React ,{ useState, useEffect }from 'react';
-import { useParams,useLocation } from 'react-router-dom';
+import React ,{ useState }from 'react';
+import { useParams } from 'react-router-dom';
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import {Box, Grid, Typography, Paper, MenuItem, Select, FormControl, InputLabel,Tooltip,Button, Dialog,DialogContent,DialogTitle,IconButton,  } from '@mui/material';
-
+import {Box, Grid, Typography,Tooltip,Button, Dialog,DialogContent,DialogTitle,IconButton,  } from '@mui/material';
+import { BusinessUnitType, SubBusinessUnitType,ApiMetricesType,QueryGetAllMetricesArgs} from "../../graphql/types";
 import ResponseTimeChart from '../../common/components/Detailed_Graph/ResponseTimeChart';
 import SuccessFailurePieChart from '../../common/components/Pie_Chart/SuccessFailurePieChart';
 import { GET_METRICES_BY_ID } from "../../graphql/query/query"; 
-import { useQuery,useLazyQuery,useMutation } from '@apollo/client';
+import { useQuery,useMutation } from '@apollo/client';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CircleIcon from '@mui/icons-material/Circle';
@@ -16,16 +16,8 @@ import {UPDATE_API_MONITOR} from '../../graphql/mutation/mutation';
 import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
 import NoData from "../../common/Resources/NoData.jpg";
 import { Tabs, Tab } from '@mui/material';
-import { display, styled } from '@mui/system';
+import {  styled } from '@mui/system';
 
-const boxstyle = {
-    position: "absolute",
-    top: "50%",
-    transform: "translate(5%, -50%)",
-    width: "100%",
-    height: "70%",
-    padding: '20px'
-  };
   const CustomTabs = styled(Tabs)(({ theme }) => ({
     borderBottom: 'none', 
     minHeight: 'unset', // Remove excess height
@@ -51,12 +43,8 @@ const boxstyle = {
 
 export default function ApiDetailsPage() {
   
-  
   const { id } = useParams();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
-  const { loading, error, data, refetch } = useQuery(GET_METRICES_BY_ID, {
+  const { loading, error, data, refetch } = useQuery<{getAllMetrics: ApiMetricesType},QueryGetAllMetricesArgs>(GET_METRICES_BY_ID, {
     variables: { 
       apiMonitoringId: id,
     },
