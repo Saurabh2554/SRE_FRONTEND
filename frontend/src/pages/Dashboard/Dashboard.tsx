@@ -1,47 +1,22 @@
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
-import {ApiListWithPagination} from "../../common/components/MuiGrid/ApiListWithPagination";
 import {ApiDataGrid} from "../../common/components/DataGrid/ApiDataGrid";
 import APImonitoringLogo from "../../common/Resources/APImonitoringLogo.png";
 import {DateRangePickerComponent} from "../../common/components/DateRangePicker/DateRangePickerComponent";
-import React, { useState,useEffect } from "react";
-import { Line } from "react-chartjs-2";
+import { useState,useEffect } from "react";
 import "chart.js/auto"; // Import the necessary Chart.js components
-import ChartComponent from "./ChartComponent";
-
-import {  TablePagination } from '@mui/material';
-import { Grid2 } from '@mui/material';
-
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
-import { Tooltip } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
-
-
-
-import { useMutation,useQuery,useLazyQuery } from "@apollo/client";
-import { red } from "@mui/material/colors";
+import { BusinessUnitType, SubBusinessUnitType,ApiMetricesType,QueryGetAllMetricesArgs, GetSubBusinessUnitPerBusinessUnitQueryVariables} from "../../graphql/types";
+import {useQuery,useLazyQuery } from "@apollo/client";
 import { GET_ALL_BUSINESS_UNIT ,GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,GET_ALL_METRICS } from "../../graphql/query/query"; 
-
-// import dayjs from "dayjs";
-// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 
 window.onbeforeunload = confirmExit;
 function confirmExit() {
     return "You have attempted to leave this page. Are you sure?";
 }
 
-const center = {
-  position: "relative",
-  top: "50%",
-  marginBottom: "5%",
-};
 const boxstyle = {
   position: "absolute",
   top: "50%",
@@ -52,26 +27,26 @@ const boxstyle = {
 
 
 export default function Dashboard() {
-  const [url, setUrl] = useState("");
   const [searchText,setSearchText]=useState("");
-  const [responseDetails, setResponseDetails] = useState([]);
-  //const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState([]);
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
-  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
-  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT);
-  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery(GET_ALL_METRICS,{
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery<{businessUnit:BusinessUnitType[]}>(GET_ALL_BUSINESS_UNIT);
+  
+  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery<{subBusinessUnitPerBusinessUnit:SubBusinessUnitType[]},GetSubBusinessUnitPerBusinessUnitQueryVariables>(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,{
+   
+  });
+
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery<{getAllMetrics: ApiMetricesType},QueryGetAllMetricesArgs>(GET_ALL_METRICS,{
     errorPolicy: "all", 
   });
  
-  const handleBusinessUnitChange = (e) => {
+  const handleBusinessUnitChange = (e:any) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
     setMetrics([]);
-    console.log("Before Update label",businessUnit);
     
     fetchSubBusinessUnits({
       variables: {
@@ -80,13 +55,9 @@ export default function Dashboard() {
     });
   };
 
-  const handleSubBusinessUnitChange = (e) => {
+  const handleSubBusinessUnitChange = (e: any) => {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
-    // Fetch metrics when a sub-business unit is selected
-    //fetchMetrics({ variables: { businessUnit, subBusinessUnit: selectedSubBusinessUnit } });
-    console.log(dateRange[0].toISOString());
-      console.log(dateRange[1].toISOString());
 
     if (dateRange[0] && dateRange[1]) {
       
@@ -101,9 +72,9 @@ export default function Dashboard() {
     }
   };
 
-  const handleSearch = (searchParam) => {
+  const handleSearch = () => {
     if (businessUnit && subBusinessUnit && dateRange[0] && dateRange[1]) {
-      const variables = {
+      const variables: QueryGetAllMetricesArgs = {
         businessUnit,
         subBusinessUnit,
         fromDate: dateRange[0]?.toISOString(),
@@ -114,8 +85,6 @@ export default function Dashboard() {
         variables.searchParam = searchText;
       }
   
-      console.log('Fetching metrics with:', variables);
-  
       fetchMetrics({
         variables,
       });
@@ -124,12 +93,11 @@ export default function Dashboard() {
     }
   };
 
-  const handleDateChange = (newDateRange) => {
+  const handleDateChange = (newDateRange: [Date , Date]) => {
     setDateRange(newDateRange);
-    console.log('Selected Date Range:', newDateRange);
   
     if (businessUnit && subBusinessUnit && (newDateRange[0] || newDateRange[1])) {
-      const variables = {
+      const variables:QueryGetAllMetricesArgs = {
         businessUnit,
         subBusinessUnit,
         fromDate: newDateRange[0]?.toISOString(),
@@ -140,7 +108,6 @@ export default function Dashboard() {
         variables.searchParam = searchText;
       }
   
-      console.log('Fetching metrics with:', variables);
   
       fetchMetrics({
         variables,
@@ -151,12 +118,12 @@ export default function Dashboard() {
   useEffect(() => {
     const handler = setTimeout(() => {
       if (searchText.trim() === "") {
-        handleSearch(null);
+        handleSearch();
       } else {
-        handleSearch(searchText);
+        handleSearch();
       }
-    }, 500); // Debounce Wala Delay
-
+    }, 500); // Debounce-Delay
+    console.log("search-working")
     return () => {
       clearTimeout(handler); // Clear timeout on new input
     };
@@ -164,14 +131,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (metricsData) {
-      setMetrics(metricsData.getAllMetrices);
+     // setMetrics(metricsData.getAllMetrices);
     }
   }, [metricsData]);
   
   
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error loading Business Units: {businessUnitsError.message}</p>;
-  console.log("Metrics Error :",businessUnitsData);
+
 
   
    return (
@@ -208,7 +175,7 @@ export default function Dashboard() {
                 variant="outlined"
                 disabled={!subBusinessUnitData || subBusinessUnitLoading}
               >
-                {subBusinessUnitData && subBusinessUnitData.subBusinessUnitPerBusinessUnit.map((subUnit) => (
+                {subBusinessUnitData && subBusinessUnitData?.subBusinessUnitPerBusinessUnit?.map((subUnit:any) => (
                 <MenuItem key={subUnit.id} value={subUnit.id}>
                   {subUnit.subBusinessUnitName}
                 </MenuItem>
@@ -223,9 +190,7 @@ export default function Dashboard() {
 
             <Grid item xs={12} sx={{ mt:"20px" }}>
             <TextField
-                //fullWidth
                 label="Search API"
-                //value={subBusinessUnit}
                 onChange={(e) => setSearchText(e.target.value)}
                 variant="outlined"
                 sx={{ width: "24%"}}
@@ -233,21 +198,7 @@ export default function Dashboard() {
                 
               </TextField>
             </Grid>
-            {/* <Grid item xs={4} sx={{ display: "flex", alignItems: "stretch",mt:"20px" }}>
-            <Button variant="outlined" onClick={handleSearch}>Search</Button>
-            </Grid> */}
-            {/* <Grid item xs={12}>
-            <Typography variant="h6">APIs</Typography>
-            {metrics.length === 0 ? (
-              <p>No APIs found.</p>
-            ) : (
-              <ul>
-                {metrics.map((api) => (
-                  <li key={api.id}>{api.apiName} - {api.apiUrl}</li> // Display the desired fields
-                ))}
-              </ul>
-            )}
-          </Grid> */}
+            
           <Grid item xs={12}>
           {businessUnit && subBusinessUnit ? (
               <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError.message : null} />
@@ -256,11 +207,7 @@ export default function Dashboard() {
                 <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7, marginTop: "200px" }} />
               </Box>
             )}
-          {/* <ApiDataGrid metrics={metrics} />  */}
         </Grid>
-          {/* <Grid item xs={12}>
-          <ApiListWithPagination metrics={metrics} /> 
-        </Grid> */}
               
           </Grid>
         
