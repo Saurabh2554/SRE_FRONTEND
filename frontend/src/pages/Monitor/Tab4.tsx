@@ -1,7 +1,11 @@
 import { TextField, MenuItem , Grid2} from '@mui/material';
+import { FormState } from './MonitorService';
 
-
-const Tab4 = ({ state, setState }) => {
+type Tab4Types = {
+  state: FormState["tab4"];
+  setState: (newState: FormState["tab4"]) => void;
+};
+const Tab4 : React.FC <Tab4Types> = ({ state, setState }) => {
   return (
     <div>
     <Grid2 container direction={'column'} rowSpacing={5} sx={{marginBottom: '3rem'}}>
@@ -10,7 +14,7 @@ const Tab4 = ({ state, setState }) => {
         select
         label="Monitoring frequency (in min)"
         value={state.apiCallInterval}
-        onChange={(e) => setState({ ...state, apiCallInterval: e.target.value })}
+        onChange={(e) => setState({ ...state, apiCallInterval: Number(e.target.value) })}
         variant="outlined"
         required
         SelectProps={{
@@ -44,7 +48,7 @@ const Tab4 = ({ state, setState }) => {
             variant="outlined"
             
         />
-        <Grid2 item>
+        <Grid2 container>
         Retry on error a maximum of &nbsp;&nbsp;
         <TextField
             id="filled-number"
@@ -52,7 +56,7 @@ const Tab4 = ({ state, setState }) => {
             type="number"
             variant="outlined"
             size="small"
-            onChange={(e) => setState({ ...state, maxRetries: e.target.value })}
+            onChange={(e) => setState({ ...state, maxRetries: Number(e.target.value) })}
             onBlur={() => {
                 if (state.maxRetries > 10) setState({ ...state, maxRetries: 10 });
                 if (state.maxRetries < 3) setState({ ...state, maxRetries: 3 });
@@ -74,7 +78,7 @@ const Tab4 = ({ state, setState }) => {
             type="number"
             variant="outlined"
             size="small"
-            onChange={(e) => setState({ ...state, retryAfter: e.target.value })}
+            onChange={(e) => setState({ ...state, retryAfter: Number(e.target.value) })}
             onBlur={() => {
                 if (state.retryAfter > 600) setState({ ...state, retryAfter: 600 });
                 if (state.retryAfter < 60) setState({ ...state, retryAfter: 60 });

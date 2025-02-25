@@ -353,12 +353,12 @@ export type GetSubBusinessUnitPerBusinessUnitQuery = { __typename?: 'Query', sub
 export type GetApiTypeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetApiTypeQuery = { __typename?: 'Query', methodTypeChoices?: Array<{ __typename?: 'methodTypeChoice', key?: string | null, value?: string | null } | null> | null };
+export type GetApiTypeQuery = { __typename?: 'Query', methodTypeChoices?: Array<{ __typename?: 'methodTypeChoice', key: string , value: string } | null> | null };
 
 export type GetAuthValueQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAuthValueQuery = { __typename?: 'Query', authTypeChoices?: Array<{ __typename?: 'AuthTypeChoice', key?: string | null, value?: string | null } | null> | null };
+export type GetAuthValueQuery = { __typename?: 'Query', authTypeChoices?: Array<{ __typename?: 'AuthTypeChoice', key: string, value: string } | null> | null };
 
 export type ValidateApiQueryVariables = Exact<{
   apiUrl: Scalars['String']['input'];
