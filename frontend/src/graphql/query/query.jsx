@@ -74,12 +74,7 @@ export const GET_ALL_METRICS = gql`
       id
       apiName
       apiUrl
-      availability_uptime
-      success_rates
-      avg_latency
-      isApiActive
-      methodType
-      last_Error_Occurred
+      
     }
   }
 `;

@@ -29,21 +29,21 @@ const boxstyle = {
 export default function Dashboard() {
   const [searchText,setSearchText]=useState("");
   const [metrics, setMetrics] = useState([]);
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [dateRange, setDateRange] = useState([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
-  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery<{businessUnit:BusinessUnitType[]}>(GET_ALL_BUSINESS_UNIT);
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
   
-  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery<{subBusinessUnitPerBusinessUnit:SubBusinessUnitType[]},GetSubBusinessUnitPerBusinessUnitQueryVariables>(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,{
+  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,{
    
   });
 
-  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery<{getAllMetrics: ApiMetricesType},QueryGetAllMetricesArgs>(GET_ALL_METRICS,{
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery(GET_ALL_METRICS,{
     errorPolicy: "all", 
   });
  
-  const handleBusinessUnitChange = (e:any) => {
+  const handleBusinessUnitChange = (e) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
     setMetrics([]);
@@ -55,7 +55,7 @@ export default function Dashboard() {
     });
   };
 
-  const handleSubBusinessUnitChange = (e: any) => {
+  const handleSubBusinessUnitChange = (e) => {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
 
@@ -74,7 +74,7 @@ export default function Dashboard() {
 
   const handleSearch = () => {
     if (businessUnit && subBusinessUnit && dateRange[0] && dateRange[1]) {
-      const variables: QueryGetAllMetricesArgs = {
+      const variables =  {
         businessUnit,
         subBusinessUnit,
         fromDate: dateRange[0]?.toISOString(),
@@ -93,11 +93,11 @@ export default function Dashboard() {
     }
   };
 
-  const handleDateChange = (newDateRange: [Date , Date]) => {
+  const handleDateChange = (newDateRange) => {
     setDateRange(newDateRange);
   
     if (businessUnit && subBusinessUnit && (newDateRange[0] || newDateRange[1])) {
-      const variables:QueryGetAllMetricesArgs = {
+      const variables = {
         businessUnit,
         subBusinessUnit,
         fromDate: newDateRange[0]?.toISOString(),
@@ -131,7 +131,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (metricsData) {
-     // setMetrics(metricsData.getAllMetrices);
+      setMetrics(metricsData?.getAllMetrices);
+      console.log(metricsData, " yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ")
     }
   }, [metricsData]);
   
@@ -175,7 +176,7 @@ export default function Dashboard() {
                 variant="outlined"
                 disabled={!subBusinessUnitData || subBusinessUnitLoading}
               >
-                {subBusinessUnitData && subBusinessUnitData?.subBusinessUnitPerBusinessUnit?.map((subUnit:any) => (
+                {subBusinessUnitData && subBusinessUnitData?.subBusinessUnitPerBusinessUnit?.map((subUnit) => (
                 <MenuItem key={subUnit.id} value={subUnit.id}>
                   {subUnit.subBusinessUnitName}
                 </MenuItem>
@@ -201,7 +202,7 @@ export default function Dashboard() {
             
           <Grid item xs={12}>
           {businessUnit && subBusinessUnit ? (
-              <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError.message : null} />
+              <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError?.message: null} />
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="400px">
                 <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7, marginTop: "200px" }} />
