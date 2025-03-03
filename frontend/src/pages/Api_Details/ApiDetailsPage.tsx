@@ -2,7 +2,7 @@ import React ,{ useState }from 'react';
 import { useParams } from 'react-router-dom';
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
 import {Box, Grid, Typography,Tooltip,Button, Dialog,DialogContent,DialogTitle,IconButton,  } from '@mui/material';
-import { ApiMetricesType,QueryGetAllMetricesArgs,AssertionAndLimitQueryType} from "../../graphql/types";
+import { ApiMetricesType,QueryGetAllMetricesArgs,AssertionAndLimitQueryType,ResponseTimeType} from "../../graphql/types";
 import ResponseTimeChart from '../../common/components/Detailed_Graph/ResponseTimeChart';
 import SuccessFailurePieChart from '../../common/components/Pie_Chart/SuccessFailurePieChart';
 import { GET_METRICES_BY_ID } from "../../graphql/query/query"; 

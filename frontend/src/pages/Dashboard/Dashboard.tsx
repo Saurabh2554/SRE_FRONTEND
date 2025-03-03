@@ -28,22 +28,22 @@ const boxstyle = {
 
 export default function Dashboard() {
   const [searchText,setSearchText]=useState("");
-  const [metrics, setMetrics] = useState([]);
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [metrics, setMetrics] = useState<ApiMetricesType[]>([]);
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
   const [subBusinessUnit, setSubBusinessUnit] = useState("");
-  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery<{businessUnit:BusinessUnitType[]}>(GET_ALL_BUSINESS_UNIT);
   
-  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,{
+  const [fetchSubBusinessUnits, { data: subBusinessUnitData, loading: subBusinessUnitLoading }] = useLazyQuery<{subBusinessUnitPerBusinessUnit:SubBusinessUnitType[]},GetSubBusinessUnitPerBusinessUnitQueryVariables>(GET_SUB_BUSINESS_UNITS_BY_BUSINESS_UNIT,{
    
   });
 
-  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery(GET_ALL_METRICS,{
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery<{getAllMetrices: ApiMetricesType[]},QueryGetAllMetricesArgs>(GET_ALL_METRICS,{
     errorPolicy: "all", 
   });
  
-  const handleBusinessUnitChange = (e) => {
+  const handleBusinessUnitChange = (e:any) => {
     const selectedBusinessUnit = e.target.value;
     setBusinessUnit(selectedBusinessUnit);
     setMetrics([]);
@@ -55,7 +55,7 @@ export default function Dashboard() {
     });
   };
 
-  const handleSubBusinessUnitChange = (e) => {
+  const handleSubBusinessUnitChange = (e: any) => {
     const selectedSubBusinessUnit = e.target.value;
     setSubBusinessUnit(selectedSubBusinessUnit);
 
@@ -74,7 +74,7 @@ export default function Dashboard() {
 
   const handleSearch = () => {
     if (businessUnit && subBusinessUnit && dateRange[0] && dateRange[1]) {
-      const variables =  {
+      const variables: QueryGetAllMetricesArgs = {
         businessUnit,
         subBusinessUnit,
         fromDate: dateRange[0]?.toISOString(),
@@ -93,11 +93,11 @@ export default function Dashboard() {
     }
   };
 
-  const handleDateChange = (newDateRange) => {
+  const handleDateChange = (newDateRange: [Date , Date]) => {
     setDateRange(newDateRange);
   
     if (businessUnit && subBusinessUnit && (newDateRange[0] || newDateRange[1])) {
-      const variables = {
+      const variables:QueryGetAllMetricesArgs = {
         businessUnit,
         subBusinessUnit,
         fromDate: newDateRange[0]?.toISOString(),
@@ -176,7 +176,7 @@ export default function Dashboard() {
                 variant="outlined"
                 disabled={!subBusinessUnitData || subBusinessUnitLoading}
               >
-                {subBusinessUnitData && subBusinessUnitData?.subBusinessUnitPerBusinessUnit?.map((subUnit) => (
+                {subBusinessUnitData && subBusinessUnitData?.subBusinessUnitPerBusinessUnit?.map((subUnit:any) => (
                 <MenuItem key={subUnit.id} value={subUnit.id}>
                   {subUnit.subBusinessUnitName}
                 </MenuItem>
