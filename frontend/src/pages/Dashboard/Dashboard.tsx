@@ -28,7 +28,7 @@ const boxstyle = {
 
 export default function Dashboard() {
   const [searchText,setSearchText]=useState("");
-  const [metrics, setMetrics] = useState([]);
+  const [metrics, setMetrics] = useState<ApiMetricesType[]>([]);
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   
   const [businessUnit, setBusinessUnit] = useState("");
@@ -39,7 +39,7 @@ export default function Dashboard() {
    
   });
 
-  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery<{getAllMetrics: ApiMetricesType},QueryGetAllMetricesArgs>(GET_ALL_METRICS,{
+  const [fetchMetrics, { data: metricsData ,error: metricsDataError}] = useLazyQuery<{getAllMetrices: ApiMetricesType[]},QueryGetAllMetricesArgs>(GET_ALL_METRICS,{
     errorPolicy: "all", 
   });
  
@@ -131,7 +131,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (metricsData) {
-     // setMetrics(metricsData.getAllMetrices);
+      setMetrics(metricsData?.getAllMetrices);
+      console.log(metricsData, " yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ")
     }
   }, [metricsData]);
   
@@ -201,7 +202,7 @@ export default function Dashboard() {
             
           <Grid item xs={12}>
           {businessUnit && subBusinessUnit ? (
-              <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError.message : null} />
+              <ApiDataGrid metrics={metrics} error={metricsDataError ? metricsDataError?.message: null} />
             ) : (
               <Box display="flex" justifyContent="center" alignItems="center" height="400px">
                 <img src={APImonitoringLogo} alt="Default Placeholder" style={{ width: "50%", opacity: 0.7, marginTop: "200px" }} />

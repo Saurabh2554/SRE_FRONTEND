@@ -1,20 +1,12 @@
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import { Box, Button, Tooltip, Typography } from "@mui/material";
-//import logo from "../../illustrations/logo.png";
+import { Box, Tooltip } from "@mui/material";
 import { Link } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
-import HomeIcon from "@mui/icons-material/Home";
-import EmailIcon from "@mui/icons-material/Email";
 import dataAxleLogo from "../../Resources/dataaxlelogo.png";
 
 export const MuiNavbar = () => {
-  //   const handleLogout = () => {
-  //     localStorage.removeItem("email");
-  //     window.location.reload();
-  //   };
-  const isDashboardRoute = window.location.pathname == "/";
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -43,7 +35,7 @@ export const MuiNavbar = () => {
 
         <div style={{ marginTop: "-15px" }}>
           <>
-            <Tooltip title="Add Business Unit" cursor="pointer">
+            <Tooltip title="Add Business Unit" >
               <Link
                 to="/newBusinessUnit"
                 style={{
@@ -51,13 +43,14 @@ export const MuiNavbar = () => {
                   color: "black",
                   fontWeight: "bold",
                   fontSize: "16px",
+                  cursor:"pointer"
                 }}
               >
                 Add Business Unit
               </Link>
             </Tooltip>
 
-            <Tooltip title="Add new service" cursor="pointer">
+            <Tooltip title="Add new service" >
               <Link
                 to="/newSubBusinessUnit"
                 style={{
@@ -66,12 +59,13 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
+                  cursor: 'pointer'
                 }}
               >
                 Add Sub-Business Unit
               </Link>
             </Tooltip>
-            <Tooltip title="Monitor a new service" cursor="pointer">
+            <Tooltip title="Monitor a new service" >
               <Link
                 to="/newService"
                 style={{
@@ -80,12 +74,13 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
+                  cursor: 'pointer'
                 }}
               >
                 Monitoring
               </Link>
             </Tooltip>
-            <Tooltip title="View the Detailed Dashboard Here" cursor="pointer">
+            <Tooltip title="View the Detailed Dashboard Here" >
               <Link
                 to="/"
                 style={{
@@ -94,13 +89,14 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
+                  cursor: 'pointer'
                 }}
               >
                 Dashboard
               </Link>
             </Tooltip>
             
-            <Tooltip title="Connect with US" cursor="pointer">
+            <Tooltip title="Connect with US" >
               <Link
                 to="/help"
                 style={{
@@ -109,6 +105,7 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
+                  cursor: 'pointer'
                 }}
               >
                 Need Help?
@@ -116,7 +113,7 @@ export const MuiNavbar = () => {
             </Tooltip>
           </>
 
-          <Tooltip title="Logout" cursor="pointer" >
+          <Tooltip title="Logout"  >
             <LogoutIcon
               //onClick={handleLogout}
               style={{

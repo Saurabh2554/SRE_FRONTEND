@@ -2,7 +2,12 @@ import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-const SuccessFailurePieChart = ({success_rates,error_rates}) => {
+type SuccessFailurePieChartProp = {
+  success_rates?:number | undefined | null;
+  error_rates?:number| undefined | null;
+}
+
+const SuccessFailurePieChart:React.FC<SuccessFailurePieChartProp> = ({success_rates,error_rates}) => {
  
   const data = {
     labels: ['Success', 'Failure'],
