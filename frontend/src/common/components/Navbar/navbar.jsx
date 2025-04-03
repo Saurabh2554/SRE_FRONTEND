@@ -30,15 +30,15 @@ export const MuiNavbar = () => {
         }}
       >
         <Link to="/" style={{ textDecoration: "none" }}>
-        <Toolbar>
-          <Link to="/" style={{ textDecoration: "none" }}>
-          <img
-              src={dataAxleLogo}
-              alt="Data Axle Logo"
-              style={{ height: "50px" }} // Adjust the height as needed
-            />
-          </Link>
-        </Toolbar>
+          <Toolbar>
+            <Link to="/" style={{ textDecoration: "none" }}>
+              <img
+                src={dataAxleLogo}
+                alt="Data Axle Logo"
+                style={{ height: "50px" }} // Adjust the height as needed
+              />
+            </Link>
+          </Toolbar>
         </Link>
 
         <div style={{ marginTop: "-15px" }}>
@@ -73,7 +73,7 @@ export const MuiNavbar = () => {
             </Tooltip>
             <Tooltip title="Monitor a new service" cursor="pointer">
               <Link
-                to="/newService"
+                to="/monitorService"
                 style={{
                   textDecoration: "none",
                   color: "black",
@@ -99,7 +99,7 @@ export const MuiNavbar = () => {
                 Dashboard
               </Link>
             </Tooltip>
-            
+
             <Tooltip title="Connect with US" cursor="pointer">
               <Link
                 to="/help"

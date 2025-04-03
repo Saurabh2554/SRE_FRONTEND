@@ -22,13 +22,18 @@ export type ApiMetricesType = {
   apiName?: Maybe<Scalars['String']['output']>;
   apiUrl: Scalars['String']['output'];
   assertionAndLimit: Array<AssertionAndLimitQueryType>;
+  assertionResults?: Maybe<Array<Maybe<AssertionAndLimitResultType>>>;
   availability_uptime?: Maybe<Scalars['Float']['output']>;
   avg_first_byte_time?: Maybe<Scalars['Float']['output']>;
   avg_latency?: Maybe<Scalars['Float']['output']>;
   avg_response_size?: Maybe<Scalars['Float']['output']>;
+  /** Threshold in milliseconds */
+  degradedResponseTime?: Maybe<Scalars['Int']['output']>;
   downtime?: Maybe<Scalars['Float']['output']>;
   error_count?: Maybe<Scalars['Int']['output']>;
   error_rates?: Maybe<Scalars['Float']['output']>;
+  /** Threshold in milliseconds */
+  failedResponseTime?: Maybe<Scalars['Int']['output']>;
   id: Scalars['UUID']['output'];
   isApiActive: Scalars['Boolean']['output'];
   last_Error_Occurred?: Maybe<Scalars['DateTime']['output']>;
@@ -52,10 +57,46 @@ export type ApiMonitorCreateMutation = {
 
 export type ApiMonitorUpdateMutation = {
   __typename?: 'ApiMonitorUpdateMutation';
+  assertionAndLimit?: Maybe<AssertionAndLimitQueryType>;
   message?: Maybe<Scalars['String']['output']>;
   monitoredApi?: Maybe<MoniterApiType>;
+  schedulingAndAlerting?: Maybe<SchedulingAndAlertingQueryType>;
   success?: Maybe<Scalars['Boolean']['output']>;
 };
+
+/** An enumeration. */
+export enum ApimonitoringAssertionAndLimitOperatorChoices {
+  /** Contains */
+  Contains = 'CONTAINS',
+  /** Equals */
+  Equals = 'EQUALS',
+  /** Greater Than */
+  GreaterThan = 'GREATER_THAN',
+  /** Is Empty */
+  IsEmpty = 'IS_EMPTY',
+  /** Is Not Empty */
+  IsNotEmpty = 'IS_NOT_EMPTY',
+  /** Is Not Null */
+  IsNotNull = 'IS_NOT_NULL',
+  /** Is Null */
+  IsNull = 'IS_NULL',
+  /** Less Than */
+  LessThan = 'LESS_THAN',
+  /** Not Contains */
+  NotContains = 'NOT_CONTAINS',
+  /** Not Equals */
+  NotEquals = 'NOT_EQUALS'
+}
+
+/** An enumeration. */
+export enum ApimonitoringAssertionAndLimitSourceChoices {
+  /** Headers */
+  Headers = 'HEADERS',
+  /** JSON Body */
+  JsonBody = 'JSON_BODY',
+  /** Status Code */
+  StatusCode = 'STATUS_CODE'
+}
 
 /** An enumeration. */
 export enum ApimonitoringMonitoredApiMethodtypeChoices {
@@ -68,14 +109,30 @@ export enum ApimonitoringMonitoredApiMethodtypeChoices {
 export type AssertionAndLimitQueryType = {
   __typename?: 'AssertionAndLimitQueryType';
   api: ApiMetricesType;
-  degradedResponseTime?: Maybe<Scalars['Int']['output']>;
-  failedResponseTime?: Maybe<Scalars['Int']['output']>;
+  assertionandlimitresultSet: Array<AssertionAndLimitResultType>;
+  expectedValue?: Maybe<Scalars['String']['output']>;
   id: Scalars['UUID']['output'];
+  operator?: Maybe<ApimonitoringAssertionAndLimitOperatorChoices>;
+  property?: Maybe<Scalars['String']['output']>;
+  regex?: Maybe<Scalars['String']['output']>;
+  source?: Maybe<ApimonitoringAssertionAndLimitSourceChoices>;
+};
+
+export type AssertionAndLimitResultType = {
+  __typename?: 'AssertionAndLimitResultType';
+  actualValue?: Maybe<Scalars['String']['output']>;
+  assertionAndLimit: AssertionAndLimitQueryType;
+  id: Scalars['UUID']['output'];
+  status: Scalars['Boolean']['output'];
+  timestamp: Scalars['DateTime']['output'];
 };
 
 export type AssertionAndLimitType = {
-  degradedResponseTime?: InputMaybe<Scalars['Int']['input']>;
-  failedResponseTime?: InputMaybe<Scalars['Int']['input']>;
+  expectedValue?: InputMaybe<Scalars['String']['input']>;
+  operator?: InputMaybe<Scalars['String']['input']>;
+  property?: InputMaybe<Scalars['String']['input']>;
+  regex?: InputMaybe<Scalars['String']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AuthTypeChoice = {
@@ -115,6 +172,10 @@ export type MoniterApiType = {
   assertionAndLimit: Array<AssertionAndLimitQueryType>;
   businessUnit: BusinessUnitType;
   createdAt: Scalars['DateTime']['output'];
+  /** Threshold in milliseconds */
+  degradedResponseTime?: Maybe<Scalars['Int']['output']>;
+  /** Threshold in milliseconds */
+  failedResponseTime?: Maybe<Scalars['Int']['output']>;
   headers?: Maybe<Scalars['JSONString']['output']>;
   id: Scalars['UUID']['output'];
   isApiActive: Scalars['Boolean']['output'];
@@ -127,13 +188,23 @@ export type MoniterApiType = {
 export type MonitoredApiInput = {
   apiName: Scalars['String']['input'];
   apiUrl: Scalars['String']['input'];
-  assertionAndLimit: AssertionAndLimitType;
+  assertionAndLimit: Array<InputMaybe<AssertionAndLimitType>>;
   businessUnit: Scalars['UUID']['input'];
-  headers: Scalars['String']['input'];
+  degradedResponseTime?: InputMaybe<Scalars['Int']['input']>;
+  failedResponseTime?: InputMaybe<Scalars['Int']['input']>;
+  headers?: InputMaybe<Scalars['String']['input']>;
   methodType: Scalars['String']['input'];
-  requestBody: Scalars['String']['input'];
+  requestBody?: InputMaybe<Scalars['String']['input']>;
   schedulingAndAlerting: SchedulingAndAlertingType;
   subBusinessUnit: Scalars['UUID']['input'];
+};
+
+export type MonitoredApiUpdateInput = {
+  assertionAndLimit?: InputMaybe<AssertionAndLimitType>;
+  headers?: InputMaybe<Scalars['String']['input']>;
+  methodType?: InputMaybe<Scalars['String']['input']>;
+  requestBody?: InputMaybe<Scalars['String']['input']>;
+  schedulingAndAlerting?: InputMaybe<SchedulingAndAlertingType>;
 };
 
 export type Mutation = {
@@ -169,12 +240,19 @@ export type MutationCreateSubbusinessUnitArgs = {
 
 export type MutationUpdateApiMonitorArgs = {
   id: Scalars['UUID']['input'];
-  input?: InputMaybe<MonitoredApiInput>;
+  input?: InputMaybe<MonitoredApiUpdateInput>;
   isApiActive?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type OperatorChoice = {
+  __typename?: 'OperatorChoice';
+  label?: Scalars['String']['output'];
+  operator?: Scalars['String']['output'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  assertionSourceOperatorChoices?: Maybe<Array<Maybe<SourceTypeOperatorChoice>>>;
   authTypeChoices?: Maybe<Array<Maybe<AuthTypeChoice>>>;
   businessUnit?: Maybe<Array<Maybe<BusinessUnitType>>>;
   getAllMetrices?: Maybe<Array<Maybe<ApiMetricesType>>>;
@@ -247,9 +325,17 @@ export type SchedulingAndAlertingType = {
   apiCallInterval?: InputMaybe<Scalars['Int']['input']>;
   createdBy?: InputMaybe<Scalars['String']['input']>;
   maxRetries?: InputMaybe<Scalars['Int']['input']>;
-  recipientDl: Scalars['String']['input'];
+  recipientDl?: InputMaybe<Scalars['String']['input']>;
   retryAfter?: InputMaybe<Scalars['Int']['input']>;
   teamsChannelWebhookURL?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SourceTypeOperatorChoice = {
+  __typename?: 'SourceTypeOperatorChoice';
+  operators?: Array<Maybe<OperatorChoice>>;
+  propertyVisibility?: Maybe<Scalars['Boolean']['output']>;
+  source?: Maybe<Scalars['String']['output']>;
+  sourceLabel?: Maybe<Scalars['String']['output']>;
 };
 
 export type SubBusinessUnitCreateMutation = {
@@ -330,7 +416,7 @@ export type CreateApiMonitorMutationVariables = Exact<{
 export type CreateApiMonitorMutation = { __typename?: 'Mutation', createApiMonitor?: { __typename?: 'ApiMonitorCreateMutation', success?: boolean | null, message?: string | null, monitoredApi?: { __typename?: 'MoniterApiType', id: any, apiName?: string | null, apiUrl: string } | null } | null };
 
 export type UpdateApiMonitorMutationVariables = Exact<{
-  input?: InputMaybe<MonitoredApiInput>;
+  input?: InputMaybe<MonitoredApiUpdateInput>;
   apiMonitorId: Scalars['UUID']['input'];
   isApiActive: Scalars['Boolean']['input'];
 }>;
@@ -353,7 +439,7 @@ export type GetSubBusinessUnitPerBusinessUnitQuery = { __typename?: 'Query', sub
 export type GetApiTypeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetApiTypeQuery = { __typename?: 'Query', methodTypeChoices?: Array<{ __typename?: 'methodTypeChoice', key: string , value: string } | null> | null };
+export type GetApiTypeQuery = { __typename?: 'Query', methodTypeChoices?: Array<{ __typename?: 'methodTypeChoice', key: string , value: string  } | null> | null };
 
 export type GetAuthValueQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -368,9 +454,20 @@ export type ValidateApiQueryVariables = Exact<{
 }>;
 
 
-export type ValidateApiQuery = { __typename?: 'Query', validateApi?: { __typename?: 'validateApiResponse', status?: number | null, success?: boolean | null, message?: string | null } | null };
+export type ValidateApiQuery = { __typename?: 'Query', validateApi?: { __typename?: 'validateApiResponse', status: number , success: boolean, message?: string | null } | null };
 
 export type GetAllMetricsQueryVariables = Exact<{
+  businessUnit: Scalars['UUID']['input'];
+  subBusinessUnit: Scalars['UUID']['input'];
+  fromDate?: InputMaybe<Scalars['DateTime']['input']>;
+  toDate?: InputMaybe<Scalars['DateTime']['input']>;
+  searchParam?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetAllMetricsQuery = { __typename?: 'Query', getAllMetrices?: Array<{ __typename?: 'ApiMetricesType', id: any, apiName?: string | null, apiUrl: string, availability_uptime?: number | null, success_rates?: number | null, avg_latency?: number | null, isApiActive: boolean, methodType: ApimonitoringMonitoredApiMethodtypeChoices, last_Error_Occurred?: any | null } | null> | null };
+
+export type GetAllApiMetricsQueryVariables = Exact<{
   apiMonitoringId: Scalars['UUID']['input'];
   fromDate?: InputMaybe<Scalars['DateTime']['input']>;
   toDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -379,7 +476,7 @@ export type GetAllMetricsQueryVariables = Exact<{
 }>;
 
 
-export type GetAllMetricsQuery = { __typename?: 'Query', getAllMetrices?: Array<{ __typename?: 'ApiMetricesType', apiName?: string | null, apiUrl: string, avg_response_size?: number | null, avg_latency?: number | null, isApiActive: boolean, success_count?: number | null, availability_uptime?: number | null, avg_first_byte_time?: number | null, error_count?: number | null, methodType: ApimonitoringMonitoredApiMethodtypeChoices, success_rates?: number | null, error_rates?: number | null, assertionAndLimit: Array<{ __typename?: 'AssertionAndLimitQueryType', degradedResponseTime?: number | null, failedResponseTime?: number | null }>, response_time?: Array<{ __typename?: 'responseTimeType', responsetime?: number | null, timestamp?: any | null, success?: boolean | null } | null> | null, percentile_50?: { __typename?: 'percentileResponseType', currPercentileResTime?: number | null, percentageDiff?: number | null } | null, percentile_90?: { __typename?: 'percentileResponseType', currPercentileResTime?: number | null, percentageDiff?: number | null } | null, percentile_99?: { __typename?: 'percentileResponseType', percentageDiff?: number | null, currPercentileResTime?: number | null } | null } | null> | null };
+export type GetAllApiMetricsQuery = { __typename?: 'Query', getAllMetrices?: Array<{ __typename?: 'ApiMetricesType', apiName?: string | null, apiUrl: string, avg_response_size?: number | null, avg_latency?: number | null, isApiActive: boolean, success_count?: number | null, availability_uptime?: number | null, avg_first_byte_time?: number | null, error_count?: number | null, methodType: ApimonitoringMonitoredApiMethodtypeChoices, success_rates?: number | null, error_rates?: number | null, degradedResponseTime?: number | null, failedResponseTime?: number | null, response_time?: Array<{ __typename?: 'responseTimeType', responsetime?: number | null, timestamp?: any | null, success?: boolean | null } | null> | null, percentile_50?: { __typename?: 'percentileResponseType', currPercentileResTime?: number | null, percentageDiff?: number | null } | null, percentile_90?: { __typename?: 'percentileResponseType', currPercentileResTime?: number | null, percentageDiff?: number | null } | null, percentile_99?: { __typename?: 'percentileResponseType', percentageDiff?: number | null, currPercentileResTime?: number | null } | null } | null> | null };
 
 export type GetServiceByIdQueryVariables = Exact<{
   serviceId: Scalars['UUID']['input'];

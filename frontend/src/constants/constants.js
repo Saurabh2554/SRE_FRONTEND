@@ -27,6 +27,6 @@ const resTimes = [
     {'key':'20 sec', value:20000},
     {'key':'25 sec', value:25000},
     {'key':'30 sec', value:30000},
-]
+];
+export { resTimes};
 
-export default resTimes;

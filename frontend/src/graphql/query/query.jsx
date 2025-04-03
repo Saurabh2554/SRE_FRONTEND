@@ -85,7 +85,7 @@ export const GET_ALL_METRICS = gql`
 `;
 
 export const GET_METRICES_BY_ID = gql`
-  query GetAllMetrics(
+  query GetAllAPIMetrics(
     $apiMonitoringId: UUID!
     $fromDate: DateTime
     $toDate: DateTime
@@ -111,10 +111,8 @@ export const GET_METRICES_BY_ID = gql`
       methodType
       success_rates
       error_rates
-      assertionAndLimit {
-        degradedResponseTime
-        failedResponseTime
-      }
+      degradedResponseTime
+      failedResponseTime
       response_time {
         responsetime
         timestamp
@@ -163,6 +161,20 @@ export const VALIDATE_TEAMS_CHANNEL = gql`
       message
       success
       status
+    }
+  }
+`;
+
+export const GET_ASSERTION_SOURCE_OPERATORS = gql`
+  query assertionSourceOperatorChoices {
+    assertionSourceOperatorChoices {
+      operators {
+        label
+        operator
+      }
+      propertyVisibility
+      source
+      sourceLabel
     }
   }
 `;

@@ -63,7 +63,7 @@ export const CREATE_API_MONITOR = gql`
 
 export const UPDATE_API_MONITOR = gql`
   mutation UpdateApiMonitor(
-    $input: MonitoredApiInput
+    $input: MonitoredApiUpdateInput
     $apiMonitorId: UUID!
     $isApiActive: Boolean!
   ) {

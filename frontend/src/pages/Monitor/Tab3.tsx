@@ -1,6 +1,11 @@
-import { TextField, MenuItem , Grid2, Menu } from '@mui/material';
-import resTimes from '../../constants/constants';
+import {
+  TextField,
+  MenuItem,
+  Grid2,
+} from "@mui/material";
+import {resTimes} from '../../constants/constants';
 import { FormState } from './MonitorService';
+import Tab33 from "./Tab33";
 
 type Tab3Types = {
   state: FormState["tab3"];
@@ -13,9 +18,9 @@ const Tab3 : React.FC <Tab3Types> = ({ state, setState }) => {
           container
           direction={"column"}
           rowSpacing={3}
-          sx={{ marginBottom: "3rem" }}
+          sx={{ marginBottom: "5rem" }}
         >
-          <h3>Response time limits</h3>
+          <h4 style={{ marginBottom: 0 }}>Response time limits</h4>
           <Grid2 container>
             Responses will be marked as{" "}
             <span style={{ color: "#fca103" }}>&nbsp;degraded&nbsp;</span> after
@@ -70,6 +75,7 @@ const Tab3 : React.FC <Tab3Types> = ({ state, setState }) => {
               ))}
             </TextField>
           </Grid2>
+          <Tab33 state={state} setState={setState}/>
         </Grid2>
 
         {/* Add the rest of Tab3 fields */}
