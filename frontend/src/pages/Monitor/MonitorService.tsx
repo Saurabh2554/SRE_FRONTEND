@@ -1,14 +1,14 @@
-import React, { useState, useRef } from 'react';
-import Tab1 from './Tab1';
-import Tab4 from './Tab4';
-import Tab3 from './Tab3';
-import Tab2 from './Tab2';
-import { Box,Button,Stepper, Step, StepLabel } from '@mui/material';
-import { ReusableSnackbar } from '../../common/components/Snackbar/Snackbar';
-import { MuiNavbar } from '../../common/components/Navbar/navbar';
-import {VALIDATE_TEAMS_CHANNEL} from "../../graphql/query/query"; 
-import { useMutation,useLazyQuery } from "@apollo/client";
-import {CREATE_API_MONITOR} from '../../graphql/mutation/mutation';
+import React, { useState, useRef } from "react";
+import Tab1 from "./Tab1";
+import Tab4 from "./Tab4";
+import Tab3 from "./Tab3";
+import Tab2 from "./Tab2";
+import { Box, Button, Stepper, Step, StepLabel } from "@mui/material";
+import { ReusableSnackbar } from "../../common/components/Snackbar/Snackbar";
+import { MuiNavbar } from "../../common/components/Navbar/navbar";
+import { VALIDATE_TEAMS_CHANNEL } from "../../graphql/query/query";
+import { useMutation, useLazyQuery } from "@apollo/client";
+import { CREATE_API_MONITOR } from "../../graphql/mutation/mutation";
 import {
   ValidateTeamsChannelQuery,
   ValidateTeamsChannelQueryVariables,
@@ -37,6 +37,7 @@ export type FormState = {
   tab3: {
     degradedResponseTime: number;
     failedResponseTime: number;
+    assertionLimit: { expectedValue: string; operator: string; property: string; source : string; regex: string }[];
   };
   tab4: {
     apiCallInterval: number;
@@ -69,52 +70,56 @@ const MonitorService = () => {
   });
   const [state, setState] = useState<FormState>({
     tab1: {
-      businessUnit: '',
-      subBusinessUnit: '',
-      serviceName: '',
+      businessUnit: "",
+      subBusinessUnit: "",
+      serviceName: "",
     },
     tab2: {
-      method: '',
-      url: '',
-      bodyType: 'none',
-      raw: 'JSON',
-      body: '',
-      headerFields: [{ key: '', value: '' }],
-      authorizationType: '',
-      authInput: { username: '', password: '' },
-      authHeader: [{ key: '', value: '' }],
-      addheaderto: '',
+      method: "",
+      url: "",
+      bodyType: "none",
+      raw: "JSON",
+      body: "",
+      headerFields: [{ key: "", value: "" }],
+      authorizationType: "",
+      authInput: { username: "", password: "" },
+      authHeader: [{ key: "", value: "" }],
+      addheaderto: "",
     },
     tab3: {
       degradedResponseTime: 3000,
-      failedResponseTime: 20000
+      failedResponseTime: 20000,
+      assertionLimit: [{expectedValue: "", operator: "", property: "", source: "", regex: ""}]
     },
     tab4: {
       apiCallInterval: 0,
-      recipientDl: '',
-      teamsChannelWebhookURL: '',
+      recipientDl: "",
+      teamsChannelWebhookURL: "",
       maxRetries: 3,
       retryAfter: 60,
-      createdBy: 'user'
+      createdBy: "user",
     },
   });
 
   const initialStateRef = useRef(state);
-  const [snackbarState, setSnackBarState]=useState<{
-    open: boolean,
-    message: string | null | undefined
-    severity: string
+  
+  const [snackbarState, setSnackBarState] = useState<{
+    open: boolean;
+    message: string | null | undefined;
+    severity: string;
   }>({
-    open:false,
-    message:'',
-    severity:''
-  })
-  const handleCloseSnackbar = (event: Event | React.SyntheticEvent<any, Event>, reason: string) => {
-    
+    open: false,
+    message: "",
+    severity: "",
+  });
+  const handleCloseSnackbar = (
+    event: Event | React.SyntheticEvent<any, Event>,
+    reason: string
+  ) => {
     if (reason === "clickaway") {
       return;
     }
-    setSnackBarState({...snackbarState,open:false});
+    setSnackBarState({ ...snackbarState, open: false });
   };
   const SetSnackbarFields = (
     open: boolean,
@@ -123,10 +128,15 @@ const MonitorService = () => {
   ) => {
     setSnackBarState({ open, message, severity });
   };
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false)
-  const steps = ['Domain', 'Request', 'Assertions & Limit', 'Scheduling & Alerting'];
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const steps = [
+    "Domain",
+    "Request",
+    "Assertions & Limit",
+    "Scheduling & Alerting",
+  ];
   const [activeStep, setActiveStep] = useState(0);
- 
+
   const handleStepClick = (step: number) => {
     if (step <= activeStep) {
       setActiveStep(step);
@@ -157,7 +167,10 @@ const MonitorService = () => {
             return;
           }
         }
-
+        var assertion_limit = state.tab3.assertionLimit;
+        if(assertion_limit.length == 1 && assertion_limit[0].source == 'status_code' && assertion_limit[0].expectedValue == ""){
+          assertion_limit = [];
+        }
         const Header = [...headerFields, ...authHeader];
         const result = await createApiMonitor({
           variables: {
@@ -168,13 +181,15 @@ const MonitorService = () => {
               methodType: method,
               apiUrl: url,
               headers: JSON.stringify(Header),
+              degradedResponseTime: state.tab3.degradedResponseTime,
+              failedResponseTime: state.tab3.failedResponseTime,
               requestBody:
                 bodyType == "GraphQL"
                   ? JSON.stringify({ query: body.trim() })
                   : raw == "JSON"
                   ? JSON.stringify(body)
                   : body,
-              assertionAndLimit: state.tab3,
+              assertionAndLimit: assertion_limit,
               schedulingAndAlerting: state.tab4,
             },
           },
@@ -188,9 +203,11 @@ const MonitorService = () => {
         }
         if (error) {
           SetSnackbarFields(true, error.message, "error");
+          console.log(error.message);
           return;
         }
         setState(initialStateRef.current);
+        console.log("state reset")
         setActiveStep(0);
         setIsButtonEnabled(false);
       } catch (er) {
@@ -202,20 +219,27 @@ const MonitorService = () => {
 
     return;
   };
-  
+
   return (
-    <div style={{padding:20}}>
+    <div style={{ padding: 20 }}>
       <MuiNavbar />
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '80%', margin: '10rem auto'}}>
-        <div style={{marginBottom: '3rem'}}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "80%",
+          margin: "10rem auto",
+        }}
+      >
+        <div style={{ marginBottom: "3rem" }}>
           <Stepper activeStep={activeStep}>
             {steps.map((label, index) => (
               <Step key={index}>
                 <StepLabel
                   onClick={() => handleStepClick(index)}
                   style={{
-                    cursor: index <= activeStep ? 'pointer' : 'default',
-                    color: index <= activeStep ? 'inherit' : 'gray',
+                    cursor: index <= activeStep ? "pointer" : "default",
+                    color: index <= activeStep ? "inherit" : "gray",
                   }}
                 >
                   {label}
@@ -224,22 +248,63 @@ const MonitorService = () => {
             ))}
           </Stepper>
         </div>
-      <form onSubmit={handleSend} autoComplete="off" style={{display: 'flex', flexDirection: 'column'}}>
-      {activeStep === 0 && <Tab1 state={state.tab1}  setState={(newState: FormState["tab1"]) => setState({ ...state, tab1: newState })} />}
-      {activeStep === 1 && <Tab2 state={state.tab2} snackbarState={snackbarState} SetSnackbarFields = {SetSnackbarFields} enableButton = {setIsButtonEnabled} isButtonEnabled = {isButtonEnabled} setState={(newState: FormState["tab2"]) => {setState({ ...state, tab2: newState })}} />}
-      {activeStep === 2 && <Tab3 state={state.tab3}  setState={(newState: FormState["tab3"]) => setState({ ...state, tab3: newState })} />}
-      {activeStep === 3 && <Tab4 state={state.tab4}  setState={(newState: FormState["tab4"]) => setState({ ...state, tab4: newState })} />}
-      <Button
-        variant="contained"
-        color="primary"
-        type='submit'
-        sx={{width: '25%', alignSelf: 'center'}}
-        disabled= {activeStep===1 && !isButtonEnabled}
-      >
-       {activeStep===3 ? 'Send' : <span>Next</span>}
-      </Button> 
-      </form>
-       <ReusableSnackbar open={snackbarState.open} message={snackbarState.message} severity={snackbarState.severity} handleClose={handleCloseSnackbar} />
+        <form
+          onSubmit={handleSend}
+          autoComplete="off"
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          {activeStep === 0 && (
+            <Tab1
+              state={state.tab1}
+              setState={(newState: FormState["tab1"]) =>
+                setState({ ...state, tab1: newState })
+              }
+            />
+          )}
+          {activeStep === 1 && (
+            <Tab2
+              state={state.tab2}
+              snackbarState={snackbarState}
+              SetSnackbarFields={SetSnackbarFields}
+              enableButton={setIsButtonEnabled}
+              isButtonEnabled={isButtonEnabled}
+              setState={(newState: FormState["tab2"]) => {
+                setState({ ...state, tab2: newState });
+              }}
+            />
+          )}
+          {activeStep === 2 && (
+            <Tab3
+              state={state.tab3}
+              setState={(newState: FormState["tab3"]) =>
+                setState({ ...state, tab3: newState })
+              }
+            />
+          )}
+          {activeStep === 3 && (
+            <Tab4
+              state={state.tab4}
+              setState={(newState: FormState["tab4"]) =>
+                setState({ ...state, tab4: newState })
+              }
+            />
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{ width: "25%", alignSelf: "center" }}
+            disabled={activeStep === 1 && !isButtonEnabled}
+          >
+            {activeStep === 3 ? "Send" : <span>Next</span>}
+          </Button>
+        </form>
+        <ReusableSnackbar
+          open={snackbarState.open}
+          message={snackbarState.message}
+          severity={snackbarState.severity}
+          handleClose={handleCloseSnackbar}
+        />
       </Box>
     </div>
   );

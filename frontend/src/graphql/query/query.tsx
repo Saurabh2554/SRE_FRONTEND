@@ -148,3 +148,17 @@ export const VALIDATE_TEAMS_CHANNEL = gql`
   }
 `;
 
+export const GET_ASSERTION_SOURCE_OPERATORS = gql`
+  query assertionSourceOperatorChoices {
+    assertionSourceOperatorChoices {
+      operators {
+        label
+        operator
+      }
+      propertyVisibility
+      source
+      sourceLabel
+    }
+  }
+`;
+
