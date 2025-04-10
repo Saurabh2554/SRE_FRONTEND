@@ -112,7 +112,10 @@ const MonitorService = () => {
     message: "",
     severity: "",
   });
-  const handleCloseSnackbar = (event: React.SyntheticEvent, reason: string) => {
+  const handleCloseSnackbar = (
+    event: Event | React.SyntheticEvent<any, Event>,
+    reason: string
+  ) => {
     if (reason === "clickaway") {
       return;
     }
@@ -139,8 +142,8 @@ const MonitorService = () => {
       setActiveStep(step);
     }
   };
-  const handleSend = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSend = async (event: Event |React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
     if (activeStep === 3) {
       try {

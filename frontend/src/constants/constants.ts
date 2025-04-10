@@ -1,4 +1,6 @@
-const resTimes = [
+type resTimesType = { key: string; value: number }[]
+
+const resTimes: resTimesType = [
     {'key':'10 ms', value:10},
     {'key':'20 ms', value:20},
     {'key':'30 ms', value:30},
