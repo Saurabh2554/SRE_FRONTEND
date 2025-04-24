@@ -16,7 +16,7 @@ type Tab22Types = {
   setState: (newState: FormState["tab2"]) => void;
 };
 
-const Tab22 : React.FC <Tab22Types> = ({ state , setState }) => {
+const RequestAuthorization : React.FC <Tab22Types> = ({ state , setState }) => {
   const [tabValue, setTabValue] = useState('1');
   const {
     data: authTypeChoicesData,
@@ -321,4 +321,4 @@ const Tab22 : React.FC <Tab22Types> = ({ state , setState }) => {
   );
 };
 
-export default Tab22;
+export default RequestAuthorization;

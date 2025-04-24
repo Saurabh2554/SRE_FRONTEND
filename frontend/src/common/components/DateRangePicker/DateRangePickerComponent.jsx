@@ -20,7 +20,6 @@ export const DateRangePickerComponent = ({ onDateChange }) => {
 
   useEffect(() => {
     if (dateRange[0] && dateRange[1]) {
-      console.log('Selected Date Range:', dateRange);
       debouncedOnDateChange(dateRange);
     }
   }, [dateRange]);

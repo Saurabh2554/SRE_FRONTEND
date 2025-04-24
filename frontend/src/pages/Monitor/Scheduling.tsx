@@ -5,7 +5,7 @@ type Tab4Types = {
   state: FormState["tab4"];
   setState: (newState: FormState["tab4"]) => void;
 };
-const Tab4 : React.FC <Tab4Types> = ({ state, setState }) => {
+const Scheduling : React.FC <Tab4Types> = ({ state, setState }) => {
   return (
     <div>
     <Grid2 container direction={'column'} rowSpacing={5} sx={{marginBottom: '3rem'}}>
@@ -101,4 +101,4 @@ const Tab4 : React.FC <Tab4Types> = ({ state, setState }) => {
   );
 };
 
-export default Tab4
+export default Scheduling

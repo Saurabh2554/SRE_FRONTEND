@@ -5,28 +5,13 @@ import './ResponseTimeChart.css';
 import annotationPlugin from 'chartjs-plugin-annotation'; 
 import { Chart as ChartJS, registerables, ChartOptions, TooltipItem } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-//import { AssertionAndLimitQueryType, ResponseTimeType } from '../../../graphql/types';
-
 
 ChartJS.register(...registerables, annotationPlugin);
-
-// type ResponseTimeChartProps = {
-//   graphUnit?:{
-//     stepSize: number;
-//     unit: string; 
-//   };
-//   responseTimes?: ResponseTimeType[];
-//   expectedresTimes?:AssertionAndLimitQueryType
-// }
-// type InteractionMode = 'nearest' | 'x' | 'y' | 'index' | 'dataset' | 'point' | undefined;
-// type Unit = 'millisecond' | 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year' | undefined
-// type Axis = 'x' | 'y' | 'xy' |'r' | undefined
 
 
 const ResponseTimeChart = ({graphUnit,responseTimes,expectedresTimes }) => {
   const labels = responseTimes?.map(response => new Date(response?.timestamp));
- 
- // console.log("response time success status ",responseTimes);
+
 
   const data = {
     labels: labels,

@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid, TextField, Button, MenuItem} from '@mui/material';
 import { useQuery,useLazyQuery } from "@apollo/client";
 import { GET_API_TYPE, VALIDATE_API} from "../../graphql/query/query"; 
-import Tab22 from './Tab22';
+import RequestAuthorization from './RequestAuthorization';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { FormState } from './MonitorService';
 import {
@@ -28,7 +28,7 @@ type Tab2Types = {
   enableButton: React.Dispatch<React.SetStateAction<boolean>>
 };
 
-const Tab2: React.FC <Tab2Types> =  ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSnackbarFields }) => {
+const RequestValidation: React.FC <Tab2Types> =  ({ state,enableButton,isButtonEnabled, setState,snackbarState,SetSnackbarFields }) => {
 
   const {
     data: methodData,
@@ -76,53 +76,50 @@ const Tab2: React.FC <Tab2Types> =  ({ state,enableButton,isButtonEnabled, setSt
 
   return (
     <>
-    <Grid container spacing={2} alignItems="center">
-      <Grid item xs={12} md={2}>
-      <TextField
-        select
-        required
-        fullWidth
-        label="API Method"
-        value={state.method}
-        onChange={(e) => setState({ ...state, method: e.target.value })}
-        variant="outlined"
-        >
-        {methodData?.methodTypeChoices?.map((option) => (
-          
-            <MenuItem key={option?.key} value={option?.key}>
-              {option?.value}
-            </MenuItem>
-
-        ))}
-      </TextField>
-      </Grid>
-      <Grid item xs={12} md={8}>
-      <TextField
-        fullWidth
-        label="URL"
-        variant="outlined"
-        value={state.url}
-        onChange={handleUrlChange}
-        required
-      />
-      </Grid>
-      <Grid item xs={12} md={2}>
-      <Button
-          variant="contained"
-          color={isButtonEnabled? "success": "secondary"}
-          startIcon={<CheckCircleOutlineIcon />}
-          onClick={handleValidateUrl}
-          sx={{width:'100%'}}
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} md={2}>
+          <TextField
+            select
+            required
+            fullWidth
+            label="API Method"
+            value={state.method}
+            onChange={(e) => setState({ ...state, method: e.target.value })}
+            variant="outlined"
           >
-          {isButtonEnabled ? "Validated" : "Validate"}
-        </Button>
-
+            {methodData?.methodTypeChoices?.map((option) => (
+              <MenuItem key={option?.key} value={option?.key}>
+                {option?.value}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <TextField
+            fullWidth
+            label="URL"
+            variant="outlined"
+            value={state.url}
+            onChange={handleUrlChange}
+            required
+          />
+        </Grid>
+        <Grid item xs={12} md={2}>
+          <Button
+            variant="contained"
+            color={isButtonEnabled ? "success" : "secondary"}
+            startIcon={<CheckCircleOutlineIcon />}
+            onClick={handleValidateUrl}
+            sx={{ width: "100%" }}
+          >
+            {isButtonEnabled ? "Validated" : "Validate"}
+          </Button>
+        </Grid>
       </Grid>
-      </Grid>
-    <Tab22 state = {state} setState = {setState}/>
+      <RequestAuthorization state={state} setState={setState} />
       {/* Add the rest of Tab2 fields */}
     </>
   );
 };
 
-export default Tab2;
+export default RequestValidation;

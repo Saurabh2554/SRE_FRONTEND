@@ -5,13 +5,13 @@ import {
 } from "@mui/material";
 import {resTimes} from '../../constants/constants';
 import { FormState } from './MonitorService';
-import Tab33 from "./Tab33";
+import Assertions from "./Assertions";
 
 type Tab3Types = {
   state: FormState["tab3"];
   setState: (newState: FormState["tab3"]) => void;
 };
-const Tab3 : React.FC <Tab3Types> = ({ state, setState }) => {
+const Limits : React.FC <Tab3Types> = ({ state, setState }) => {
     return (
       <div>
         <Grid2
@@ -75,7 +75,7 @@ const Tab3 : React.FC <Tab3Types> = ({ state, setState }) => {
               ))}
             </TextField>
           </Grid2>
-          <Tab33 state={state} setState={setState}/>
+          <Assertions state={state} setState={setState} />
         </Grid2>
 
         {/* Add the rest of Tab3 fields */}
@@ -83,4 +83,4 @@ const Tab3 : React.FC <Tab3Types> = ({ state, setState }) => {
     );
   };
 
-  export default Tab3;
+  export default Limits;

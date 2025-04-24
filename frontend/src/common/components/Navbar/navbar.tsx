@@ -13,29 +13,29 @@ export const MuiNavbar = () => {
       <AppBar
         position="fixed"
         sx={{
-          backgroundColor:"#C5C5C5", //#8b9dc3
+          backgroundColor: "#C5C5C5", //#8b9dc3
           //display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
           //borderBottom: 1,
-          borderColor:"white",// "#C5C5C5",
+          borderColor: "white", // "#C5C5C5",
         }}
       >
         <Link to="/" style={{ textDecoration: "none" }}>
-        <Toolbar>
-          <Link to="/" style={{ textDecoration: "none" }}>
-          <img
-              src={dataAxleLogo}
-              alt="Data Axle Logo"
-              style={{ height: "50px" }} // Adjust the height as needed
-            />
-          </Link>
-        </Toolbar>
+          <Toolbar>
+            <Link to="/" style={{ textDecoration: "none" }}>
+              <img
+                src={dataAxleLogo}
+                alt="Data Axle Logo"
+                style={{ height: "50px" }} // Adjust the height as needed
+              />
+            </Link>
+          </Toolbar>
         </Link>
 
         <div style={{ marginTop: "-15px" }}>
           <>
-            <Tooltip title="Add Business Unit" >
+            <Tooltip title="Add Business Unit">
               <Link
                 to="/newBusinessUnit"
                 style={{
@@ -43,14 +43,14 @@ export const MuiNavbar = () => {
                   color: "black",
                   fontWeight: "bold",
                   fontSize: "16px",
-                  cursor:"pointer"
+                  cursor: "pointer",
                 }}
               >
                 Add Business Unit
               </Link>
             </Tooltip>
 
-            <Tooltip title="Add new service" >
+            <Tooltip title="Add new service">
               <Link
                 to="/newSubBusinessUnit"
                 style={{
@@ -59,28 +59,28 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
-                  cursor: 'pointer'
+                  cursor: "pointer",
                 }}
               >
                 Add Sub-Business Unit
               </Link>
             </Tooltip>
-            <Tooltip title="Monitor a new service" >
+            <Tooltip title="Monitor a new service">
               <Link
-                to="/newService"
+                to="/monitorService"
                 style={{
                   textDecoration: "none",
                   color: "black",
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
-                  cursor: 'pointer'
+                  cursor: "pointer",
                 }}
               >
                 Monitoring
               </Link>
             </Tooltip>
-            <Tooltip title="View the Detailed Dashboard Here" >
+            <Tooltip title="View the Detailed Dashboard Here">
               <Link
                 to="/"
                 style={{
@@ -89,14 +89,14 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
-                  cursor: 'pointer'
+                  cursor: "pointer",
                 }}
               >
                 Dashboard
               </Link>
             </Tooltip>
-            
-            <Tooltip title="Connect with US" >
+
+            <Tooltip title="Connect with US">
               <Link
                 to="/help"
                 style={{
@@ -105,7 +105,7 @@ export const MuiNavbar = () => {
                   fontWeight: "bold",
                   fontSize: "16px",
                   marginLeft: "15px",
-                  cursor: 'pointer'
+                  cursor: "pointer",
                 }}
               >
                 Need Help?
@@ -113,7 +113,7 @@ export const MuiNavbar = () => {
             </Tooltip>
           </>
 
-          <Tooltip title="Logout"  >
+          <Tooltip title="Logout">
             <LogoutIcon
               //onClick={handleLogout}
               style={{

@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { useMutation } from '@apollo/client';
 import Snackbar from '@mui/material/Snackbar';
+import { boxstyle, center, button_style , alert_style} from './newBusinessUnit_Style';
 import Alert from '@mui/material/Alert';
 import { CREATE_BUSINESS_UNIT } from '../../graphql/mutation/mutation';
 import { MuiNavbar } from '../../common/components/Navbar/navbar';
@@ -15,20 +16,6 @@ import {
   CreateBusinessUnitMutationVariables,
 } from '../../graphql/types';
 
-const center = {
-  position: 'relative',
-  top: '50%',
-  left: '8%',
-  marginBottom: '5%',
-};
-const boxstyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40%',
-  height: '70%',
-};
 
 export default function NewBusinessUnit() {
   const [businessUnitName, setbusinessUnitName] = useState('');
@@ -43,7 +30,6 @@ export default function NewBusinessUnit() {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-  const STATIC_CREATED_BY = 'static_email@example.com';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,7 +41,6 @@ export default function NewBusinessUnit() {
           businessUnitDl,
         },
       });
-      console.log("Business unit created:", data);
       setOpenSnackbar(true);
 
       setbusinessUnitName("");
@@ -146,12 +131,7 @@ export default function NewBusinessUnit() {
                   fullWidth
                   size="large"
                   type="submit"
-                  sx={{
-                    borderRadius: 28,
-                    color: '#ffffff',
-                    backgroundColor: '#3B3B3D',
-                    fontFamily: 'Lato',
-                  }}
+                  sx={button_style}
                 >
                   Create
                 </Button>
@@ -168,7 +148,7 @@ export default function NewBusinessUnit() {
         <Alert
           //onClose={handleCloseSnackbar}
           severity="success"
-          sx={{ width: '100%' }}
+          sx={alert_style}
         >
           Business unit successfully created!
         </Alert>

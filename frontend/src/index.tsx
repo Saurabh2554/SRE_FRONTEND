@@ -6,7 +6,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const client = new ApolloClient({
-  uri: 'http://127.0.0.1:8000/graphql/', // Replace with your GraphQL endpoint
+  uri: process.env.REACT_APP_GRAPHQL_API_URL, // Replace with your GraphQL endpoint
   cache: new InMemoryCache(),
 });
 

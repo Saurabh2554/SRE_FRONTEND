@@ -89,7 +89,7 @@ export default function Dashboard() {
         variables,
       });
     } else {
-      console.log("Please select business unit, sub-business unit, and date range.");
+      return;
     }
   };
 
@@ -123,7 +123,6 @@ export default function Dashboard() {
         handleSearch();
       }
     }, 500); // Debounce-Delay
-    console.log("search-working")
     return () => {
       clearTimeout(handler); // Clear timeout on new input
     };
@@ -132,7 +131,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (metricsData) {
       setMetrics(metricsData?.getAllMetrices);
-      console.log(metricsData, " yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ")
     }
   }, [metricsData]);
   

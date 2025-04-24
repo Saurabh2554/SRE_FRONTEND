@@ -34,15 +34,6 @@ export default function NewServiceUpdate({id}){
     
     const { data: authTypeChoicesData, loading: authTypeChoicesLoading, error: authTypeChoicesError } = useQuery(GET_AUTH_VALUE);
     const [getServiceDetailsById] = useLazyQuery(GET_SERVICE_BY_ID)
-    //   {
-    //     variables:{
-    //         serviceId:id
-    //     },
-    //     // onCompleted: (data)=> {
-    //     //   console.log('oncomplete',data)
-    //     //   setmydata(data?.getServiceById)
-    //     // }
-    // });
 
     const getData = async () => {
       const response = await getServiceDetailsById({
@@ -143,7 +134,6 @@ export default function NewServiceUpdate({id}){
               requestBody: bodyType == 'GraphQL' ? JSON.stringify({query: body.trim()})  : body
             }
           });
-          console.log(result);
           if(apierror){
             SetSnackbarFields(true, apierror.message || "Invalid API!", "error");
             return

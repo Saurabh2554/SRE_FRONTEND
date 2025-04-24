@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-import Tab1 from "./Tab1";
-import Tab4 from "./Tab4";
-import Tab3 from "./Tab3";
-import Tab2 from "./Tab2";
+import Domain from "./Domain";
+import Scheduling from "./Scheduling";
+import Limits from "./Limits";
+import RequestValidation from "./RequestValidation";
 import { Box, Button, Stepper, Step, StepLabel } from "@mui/material";
 import { ReusableSnackbar } from "../../common/components/Snackbar/Snackbar";
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
@@ -203,11 +203,9 @@ const MonitorService = () => {
         }
         if (error) {
           SetSnackbarFields(true, error.message, "error");
-          console.log(error.message);
           return;
         }
         setState(initialStateRef.current);
-        console.log("state reset")
         setActiveStep(0);
         setIsButtonEnabled(false);
       } catch (er) {
@@ -254,7 +252,7 @@ const MonitorService = () => {
           style={{ display: "flex", flexDirection: "column" }}
         >
           {activeStep === 0 && (
-            <Tab1
+            <Domain
               state={state.tab1}
               setState={(newState: FormState["tab1"]) =>
                 setState({ ...state, tab1: newState })
@@ -262,7 +260,7 @@ const MonitorService = () => {
             />
           )}
           {activeStep === 1 && (
-            <Tab2
+            <RequestValidation
               state={state.tab2}
               snackbarState={snackbarState}
               SetSnackbarFields={SetSnackbarFields}
@@ -274,7 +272,7 @@ const MonitorService = () => {
             />
           )}
           {activeStep === 2 && (
-            <Tab3
+            <Limits
               state={state.tab3}
               setState={(newState: FormState["tab3"]) =>
                 setState({ ...state, tab3: newState })
@@ -282,7 +280,7 @@ const MonitorService = () => {
             />
           )}
           {activeStep === 3 && (
-            <Tab4
+            <Scheduling
               state={state.tab4}
               setState={(newState: FormState["tab4"]) =>
                 setState({ ...state, tab4: newState })

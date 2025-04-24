@@ -21,7 +21,7 @@ type Tab33Types = {
   setState: (newState: FormState["tab3"]) => void;
 };
 
-const Tab33 : React.FC<Tab33Types> = ({ state, setState }) => {
+const Assertions : React.FC<Tab33Types> = ({ state, setState }) => {
 
     const { data, loading, error } = useQuery<{
       assertionSourceOperatorChoices: SourceTypeOperatorChoice[];
@@ -302,4 +302,4 @@ const Tab33 : React.FC<Tab33Types> = ({ state, setState }) => {
     );
 };
 
-export default Tab33;
+export default Assertions;

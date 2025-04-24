@@ -23,7 +23,7 @@ type Tab1types = {
   setState: (newState: FormState["tab1"]) => void;
 };
 
-const Tab1: React.FC<Tab1types> = ({ state, setState }) => {
+const Domain: React.FC<Tab1types> = ({ state, setState }) => {
   const {
     data: businessUnitsData,
     loading: businessUnitsLoading,
@@ -58,7 +58,6 @@ const Tab1: React.FC<Tab1types> = ({ state, setState }) => {
 
   useEffect(() => {
     handleSubBusinessunit(state.businessUnit);
-    console.log(state);
   }, [businessUnitsData]);
 
   return (
@@ -125,4 +124,4 @@ const Tab1: React.FC<Tab1types> = ({ state, setState }) => {
   );
 };
 
-export default Tab1;
+export default Domain;
