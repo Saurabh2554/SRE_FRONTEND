@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from "react";
-import { Box, Typography,TextField } from "@mui/material";
+import { Box,TextField } from "@mui/material";
 import { DateRangePicker } from '@mui/x-date-pickers-pro';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -20,7 +20,6 @@ export const DateRangePickerComponent = ({ onDateChange }) => {
 
   useEffect(() => {
     if (dateRange[0] && dateRange[1]) {
-      console.log('Selected Date Range:', dateRange);
       debouncedOnDateChange(dateRange);
     }
   }, [dateRange]);

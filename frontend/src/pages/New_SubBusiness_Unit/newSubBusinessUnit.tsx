@@ -1,4 +1,10 @@
 import { MuiNavbar } from "../../common/components/Navbar/navbar";
+import {
+  boxstyle,
+  center,
+  button_style,
+  alert_style,
+} from "../New_Business_Unit/newBusinessUnit_Style";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
@@ -6,29 +12,14 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import MenuItem from "@mui/material/MenuItem";
-import { useState} from "react";
+import {useState} from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { CREATE_SUB_BUSINESS_UNIT } from "../../graphql/mutation/mutation";
 import { GET_ALL_BUSINESS_UNIT } from "../../graphql/query/query";  // Import the query
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { BusinessUnitType,SubBusinessUnitCreateMutation,CreateSubbusinessUnitMutationVariables } from "../../graphql/types";
 
-
-
-const center = {
-  position: "relative",
-  top: "50%",
-  left: "3%",
-  marginBottom: "5%",
-};
-const boxstyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "40%",
-  height: "70%",
-};
 
 export default function NewSubBusinessUnit() {
   const [businessUnit, setBusinessUnit] = useState("");
@@ -38,17 +29,17 @@ export default function NewSubBusinessUnit() {
   const [subBusinessUnitDescription, setSubBusinessUnitDescription] = useState("");
 
 
-  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery(GET_ALL_BUSINESS_UNIT);
-  const [createSubBusinessUnit, { loading, error }] = useMutation(CREATE_SUB_BUSINESS_UNIT);
+  const { data: businessUnitsData, loading: businessUnitsLoading, error: businessUnitsError } = useQuery<{businessUnit:BusinessUnitType[]}>(GET_ALL_BUSINESS_UNIT);
+  const [createSubBusinessUnit, { loading, error }] = useMutation<{createSubbusinessUnit:SubBusinessUnitCreateMutation},CreateSubbusinessUnitMutationVariables>(CREATE_SUB_BUSINESS_UNIT);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (error) return <p>Error: {error?.message}</p>;
 
   if (businessUnitsLoading) return <p>Loading Business Units...</p>;
   if (businessUnitsError) return <p>Error: {businessUnitsError.message}</p>;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event:React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
       const { data } = await createSubBusinessUnit({
         variables: {
@@ -56,10 +47,8 @@ export default function NewSubBusinessUnit() {
           subBusinessUnitName,
           subBusinessUnitDescription,
           subBusinessUnitDl,
-          createdBy: "static_email@example.com", // Replace with current user
         },
       });
-      console.log("Sub-business unit created:", data);
 
       setOpenSnackbar(true);
       setBusinessUnit("");
@@ -68,11 +57,12 @@ export default function NewSubBusinessUnit() {
 
       setSubBusinessUnitDl("");
     } catch (error) {
-      console.error("Error creating sub-business unit:", error.message);
+      console.error("Error creating sub-business unit:"
+      );
     }
   };
 
-  const handleCloseSnackbar = (event, reason) => {
+  const handleCloseSnackbar = (event:Event | React.SyntheticEvent<Element, Event>, reason:string) => {
     if (reason === "clickaway") return;
     setOpenSnackbar(false);
   };
@@ -101,7 +91,7 @@ export default function NewSubBusinessUnit() {
                   value={businessUnit}
                   onChange={(e) => setBusinessUnit(e.target.value)}
                 >
-                  {businessUnitsData.businessUnit.map((unit) => (
+                  {businessUnitsData?.businessUnit?.map((unit) => (
                     <MenuItem key={unit.id} value={unit.id}>
                       {unit.businessUnitName}
                     </MenuItem>
@@ -121,17 +111,19 @@ export default function NewSubBusinessUnit() {
                 />
               </Grid>
               <Grid item xs={12}>
-                  <TextField
-                    required
-                    fullWidth
-                    id="sub_business_unit_description"
-                    label="Sub-Business Unit Description"
-                    name="Sub-Business Unit Description"
-                    type="text"
-                    value={subBusinessUnitDescription}
-                    onChange={(e) => setSubBusinessUnitDescription(e.target.value)}
-                  />
-                </Grid>
+                <TextField
+                  required
+                  fullWidth
+                  id="sub_business_unit_description"
+                  label="Sub-Business Unit Description"
+                  name="Sub-Business Unit Description"
+                  type="text"
+                  value={subBusinessUnitDescription}
+                  onChange={(e) =>
+                    setSubBusinessUnitDescription(e.target.value)
+                  }
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
@@ -162,12 +154,7 @@ export default function NewSubBusinessUnit() {
                   fullWidth
                   size="large"
                   type="submit"
-                  sx={{
-                    borderRadius: 28,
-                    color: "#ffffff",
-                    backgroundColor: "#3B3B3D",
-                    fontFamily: "Lato",
-                  }}
+                  sx={button_style}
                 >
                   Create
                 </Button>
@@ -177,8 +164,16 @@ export default function NewSubBusinessUnit() {
         </Container>
       </Box>
 
-      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          // onClose={handleCloseSnackbar}
+          severity="success"
+          sx={alert_style}
+        >
           Sub-business unit successfully created!
         </Alert>
       </Snackbar>

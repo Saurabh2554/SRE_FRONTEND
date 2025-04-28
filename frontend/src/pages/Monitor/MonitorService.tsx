@@ -1,0 +1,311 @@
+import React, { useState, useRef } from "react";
+import Domain from "./Domain";
+import Scheduling from "./Scheduling";
+import Limits from "./Limits";
+import RequestValidation from "./RequestValidation";
+import { Box, Button, Stepper, Step, StepLabel } from "@mui/material";
+import { ReusableSnackbar } from "../../common/components/Snackbar/Snackbar";
+import { MuiNavbar } from "../../common/components/Navbar/navbar";
+import { VALIDATE_TEAMS_CHANNEL } from "../../graphql/query/query";
+import { useMutation, useLazyQuery } from "@apollo/client";
+import { CREATE_API_MONITOR } from "../../graphql/mutation/mutation";
+import {
+  ValidateTeamsChannelQuery,
+  ValidateTeamsChannelQueryVariables,
+  CreateApiMonitorMutation,
+  CreateApiMonitorMutationVariables,
+} from "../../graphql/types";
+
+export type FormState = {
+  tab1: {
+    businessUnit: string;
+    subBusinessUnit: string;
+    serviceName: string;
+  };
+  tab2: {
+    method: string;
+    url: string;
+    bodyType: string;
+    raw: string;
+    body: string;
+    headerFields: { key: string; value: string }[];
+    authorizationType: string;
+    authInput: { username: string; password: string };
+    authHeader: { key?: string; value?: string }[];
+    addheaderto: string;
+  };
+  tab3: {
+    degradedResponseTime: number;
+    failedResponseTime: number;
+    assertionLimit: { expectedValue: string; operator: string; property: string; source : string; regex: string }[];
+  };
+  tab4: {
+    apiCallInterval: number;
+    recipientDl: string;
+    teamsChannelWebhookURL: string;
+    maxRetries: number;
+    retryAfter: number;
+    createdBy: string;
+  };
+};
+const MonitorService = () => {
+  const [
+    validateTeamsChannel,
+    {
+      data: validateteams,
+      loading: teamschannelloading,
+      error: teamschannelerror,
+    },
+  ] = useLazyQuery<
+    ValidateTeamsChannelQuery,
+    ValidateTeamsChannelQueryVariables
+  >(VALIDATE_TEAMS_CHANNEL, {
+    fetchPolicy: "network-only",
+  });
+  const [createApiMonitor, { data, loading, error }] = useMutation<
+    CreateApiMonitorMutation,
+    CreateApiMonitorMutationVariables
+  >(CREATE_API_MONITOR, {
+    errorPolicy: "all",
+  });
+  const [state, setState] = useState<FormState>({
+    tab1: {
+      businessUnit: "",
+      subBusinessUnit: "",
+      serviceName: "",
+    },
+    tab2: {
+      method: "",
+      url: "",
+      bodyType: "none",
+      raw: "JSON",
+      body: "",
+      headerFields: [{ key: "", value: "" }],
+      authorizationType: "",
+      authInput: { username: "", password: "" },
+      authHeader: [{ key: "", value: "" }],
+      addheaderto: "",
+    },
+    tab3: {
+      degradedResponseTime: 3000,
+      failedResponseTime: 20000,
+      assertionLimit: [{expectedValue: "", operator: "", property: "", source: "", regex: ""}]
+    },
+    tab4: {
+      apiCallInterval: 0,
+      recipientDl: "",
+      teamsChannelWebhookURL: "",
+      maxRetries: 3,
+      retryAfter: 60,
+      createdBy: "user",
+    },
+  });
+
+  const initialStateRef = useRef(state);
+  
+  const [snackbarState, setSnackBarState] = useState<{
+    open: boolean;
+    message: string | null | undefined;
+    severity: string;
+  }>({
+    open: false,
+    message: "",
+    severity: "",
+  });
+  const handleCloseSnackbar = (
+    event: Event | React.SyntheticEvent<any, Event>,
+    reason: string
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackBarState({ ...snackbarState, open: false });
+  };
+  const SetSnackbarFields = (
+    open: boolean,
+    message: string | null | undefined,
+    severity: string
+  ) => {
+    setSnackBarState({ open, message, severity });
+  };
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+  const steps = [
+    "Domain",
+    "Request",
+    "Assertions & Limit",
+    "Scheduling & Alerting",
+  ];
+  const [activeStep, setActiveStep] = useState(0);
+
+  const handleStepClick = (step: number) => {
+    if (step <= activeStep) {
+      setActiveStep(step);
+    }
+  };
+  const handleSend = async (event: Event |React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (activeStep === 3) {
+      try {
+        const { businessUnit, subBusinessUnit, serviceName } = state.tab1;
+        const { url, method, headerFields, bodyType, body, raw, authHeader } = state.tab2;
+        const { teamsChannelWebhookURL } = state.tab4;
+
+        if (teamsChannelWebhookURL) {
+          const result = await validateTeamsChannel({
+            variables: {
+              channelUrl: teamsChannelWebhookURL,
+            },
+          });
+
+          if (result && !result?.data?.validateTeamsChannel?.success) {
+            SetSnackbarFields(
+              true,
+              "Invalid Teams Channel URL! Either Provide a valid one or remove it",
+              "error"
+            );
+            return;
+          }
+        }
+        var assertion_limit = state.tab3.assertionLimit;
+        if(assertion_limit.length == 1 && assertion_limit[0].source == 'status_code' && assertion_limit[0].expectedValue == ""){
+          assertion_limit = [];
+        }
+        const Header = [...headerFields, ...authHeader];
+        const result = await createApiMonitor({
+          variables: {
+            input: {
+              businessUnit,
+              subBusinessUnit,
+              apiName: serviceName,
+              methodType: method,
+              apiUrl: url,
+              headers: JSON.stringify(Header),
+              degradedResponseTime: state.tab3.degradedResponseTime,
+              failedResponseTime: state.tab3.failedResponseTime,
+              requestBody:
+                bodyType == "GraphQL"
+                  ? JSON.stringify({ query: body.trim() })
+                  : raw == "JSON"
+                  ? JSON.stringify(body)
+                  : body,
+              assertionAndLimit: assertion_limit,
+              schedulingAndAlerting: state.tab4,
+            },
+          },
+        });
+        if (result && result?.data?.createApiMonitor?.success) {
+          SetSnackbarFields(
+            true,
+            result?.data?.createApiMonitor?.message,
+            "success"
+          );
+        }
+        if (error) {
+          SetSnackbarFields(true, error.message, "error");
+          return;
+        }
+        setState(initialStateRef.current);
+        setActiveStep(0);
+        setIsButtonEnabled(false);
+      } catch (er) {
+        SetSnackbarFields(true, "Unknown Error occured!", "error");
+      }
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+
+    return;
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <MuiNavbar />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "80%",
+          margin: "10rem auto",
+        }}
+      >
+        <div style={{ marginBottom: "3rem" }}>
+          <Stepper activeStep={activeStep}>
+            {steps.map((label, index) => (
+              <Step key={index}>
+                <StepLabel
+                  onClick={() => handleStepClick(index)}
+                  style={{
+                    cursor: index <= activeStep ? "pointer" : "default",
+                    color: index <= activeStep ? "inherit" : "gray",
+                  }}
+                >
+                  {label}
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </div>
+        <form
+          onSubmit={handleSend}
+          autoComplete="off"
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          {activeStep === 0 && (
+            <Domain
+              state={state.tab1}
+              setState={(newState: FormState["tab1"]) =>
+                setState({ ...state, tab1: newState })
+              }
+            />
+          )}
+          {activeStep === 1 && (
+            <RequestValidation
+              state={state.tab2}
+              snackbarState={snackbarState}
+              SetSnackbarFields={SetSnackbarFields}
+              enableButton={setIsButtonEnabled}
+              isButtonEnabled={isButtonEnabled}
+              setState={(newState: FormState["tab2"]) => {
+                setState({ ...state, tab2: newState });
+              }}
+            />
+          )}
+          {activeStep === 2 && (
+            <Limits
+              state={state.tab3}
+              setState={(newState: FormState["tab3"]) =>
+                setState({ ...state, tab3: newState })
+              }
+            />
+          )}
+          {activeStep === 3 && (
+            <Scheduling
+              state={state.tab4}
+              setState={(newState: FormState["tab4"]) =>
+                setState({ ...state, tab4: newState })
+              }
+            />
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{ width: "25%", alignSelf: "center" }}
+            disabled={activeStep === 1 && !isButtonEnabled}
+          >
+            {activeStep === 3 ? "Send" : <span>Next</span>}
+          </Button>
+        </form>
+        <ReusableSnackbar
+          open={snackbarState.open}
+          message={snackbarState.message}
+          severity={snackbarState.severity}
+          handleClose={handleCloseSnackbar}
+        />
+      </Box>
+    </div>
+  );
+};
+
+export default MonitorService;

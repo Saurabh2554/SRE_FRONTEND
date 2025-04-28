@@ -32,7 +32,7 @@ export const ApiListWithPagination = ({ metrics }) => {
       ) : (
         paginatedMetrics.map((api) => (
           <Grid item xs={12} key={api.id}>
-            <Typography>{api.apiName} - {api.apiUrl}}</Typography> 
+            <Typography>{api.apiName} - {api.apiUrl}</Typography> 
           </Grid>
         ))
       )}
